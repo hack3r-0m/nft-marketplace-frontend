@@ -107,20 +107,20 @@
             <button
               class="btn btn-primary"
               v-if="!isOwnersToken && order.status === 0"
-              :disabled="!validation['balance']"
+              :disabled="isUser && !validation['balance']"
               @click="buyOrder()"
             >
               {{ buttonVal }}
             </button>
             <div
               class="font-body-small text-danger text-center ps-t-12"
-              v-if="!isOwnersToken && !validation['balance']"
+              v-if="isInsufficientBalance && !validation['balance']"
             >
               You have insufficient balance in your account
             </div>
             <div
-              class="font-body-large font-semibold text-primary text-center cursor-pointer ps-t-16"
-              v-if="!isOwnersToken && order.status === 0 && (order.type === app.orderTypes.FIXED || !validation['balance'])"
+              class="font-body-medium font-semibold text-primary text-center cursor-pointer ps-t-16"
+              v-if="isInsufficientBalance && order.status === 0 && (order.type === app.orderTypes.FIXED || !validation['balance'])"
               @click="depositModal = true"
             >
               Add Funds
@@ -282,20 +282,20 @@
             <button
               class="btn btn-primary"
               v-if="!isOwnersToken && order.status === 0"
-              :disabled="!validation['balance']"
+              :disabled="isUser && !validation['balance']"
               @click="buyOrder()"
             >
               {{ buttonVal }}
             </button>
             <div
               class="font-body-small text-danger text-center ps-t-12"
-              v-if="!isOwnersToken && !validation['balance']"
+              v-if="isInsufficientBalance && !validation['balance']"
             >
               You have insufficient balance in your account
             </div>
             <div
-              class="font-body-large font-semibold text-primary text-center cursor-pointer ps-t-16"
-              v-if="!isOwnersToken && order.status === 0 && (order.type === app.orderTypes.FIXED || !validation['balance'])"
+              class="font-body-medium font-semibold text-primary text-center cursor-pointer ps-t-16"
+              v-if="isInsufficientBalance && order.status === 0 && (order.type === app.orderTypes.FIXED || !validation['balance'])"
               @click="depositModal = true"
             >
               Add Funds
@@ -471,6 +471,14 @@ export default class TokenDetail extends Vue {
 
   get app() {
     return app;
+  }
+
+  get isUser() {
+    return this.user
+  }
+
+  get isInsufficientBalance() {
+    return this.user && !this.isOwnersToken
   }
 
   get erc20Token() {
@@ -727,8 +735,11 @@ export default class TokenDetail extends Vue {
 .feature-info {
   &.mobile {
     min-height: auto;
+    position: relative;
   }
-  width: 100%;
+  position: fixed;
+  // width: 100%;
+  margin-right: 1rem;
   max-height: 500px;
   border: 1px solid #f3f4f7;
   border-radius: $default-card-box-border-radius;
