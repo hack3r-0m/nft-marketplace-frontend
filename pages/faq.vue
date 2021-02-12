@@ -57,24 +57,24 @@ const FAQS = [
   {
     question: "Support Query Link - Telgram, Discord ?",
     answer:
-      "It has been decided to handle all support queries using a ticketing system. Links should be available soon."
+      "We're always happy to help with questions you might have!  We will be handling all support queries through a ticketing system. Links for that will be available soon."
   },
   {
     question: "Supported Wallets ?",
-    answer: "Metamask"
+    answer: "We support Metamask as of now. We will have other wallets supported in the future as well."
   },
   {
     question: "What is NFT Marketplace ?",
     answer:
-      "It is a exchange platform for ERC721 and ERC1155 collectibles. Users can place sell orders and also buy the different orders placed by others on the platform. It is on the matic platform and facilitates gas-less meta-transactions. This simply means users can exchange their game assets without paying any transaction fees. All they need is ERC20 tokens."
+      "It is an exchange platform for digital goods, including collectibles, gaming items, digital art, and other digital assets that are backed by blockchain. You can buy, sell, and trade any of these items with anyone in the world. This marketplace is deployed on the Polygon side chain with a gas-less interface. This means that users can exchange their game assets without paying any transaction fees."
   },
   {
-    question: "How to move NFT's from Ethereum to Matic ? ",
+    question: "How to move NFT's from Ethereum to Matic? ",
     answer:
       "There is a bulk deposit option available on the NFT marketplace. Using that option, multiple tokens that belong to the same NFT category can be deposited from the Ethereum to Matic chain. This mechanism is facilitated by the PoS bridge that is built across Ethereum and Matic"
   },
   {
-    question: "Which network to use ? ",
+    question: "Which network to use ?",
     answer:
       "Users can choose to stay on the Ethereum network itself throughout their session on the NFT Marketplace. The NFT Marketplace is network agnostic enabled and all transactions are gas-less"
   },
@@ -188,7 +188,12 @@ const FAQS = [
     question: "Can I change gas limit or gas price ? ",
     answer:
       "Gas price can be varied but gas limit should not be changed as it it set by the application based on some calculations. "
-  }
+  },
+  {
+    question: "How do I get notified when someone bids on my items?",
+    answer:
+      "Notifications can be viewed under the Orders section in the 'My Accounts' tab."
+  },
 ];
 
 @Component({
