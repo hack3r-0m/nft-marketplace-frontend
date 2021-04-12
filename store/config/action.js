@@ -1,5 +1,5 @@
 export const action = {
-    reset(){
-        
+    reset({ commit }) {
+        commit("RESET");
     }
 }
