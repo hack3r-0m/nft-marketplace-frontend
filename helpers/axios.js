@@ -19,6 +19,12 @@ export function initalizeAxios(options = {}) {
         },
         error => error
     )
+    // axiosInstance.interceptors.response.use(
+    //     response => {
+    //         return response
+    //     },
+    //     error => error
+    // )
 
     return axiosInstance
 }
