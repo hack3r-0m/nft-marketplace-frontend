@@ -29,5 +29,9 @@ export class OrderService {
         return this.httpCaller.patch(url);
     }
 
+    signAcceptBid(bidId) {
+        const url = this.createUrl_(`exchangedata/encodedbid?bidId=${bidId}&functionName=cancelOrder`);
+        return this.httpCaller.get(url);
+    }
 
 }
