@@ -1,0 +1,1 @@
+export * from "./get_color_from_img";

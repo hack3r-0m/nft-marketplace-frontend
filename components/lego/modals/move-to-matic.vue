@@ -78,10 +78,8 @@ import { mapGetters } from 'vuex'
 import app from '~/plugins/app'
 
 import rgbToHsl from '~/plugins/helpers/color-algorithm'
-import ColorThief from 'color-thief'
-
+import { getColorFromImage } from '~/utils'
 import { getWalletProvider } from '~/plugins/helpers/providers'
-const colorThief = new ColorThief()
 const MaticPOSClient = require('@maticnetwork/maticjs').MaticPOSClient
 
 @Component({

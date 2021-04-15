@@ -1,5 +1,4 @@
 import app from '~/plugins/app'
-import { config as configStore } from '~/plugins/localstore'
 
 import MetamaskProvider from '@maticnetwork/metamask-provider'
 import WalletConnectProvider from '@maticnetwork/walletconnect-provider'

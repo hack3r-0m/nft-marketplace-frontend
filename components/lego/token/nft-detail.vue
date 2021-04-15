@@ -290,10 +290,8 @@ import SendToken from '~/components/lego/modals/send-token'
 import CancelConfirm from '~/components/lego/modals/cancel-confirm'
 
 import rgbToHsl from '~/plugins/helpers/color-algorithm'
-import ColorThief from 'color-thief'
-
 import { providerEngine } from '~/plugins/helpers/provider-engine'
-const colorThief = new ColorThief()
+import { getColorFromImage } from '~/utils'
 
 @Component({
   props: {

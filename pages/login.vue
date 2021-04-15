@@ -146,7 +146,6 @@ import {
   isMetamaskLocked,
 } from '~/plugins/helpers/metamask-utils'
 import app from '~/plugins/app'
-import { config as configStore } from '~/plugins/localstore'
 // import { getWalletConnectProvider } from "~/plugins/helpers/walletconnect-utils";
 
 import { NextNavigation } from '~/components/mixin'

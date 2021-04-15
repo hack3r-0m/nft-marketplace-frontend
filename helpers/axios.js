@@ -1,5 +1,4 @@
 import * as axios from "axios"
-import { config as configStore } from "~/plugins/localstore"
 
 // global axios object
 let axiosInstance = null

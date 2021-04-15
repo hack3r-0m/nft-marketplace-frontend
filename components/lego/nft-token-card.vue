@@ -155,9 +155,7 @@ import { mapGetters } from 'vuex'
 import MoreOptions from '~/components/lego/more-options'
 
 import rgbToHsl from '~/plugins/helpers/color-algorithm'
-import ColorThief from 'color-thief'
-const colorThief = new ColorThief()
-
+ 
 @Component({
   props: {
     token: {

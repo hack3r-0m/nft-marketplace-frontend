@@ -146,12 +146,11 @@ import Component from 'nuxt-class-component'
 import { mapGetters } from 'vuex'
 
 import rgbToHsl from '~/plugins/helpers/color-algorithm'
-import ColorThief from 'color-thief'
+import { getColorFromImage } from '~/utils'
 
 import { FormValidator } from '~/components/mixin'
 import InputToken from '~/components/lego/input-token'
 import BigNumber from '~/plugins/bignumber'
-const colorThief = new ColorThief()
 
 const ZERO = new BigNumber(0)
 const TEN = new BigNumber(10)

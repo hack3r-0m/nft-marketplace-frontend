@@ -2,7 +2,6 @@ import Vue from 'vue'
 import Web3 from 'web3'
 import MetaNetwork from '@maticnetwork/meta/network'
 
-import { clearStore, config as configStore } from '~/plugins/localstore'
 import { initalizeAxios } from './axios'
 
 import AccountModel from '~/components/model/account'
@@ -11,7 +10,7 @@ import {
   registerNetworkChange,
 } from '~/plugins/helpers/metamask-utils'
 import { getWalletProvider } from '~/plugins/helpers/providers'
-import { UI_CONFIG } from '~/constant'
+import { UI_CONFIG } from '~/constants'
 
 const uiconfig = JSON.parse(process.env.uiconfig)
 

@@ -472,10 +472,8 @@ import DepositWeth from '~/components/lego/modals/deposit-weth'
 import { txShowError } from '~/plugins/helpers/transaction-utils'
 
 import rgbToHsl from '~/plugins/helpers/color-algorithm'
-import ColorThief from 'color-thief'
-
 import { providerEngine } from '~/plugins/helpers/provider-engine'
-const colorThief = new ColorThief()
+import { getColorFromImage } from '~/utils'
 
 // 0X
 const {

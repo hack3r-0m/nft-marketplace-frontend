@@ -81,10 +81,9 @@ import moment from 'moment'
 // import AcceptBid from '~/components/lego/modals/bid-confirmation'
 
 import rgbToHsl from '~/plugins/helpers/color-algorithm'
-import ColorThief from 'color-thief'
+import { getColorFromImage } from '~/utils'
 import app from '~/plugins/app'
 
-const colorThief = new ColorThief()
 
 @Component({
   props: {

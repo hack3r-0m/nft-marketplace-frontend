@@ -130,12 +130,10 @@ import { mapGetters } from 'vuex'
 
 import rgbToHsl from '~/plugins/helpers/color-algorithm'
 import { formatUSDValue } from '~/plugins/helpers/index'
-import ColorThief from 'color-thief'
-
+import { getColorFromImage } from '~/utils'
 import OnSaleTag from '~/components/lego/token/on-sale-tag'
 import OwnedTag from '~/components/lego/token/owned-tag'
 import OrderTypeTag from '~/components/lego/token/order-type-tag'
-const colorThief = new ColorThief()
 
 @Component({
   props: {

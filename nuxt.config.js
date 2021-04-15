@@ -22,6 +22,9 @@ const scripts = [
 ]
 
 export default {
+  server: {
+    port: 3000 // default: 3000
+  },
   mode: 'spa',
   /*
    ** Headers of the page
@@ -98,7 +101,7 @@ export default {
    */
   modules: [
     // Doc: https://axios.nuxtjs.org/usage
-    '@nuxtjs/axios',
+    // '@nuxtjs/axios',
     '@nuxtjs/pwa',
     // Doc: https://github.com/nuxt-community/dotenv-module
     '@nuxtjs/dotenv',

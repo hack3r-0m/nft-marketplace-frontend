@@ -3,7 +3,6 @@ import ethjsUtil from 'ethjs-util'
 import { toChecksumAddress } from 'ethereumjs-util'
 
 import app from '~/plugins/app'
-import { config as configStore } from '~/plugins/localstore'
 
 export default class Account extends Model {
   // getters
