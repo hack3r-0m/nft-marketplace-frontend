@@ -1,7 +1,7 @@
 /* eslint no-param-reassign: 0 */
-import getAxios from '~/plugins/axios'
 import TokenModel from '~/components/model/token'
-import BigNumber from '~/plugins/bignumber'
+import BigNumber from '~/plugins/bignumber';
+import Vue from "vue";
 
 const ZERO = new BigNumber(0)
 
@@ -49,7 +49,7 @@ export default {
 
   actions: {
     async fetchERC20Tokens({ commit }) {
-      const response = await getAxios().get('erc20tokens/')
+      const response = await Vue.service.token.fetchERC20Tokens()
       if (response.status === 200 && response.data.data.erc20Tokens) {
         const erc20Tokens = response.data.data.erc20Tokens
         const tokens = []

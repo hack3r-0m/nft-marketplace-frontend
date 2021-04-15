@@ -1,14 +1,14 @@
-export class TokenService {
+export class CategoryService {
     constructor(httpCaller) {
         this.httpCaller = httpCaller;
-        this.endPoint_ = "erc20tokens/"
+        this.endPoint_ = "categories/";
     }
 
     createUrl_(url) {
         return this.endPoint_ + url;
     }
 
-    fetchERC20Tokens() {
+    getCategories() {
         const url = this.createUrl_(``);
         return this.httpCaller.get(url);
     }

@@ -1,9 +1,8 @@
 /* eslint no-param-reassign: 0 */
-import getAxios from '~/plugins/axios'
+
 import CategoryModel from '~/components/model/category'
 import Vue from "vue";
 
-const UI_CONFIG = Vue.appConfig;
 
 const defaultCategory = {
   name: 'All Categories',
@@ -67,10 +66,10 @@ export default {
   },
   actions: {
     async fetchCategories({ commit }) {
-      const response = await getAxios().get(`categories`)
+      const response = await Vue.service.category.getCategories()
       if (response.status === 200 && response.data.data.categories) {
         const categories = response.data.data.categories.map((item) => {
-          item.img_url = `${UI_CONFIG.apis.FILE_HOST}${item.img_url}`
+          item.img_url = `${Vue.appConfig.apis.FILE_HOST}${item.img_url}`
           return new CategoryModel(item)
         })
 

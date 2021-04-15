@@ -1,9 +1,10 @@
+import { initialState } from "./state";
 export const mutation = {
     initialized(state, value) {
         state.initialized = value
     },
 
-    user(state, user) {
+    setUser(state, user) {
         state.initialized = true
         state.user = user
         if (state.user) {
@@ -14,16 +15,18 @@ export const mutation = {
         }
     },
 
-    userId(state, value) {
+    setUserId(state, value) {
         state.userId = value
     },
 
-    address(state, value) {
+    setAddress(state, value) {
         state.address = value
     },
 
     setToken(state, value) {
         state.token = value
     },
-
+    reset(state) {
+        Object.assign(state, initialState())
+    }
 }

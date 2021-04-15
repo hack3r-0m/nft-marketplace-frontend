@@ -1,15 +1,13 @@
 import Vue from "vue";
 export const action = {
+    reset({ commit }) {
+        commit("reset");
+    },
 
-
-    logout({ commit, dispatch }) {
-        commit('user', null)
-        commit('userId', null)
-        commit('authToken', null)
-        commit('address', null)
+    logout({ dispatch }) {
+        dispatch('reset');
         dispatch('trunk/resetBalances', {}, { root: true })
         Vue.logger.stopTrack();
-        dispatch('reset');
     },
 
     // do login
@@ -39,7 +37,6 @@ export const action = {
     },
 
     async checkLogin({ dispatch }) {
-        console.log("vue service", Vue.service)
         try {
             const response = await Vue.service.user.getDetails();
             if (response.status === 200) {

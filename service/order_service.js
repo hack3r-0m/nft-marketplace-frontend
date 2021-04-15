@@ -9,6 +9,12 @@ export class OrderService {
         return this.endPoint_ + url;
     }
 
+    getOrders({ offset, limit, category, sort }) {
+        const categoryArray = category ? `[${category}]` : `[]`;
+        const url = this.createUrl_(`?offset=${offset}&limit=${limit}&categoryArray=${categoryArray}${sort}`);
+        return this.httpCaller.get(url);
+    }
+
     signAcceptBid(bidId) {
         const url = this.createUrl_(`exchangedata/encodedbid?bidId=${bidId}&functionName=fillOrder`);
         return this.httpCaller.get(url);

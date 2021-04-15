@@ -30,6 +30,10 @@ export default {
     selectedCategory(state) {
       return state.selectedFilters.selectedCategory
     },
+    selectedCategoryId(state, getters) {
+      const category = getters.selectedCategory;
+      return category ? category.id : null;
+    },
     selectedSort(state) {
       return state.selectedFilters.selectedSort
     },

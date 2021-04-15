@@ -10,7 +10,7 @@ export default async function ({ store, $sentry }) {
 
   // Initialize app
   Vue.use(logger)
-  console.log('app runing with env', process.env);
+  console.log('app runing with env', Vue.appConfig);
   
   await app.init(store, $sentry)
 }

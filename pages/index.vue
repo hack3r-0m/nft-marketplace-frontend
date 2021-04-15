@@ -4,20 +4,14 @@
       <div
         class="col container-fluid sidebar-container d-none d-lg-block sticky-top"
       >
-        <category-sidebar
-          :countFor="0"
-          :isLoading="isLoadingTokens"
-        />
+        <category-sidebar :countFor="0" :isLoading="isLoadingTokens" />
       </div>
       <div class="col container-fluid content-container">
         <div class="row ps-y-16 ps-x-16 sticky-top tab-header">
           <div
             class="col-12 col-lg cat-switch d-flex d-lg-none ms-b-16 ms-b-lg-0 justify-content-between justify-content-lg-start"
           >
-            <categories-selector
-              :countFor="0"
-              class="category-wrapper"
-            />
+            <categories-selector :countFor="0" class="category-wrapper" />
           </div>
           <div
             class="col-12 col-lg cat-switch d-none d-lg-flex ms-b-16 ms-b-lg-0 justify-content-between justify-content-lg-start"
@@ -30,12 +24,12 @@
                 :src="allCategory.img_url"
                 :alt="allCategory.name"
                 class="icon align-self-center ms-r-12"
-              >
+              />
               <div class="font-body-large align-self-center font-medium">
                 {{ allCategory.name }}
               </div>
               <div class="count ps-l-12 font-body-large ml-auto">
-                {{ allCategory.count }} {{ $t("collectibles") }}
+                {{ allCategory.count }} {{ $t('collectibles') }}
               </div>
             </div>
             <div
@@ -46,17 +40,17 @@
                 :src="selectedCategory.img_url"
                 :alt="selectedCategory.name"
                 class="icon align-self-center ms-r-12"
-              >
+              />
               <div class="font-body-large align-self-center font-medium">
                 {{ selectedCategory.name }}
               </div>
               <div class="count ps-l-12 font-body-large ml-auto">
                 {{
                   selectedCategory.count ||
-                    (displayedTokens && displayedTokens.length) ||
-                    0
+                  (displayedTokens && displayedTokens.length) ||
+                  0
                 }}
-                {{ $t("collectibles") }}
+                {{ $t('collectibles') }}
               </div>
             </div>
           </div>
@@ -104,7 +98,7 @@
           <button-loader
             v-if="
               (hasNextPage && searchedTokens && searchedTokens.length > 0) ||
-                isLoadingTokens
+              isLoadingTokens
             "
             class="mx-auto"
             :loading="isLoadingTokens"
@@ -119,31 +113,28 @@
       </div>
     </div>
 
-    <notification-modal
-      v-if="showNotification"
-      @close="onNotificationClose"
-    />
+    <notification-modal v-if="showNotification" @close="onNotificationClose" />
   </div>
 </template>
 
 <script>
-import Vue from "vue";
-import Component from "nuxt-class-component";
-import { mapGetters, mapState } from "vuex";
-import app from "~/plugins/app";
-import { fuzzysearch } from "~/plugins/helpers/index";
-import { fuzzySearchResult } from "~/plugins/helpers/index";
-import getAxios from "~/plugins/axios";
-import { VueWatch, VueDebounce } from "~/components/decorator";
+import Vue from 'vue'
+import Component from 'nuxt-class-component'
+import { mapGetters, mapState } from 'vuex'
+import app from '~/plugins/app'
+import { fuzzysearch } from '~/plugins/helpers/index'
+import { fuzzySearchResult } from '~/plugins/helpers/index'
+import getAxios from '~/plugins/axios'
+import { VueWatch, VueDebounce } from '~/components/decorator'
 
-import SellCard from "~/components/lego/sell-card";
-import CategoriesSelector from "~/components/lego/categories-selector";
-import SearchBox from "~/components/lego/search-box";
-import SortDropdown from "~/components/lego/sort-dropdown";
-import OrderModel from "~/components/model/order";
-import NoItem from "~/components/lego/no-item";
+import SellCard from '~/components/lego/sell-card'
+import CategoriesSelector from '~/components/lego/categories-selector'
+import SearchBox from '~/components/lego/search-box'
+import SortDropdown from '~/components/lego/sort-dropdown'
+import OrderModel from '~/components/model/order'
+import NoItem from '~/components/lego/no-item'
 
-import CategorySidebar from "~/components/lego/account/category-sidebar";
+import CategorySidebar from '~/components/lego/account/category-sidebar'
 import NotificationModal from '~/components/lego/notification-modal'
 
 @Component({
@@ -158,7 +149,11 @@ import NotificationModal from '~/components/lego/notification-modal'
     NotificationModal,
   },
   computed: {
-    ...mapGetters('page', ['selectedFilters', 'selectedCategory']),
+    ...mapGetters('page', [
+      'selectedFilters',
+      'selectedCategory',
+      'selectedCategoryId',
+    ]),
     ...mapState('page', ['isCategoryFetching']),
     ...mapGetters('category', ['categories', 'allCategory']),
     ...mapGetters('token', ['erc20Tokens']),
@@ -167,15 +162,15 @@ import NotificationModal from '~/components/lego/notification-modal'
   mixins: [],
 })
 export default class Index extends Vue {
-  limit = app.uiconfig.defaultPageSize;
-  searchInput = null;
-  fuzzysearch = fuzzysearch;
+  limit = Vue.appConfig.defaultPageSize
+  searchInput = null
+  fuzzysearch = fuzzysearch
   exmptyMsg = {
     title: 'Oops! No item found.',
     description: 'We didn’t found any item that is on sale.',
     img: true,
-  };
-  showNotification = false;
+  }
+  showNotification = false
 
   sortItems = [
     {
@@ -198,22 +193,22 @@ export default class Index extends Vue {
       name: 'Price high to low',
       filter: '-usd_price',
     },
-  ];
+  ]
 
-  orderFullList = [];
-  hasNextPage = true;
-  displayTokens = 0;
-  isLoadingTokens = false;
+  orderFullList = []
+  hasNextPage = true
+  displayTokens = 0
+  isLoadingTokens = false
 
-  showModal = false;
+  showModal = false
 
   mounted() {
     // this.updateCategories();
     // this.fetchOrders();
-    this.$store.dispatch("token/reloadBalances");
+    this.$store.dispatch('token/reloadBalances')
 
     if (!localStorage.getItem('WalletSwapFeature')) {
-      this.onNotificationOpen();
+      this.onNotificationOpen()
     }
   }
 
@@ -237,12 +232,12 @@ export default class Index extends Vue {
   }
 
   onNotificationOpen() {
-    this.showNotification = true;
-    localStorage.setItem('WalletSwapFeature', true);
+    this.showNotification = true
+    localStorage.setItem('WalletSwapFeature', true)
   }
 
   onNotificationClose() {
-    this.showNotification = false;
+    this.showNotification = false
   }
 
   onModalShow() {
@@ -277,12 +272,6 @@ export default class Index extends Vue {
     return searchedTokensList
   }
 
-  get ifCategory() {
-    return this.selectedFilters.selectedCategory
-      ? `&categoryArray=[${this.selectedFilters.selectedCategory.id}]`
-      : '&categoryArray=[]'
-  }
-
   get ifSort() {
     return this.selectedFilters.selectedSort
       ? `&sort=${this.selectedFilters.selectedSort}`
@@ -306,22 +295,18 @@ export default class Index extends Vue {
         offset = 0
       }
 
-      // Fetch tokens with pagination and filters
-      if (this.searchInput !== null && this.searchInput.length > 0) {
-        // with search
-        response = await getAxios().get(
-          `orders/?offset=${offset}&limit=${this.limit}${this.ifCategory}${this.ifSort}`,
-        )
-      } else {
-        // without search
-        response = await getAxios().get(
-          `orders/?offset=${offset}&limit=${this.limit}${this.ifCategory}${this.ifSort}`,
-        )
+      const payload = {
+        offset: offset,
+        limit: this.limit,
+        category: this.selectedCategoryId,
+        sort: this.ifSort,
       }
+
+      response = await Vue.service.order.getOrders(payload)
 
       if (response && response.status === 200 && response.data.data.order) {
         this.hasNextPage = response.data.data.has_next_page
-        const data = response.data.data.order.map(function(order) {
+        const data = response.data.data.order.map(function (order) {
           return new OrderModel(order)
         })
         if (options && options.filtering) {
@@ -347,22 +332,22 @@ export default class Index extends Vue {
 </script>
 
 <style lang="scss" scoped>
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 
 .sticky-top {
   &.tab-header {
     top: $navbar-local-height !important;
-    background-color: light-color("700");
+    background-color: light-color('700');
   }
   &.sidebar-container {
     top: $navbar-local-height !important;
-    background-color: light-color("700");
+    background-color: light-color('700');
     overflow-x: hidden;
     overflow-y: scroll;
   }
 }
 .category {
-  background-color: light-color("700");
+  background-color: light-color('700');
   box-sizing: border-box;
 
   .icon {
@@ -370,7 +355,7 @@ export default class Index extends Vue {
     height: 24px;
   }
   .count {
-    color: dark-color("300") !important;
+    color: dark-color('300') !important;
   }
 }
 .search-box {
@@ -386,7 +371,7 @@ export default class Index extends Vue {
   padding: 12px !important;
   max-width: 348px;
   height: 100%;
-  border-right: 1px solid light-color("500");
+  border-right: 1px solid light-color('500');
   height: 90vh;
   border-right: 1px solid #f3f4f7;
   overflow-y: scroll;
