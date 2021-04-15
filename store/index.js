@@ -11,6 +11,11 @@ import trunk from './trunk'
 
 const createStore = () =>
   new Vuex.Store({
+    actions:{
+      reset(){
+
+      }
+    },
     // modules
     modules: {
       locale,

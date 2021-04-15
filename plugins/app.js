@@ -11,6 +11,7 @@ import {
   registerNetworkChange,
 } from '~/plugins/helpers/metamask-utils'
 import { getWalletProvider } from '~/plugins/helpers/providers'
+import { UI_CONFIG } from '~/constant'
 
 const uiconfig = JSON.parse(process.env.uiconfig)
 
@@ -22,11 +23,7 @@ const app = {
   bus: new Vue(),
 
   uiconfig,
-  strategies: {
-    METAMASK: 'metamask',
-    WALLETCONNECT: 'walletconnect',
-    PORTIS: 'portis',
-  },
+
   orderTypes: {
     FIXED: 'FIXED',
     NEGOTIATION: 'NEGOTIATION',
@@ -55,83 +52,33 @@ const app = {
     this.initTokens(store)
   },
 
-  async setNetworks(store) {
-    const network = new MetaNetwork(
-      this.uiconfig.matic.deployment.network,
-      this.uiconfig.matic.deployment.version,
-    )
 
-    // Store meta to use ABIs and artifacts
-    store.commit('network/networkMeta', network)
-
-    const main = network.Main
-    const matic = network.Matic
-
-    this.ethereumNetworks = {
-      main: {
-        key: 'main',
-        id: main.ChainId,
-        chainId: main.ChainId,
-        networkId: main.ChainId,
-        name: main.NetworkName,
-        historyHost: main.Explorer,
-        childNetworkId: matic.ChainId,
-        rpc: this.uiconfig.mainRPC,
-        isMatic: false,
-        syncerUrl: main.SyncerAPI,
-        watcherUrl: main.WatcherAPI,
-        daggerEndpoint: main.DaggerEndpoint,
-        contracts: {
-          ...main.Contracts,
-        },
-      },
-      matic: {
-        key: 'matic',
-        id: matic.ChainId,
-        chainId: matic.ChainId,
-        networkId: matic.ChainId,
-        name: matic.NetworkName,
-        parentNetworkId: main.ChainId,
-        historyHost: matic.Explorer,
-        rpc: this.uiconfig.maticRPC,
-        publicRPC: matic.RPC,
-        isMatic: true,
-        default: true,
-        syncerUrl: matic.SyncerAPI,
-        watcherUrl: matic.WatcherAPI,
-        daggerEndpoint: matic.daggerEndpoint,
-        contracts: {
-          ...matic.Contracts,
-        },
-      },
-    }
-    // Initialize networks
-    await this.initNetworks(store)
-  },
 
   async initNetworks(store) {
+    const metaNetwork = new MetaNetwork(
+      UI_CONFIG.matic.deployment.network,
+      UI_CONFIG.matic.deployment.version,
+    )
     // store networks
-    await store.dispatch('network/setNetworks', this.ethereumNetworks)
+    await store.dispatch('network/setNetworks', {
+      metaNetwork, uiConfig: UI_CONFIG
+    })
     // set network depending upon the login strategy
-    if (this.isMetaMaskConnected()) {
-      const metamaskNetworkChangeHandler = async(chainId) => {
-        const network = new MetaNetwork(
-          this.uiconfig.matic.deployment.network,
-          this.uiconfig.matic.deployment.version,
-        )
+    if (store.getters["auth/isMetaMaskConnected"]) {
+      const metamaskNetworkChangeHandler = async (chainId) => {
         if (!chainId) {
           chainId = window.ethereum.chainId
         }
 
-        const main = network.Main
-        const matic = network.Matic
+        const main = metaNetwork.Main
+        const matic = metaNetwork.Matic
 
         if (
           chainId &&
           chainId !== '0x' + main.ChainId.toString(16) &&
           chainId !== '0x' + matic.ChainId.toString(16)
         ) {
-          await store.dispatch('auth/logout')
+          store.dispatch('auth/logout')
           window.location.replace('/login')
         }
 
@@ -150,7 +97,7 @@ const app = {
       registerNetworkChange(metamaskNetworkChangeHandler)
       await metamaskNetworkChangeHandler()
 
-      registerAccountChange(async(selectedAddress) => {
+      registerAccountChange(async (selectedAddress) => {
         const user = store.getters['auth/user']
 
         if (!user || !user.address) {
@@ -174,7 +121,8 @@ const app = {
 
   async initAuthentication(store, sentry) {
     // Check auth token is there and is valid or not
-    await store.dispatch('auth/checkLogin')
+    const isLoggedIn = await store.dispatch('auth/checkLogin');
+    if(!isLoggedIn) return ;
 
     // Initialize account
     await this.initAccount(store)
@@ -229,17 +177,6 @@ const app = {
     return app.vuexStore.getters['network/matic']
   },
 
-  isWCConnected() {
-    return this.strategies.WALLETCONNECT === configStore.get('loginStrategy')
-  },
-
-  isMetaMaskConnected() {
-    return this.strategies.METAMASK === configStore.get('loginStrategy')
-  },
-
-  isPortisConnected() {
-    return this.strategies.PORTIS === configStore.get('loginStrategy')
-  },
 
   addToast(title, body, options = {}) {
     const toastId = Date.now()
@@ -276,6 +213,10 @@ const app = {
       app.bus.$emit('walletconnect:session:close')
     },
   },
+
+  get ethereumNetworks() {
+    return store.state["network/networks"]
+  }
 }
 
 // Export
