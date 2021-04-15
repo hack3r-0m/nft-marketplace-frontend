@@ -1,10 +1,10 @@
 export const action = {
     async setNetworks({ commit }, { metaNetwork, uiConfig }) {
         // Store meta to use ABIs and artifacts
-        commit('network/networkMeta', metaNetwork)
+        commit('setNetworkMeta', metaNetwork)
 
-        let main = network.Main
-        let matic = network.Matic
+        let main = metaNetwork.Main
+        let matic = metaNetwork.Matic
 
         if (!main || !matic) return;
 
@@ -45,7 +45,7 @@ export const action = {
             },
         };
 
-        commit('networks', {
+        commit('setNetworks', {
             main,
             matic,
         })

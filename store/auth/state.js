@@ -1,7 +1,7 @@
 const initialState = () => {
     return {
         initialized: false,
-        authToken: null,
+        token: null,
         user: null,
         address: null,
         userId: null,

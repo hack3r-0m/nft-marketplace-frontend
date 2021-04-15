@@ -1,13 +1,13 @@
-// Module dependencies
-const path = require('path')
-const dotenv = require('dotenv')
 
-// Set config object
-const root = path.normalize(`${__dirname}/..`)
-dotenv.config({ path: `${root}/config.env`, silent: true })
+import Vue from "vue";
+const config = require("./default");
 
-// get config
-const config = require('./env/default')
-
+if (process.env.NODE_ENV === "production") {
+    Object.assign(config, require("./production"))
+}
+else {
+    Object.assign(config, require("./development"))
+}
+Vue.appConfig = config;
 // export config
-module.exports = config
+export default config;

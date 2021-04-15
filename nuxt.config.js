@@ -1,4 +1,4 @@
-const uiconfig = require('./config/uiconfig')
+import config from "./config";
 
 const scripts = [
   // For GTM Google Analytics
@@ -57,12 +57,6 @@ export default {
     __dangerouslyDisableSanitizers: ['script'], // to clean up url params in GTM Google Analytics script link
   },
   /*
-   ** Environment variables
-   */
-  env: {
-    uiconfig: JSON.stringify(uiconfig),
-  },
-  /*
    ** Customize the progress-bar color
    */
   loading: { color: '#fff' },
@@ -104,7 +98,7 @@ export default {
     // '@nuxtjs/axios',
     '@nuxtjs/pwa',
     // Doc: https://github.com/nuxt-community/dotenv-module
-    '@nuxtjs/dotenv',
+    // '@nuxtjs/dotenv',
     '@nuxtjs/sentry',
   ],
   /*
@@ -160,10 +154,13 @@ export default {
   },
 
   sentry: {
-    dsn: uiconfig.sentryDsn,
+    dsn: config.sentryDsn,
     config: {
-      environment: uiconfig.matic.deployment.network,
+      environment: config.matic.deployment.network,
       beforeSend: (sentryError) => {
+        if (process.env.NODE_ENV === "development") {
+          return console.error("sentry stopped", sentryError);
+        }
         /**
          * Use this function to filter and stop sending
          * the error events that are not required

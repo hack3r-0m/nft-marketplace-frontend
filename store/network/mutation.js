@@ -8,7 +8,7 @@ export const mutation = {
         configStore.set('selectedNetworkKey', selectedNetworkKey)
         state.selectedNetworkKey = selectedNetworkKey
     },
-    networkMeta(state, networkMeta) {
+    setNetworkMeta(state, networkMeta) {
         state.networkMeta = networkMeta
     },
     setMainProvider(state, provider) {

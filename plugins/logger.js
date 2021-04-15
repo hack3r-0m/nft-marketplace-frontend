@@ -1,11 +1,10 @@
 import Vue from 'vue'
 import mixpanel from 'mixpanel-browser'
-const uiconfig = require('~/config/uiconfig')
 
 export default {
   install() {
     // if (process.env.NODE_ENV === "production") {
-    mixpanel.init(uiconfig.MIXPANEL_TOKEN)
+    mixpanel.init(Vue.appConfig.MIXPANEL_TOKEN)
     // }
     let shouldTrack = false
     const logger = {

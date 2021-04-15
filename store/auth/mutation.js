@@ -22,8 +22,8 @@ export const mutation = {
         state.address = value
     },
 
-    authToken(state, value) {
-        state.authToken = value
+    setToken(state, value) {
+        state.token = value
     },
 
 }

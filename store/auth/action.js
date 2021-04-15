@@ -1,3 +1,4 @@
+import Vue from "vue";
 export const action = {
 
 
@@ -23,7 +24,7 @@ export const action = {
         if (response.status === 200 && user) {
             // Store auth token to local store and add user
             commit('setLoginStrategy', payload.loginStrategy)
-            commit('authToken', response.data.auth_token)
+            commit('setToken', response.data.auth_token)
             commit('user', user)
             if (user) {
                 commit('address', user.address)
@@ -38,14 +39,15 @@ export const action = {
     },
 
     async checkLogin({ dispatch }) {
+        console.log("vue service", Vue.service)
         try {
-            const response = await getAxios().get('users/details')
+            const response = await Vue.service.user.getDetails();
             if (response.status === 200) {
                 dispatch('login', response.data.data)
                 return true;
             }
         } catch (err) {
-            if (err.response.status === 401) {
+            if (err.response && err.response.status === 401) {
                 dispatch('logout');
             }
         }

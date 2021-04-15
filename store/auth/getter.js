@@ -37,11 +37,11 @@ export const getter = {
         return state.loginStrategy === LOGIN_STRATEGY.walletConnect;
     },
 
-    isMetaMaskConnected() {
+    isMetaMaskConnected(state) {
         return state.loginStrategy === LOGIN_STRATEGY.metaMask;
     },
 
-    isPortisConnected() {
+    isPortisConnected(state) {
         return state.loginStrategy === LOGIN_STRATEGY.portis;
     },
 }

@@ -8,11 +8,13 @@ import token from './token'
 import category from './category'
 import network from './network'
 import trunk from './trunk'
+import { saveStore } from '~/constants';
+export let STORE;
 
-const createStore = () =>
-  new Vuex.Store({
-    actions:{
-      reset(){
+const createStore = () => {
+  STORE = new Vuex.Store({
+    actions: {
+      reset() {
 
       }
     },
@@ -27,6 +29,9 @@ const createStore = () =>
       trunk,
       page,
     },
-  })
+  });
+  return STORE;
+}
+
 
 export default createStore

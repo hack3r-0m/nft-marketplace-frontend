@@ -1,18 +1,15 @@
 import * as axios from "axios"
 
-// global axios object
-let axiosInstance = null
-const getToken = () => configStore.get("authToken") || null
-
 export function initalizeAxios(options = {}) {
-    axiosInstance = axios.create(options)
+    const { STORE } = require("~/store");
+    const axiosInstance = axios.create(options)
 
 
     // Use request interceptor to add authorization header
     axiosInstance.interceptors.request.use(
         async config => {
             if (!config.headers.Authorization) {
-                config.headers.Authorization = getToken()
+                config.headers.Authorization = STORE.state["auth/token"]
             }
             return config
         },
@@ -28,4 +25,3 @@ export function initalizeAxios(options = {}) {
     return axiosInstance
 }
 
-export default axiosInstance

@@ -1,18 +1,13 @@
 import Vue from 'vue'
 import Web3 from 'web3'
 import MetaNetwork from '@maticnetwork/meta/network'
-
-import { initalizeAxios } from './axios'
-
 import AccountModel from '~/components/model/account'
 import {
   registerAccountChange,
   registerNetworkChange,
 } from '~/plugins/helpers/metamask-utils'
 import { getWalletProvider } from '~/plugins/helpers/providers'
-import { UI_CONFIG } from '~/constants'
-
-const uiconfig = JSON.parse(process.env.uiconfig)
+let STORE;
 
 const app = {
   vuexStore: null,
@@ -20,9 +15,6 @@ const app = {
   gasLimit: 3500000,
   maticDecimals: 18,
   bus: new Vue(),
-
-  uiconfig,
-
   orderTypes: {
     FIXED: 'FIXED',
     NEGOTIATION: 'NEGOTIATION',
@@ -30,16 +22,14 @@ const app = {
   },
 
   async init(store, sentry) {
+    STORE = store;
     // store vuex store in this app
     this.vuexStore = store
 
-    // initialize axios
-    initalizeAxios({
-      baseURL: uiconfig.apis.MARKETPLACE_API_HOST,
-    })
+
 
     // set and Initialise networks
-    this.setNetworks(store)
+    this.initNetworks()
 
     // TODO: initialize Authentication
     await this.initAuthentication(store, sentry)
@@ -53,17 +43,17 @@ const app = {
 
 
 
-  async initNetworks(store) {
+  async initNetworks() {
     const metaNetwork = new MetaNetwork(
-      UI_CONFIG.matic.deployment.network,
-      UI_CONFIG.matic.deployment.version,
+      Vue.appConfig.matic.deployment.network,
+      Vue.appConfig.matic.deployment.version,
     )
     // store networks
-    await store.dispatch('network/setNetworks', {
-      metaNetwork, uiConfig: UI_CONFIG
+    await STORE.dispatch('network/setNetworks', {
+      metaNetwork, uiConfig: Vue.appConfig
     })
     // set network depending upon the login strategy
-    if (store.getters["auth/isMetaMaskConnected"]) {
+    if (STORE.getters["auth/isMetaMaskConnected"]) {
       const metamaskNetworkChangeHandler = async (chainId) => {
         if (!chainId) {
           chainId = window.ethereum.chainId
@@ -77,11 +67,11 @@ const app = {
           chainId !== '0x' + main.ChainId.toString(16) &&
           chainId !== '0x' + matic.ChainId.toString(16)
         ) {
-          store.dispatch('auth/logout')
+          STORE.dispatch('auth/logout')
           window.location.replace('/login')
         }
 
-        await store.dispatch('network/setProviders', {
+        await STORE.dispatch('network/setProviders', {
           main: getWalletProvider({
             networks: this.ethereumNetworks,
             primaryProvider: 'main',
@@ -97,21 +87,21 @@ const app = {
       await metamaskNetworkChangeHandler()
 
       registerAccountChange(async (selectedAddress) => {
-        const user = store.getters['auth/user']
+        const user = STORE.getters['auth/user']
 
         if (!user || !user.address) {
-          await store.dispatch('auth/logout')
+          await STORE.dispatch('auth/logout')
         } else if (
           !selectedAddress ||
           !selectedAddress[0] ||
           user.address.toLowerCase() !== selectedAddress[0].toLowerCase()
         ) {
-          await store.dispatch('auth/logout')
+          await STORE.dispatch('auth/logout')
           window.location.replace('/login')
         }
       })
     } else {
-      await store.dispatch('network/setProviders', {
+      await STORE.dispatch('network/setProviders', {
         main: new Web3.providers.HttpProvider(this.ethereumNetworks.main.rpc),
         matic: new Web3.providers.HttpProvider(this.ethereumNetworks.matic.rpc),
       })
@@ -121,7 +111,7 @@ const app = {
   async initAuthentication(store, sentry) {
     // Check auth token is there and is valid or not
     const isLoggedIn = await store.dispatch('auth/checkLogin');
-    if(!isLoggedIn) return ;
+    if (!isLoggedIn) return;
 
     // Initialize account
     await this.initAccount(store)
@@ -214,7 +204,8 @@ const app = {
   },
 
   get ethereumNetworks() {
-    return store.state["network/networks"]
+    console.log("store", STORE);
+    return STORE.state["network"].networks;
   }
 }
 

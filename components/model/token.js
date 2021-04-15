@@ -1,13 +1,13 @@
 import { toChecksumAddress } from 'ethereumjs-util'
-
 import BigNumber from '~/plugins/bignumber'
 import Model from '~/components/model/model'
 import app from '~/plugins/app'
 import MetaNetwork from '@maticnetwork/meta/network'
 import { formatUSDValue } from '~/plugins/helpers/index'
-
 import { parseBalance, parseUSDBalance } from '~/plugins/helpers/token-utils'
-const uiconfig = JSON.parse(process.env.uiconfig)
+import Vue from "vue";
+
+const uiconfig = Vue.appConfig;
 
 const ZERO = new BigNumber(0)
 const TEN = new BigNumber(10)
