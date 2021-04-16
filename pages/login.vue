@@ -144,7 +144,7 @@ import {
   personalSign,
   signTypedData,
   isMetamaskLocked,
-} from '~/helpers/metamask-utils'
+} from '~/helpers'
 import app from '~/plugins/app'
 // import { getWalletConnectProvider } from "~/helpers/walletconnect-utils";
 
@@ -152,7 +152,7 @@ import { NextNavigation } from '~/components/mixin'
 import { VueWatch } from '~/components/decorator'
 // import WalletConnectModal from "~/components/lego/walletconnect-modal";
 import ConnectingMetamask from '~/components/lego/connecting-metamask'
-import { LOGIN_STRATEGY } from "~/constants";
+import { LOGIN_STRATEGY } from '~/constants'
 
 @Component({
   layout: 'blank',
@@ -218,7 +218,6 @@ export default class Login extends Vue {
     this.metamaskLoading = true
 
     this.error = null
-
     if (!isMetamask()) {
       return
     }
@@ -279,6 +278,7 @@ export default class Login extends Vue {
       this.$logger.track('user-login-complete:login', { address })
       this.moveToNext()
     } catch (e) {
+      this.$logger.error(e)
       this.error =
         (e.response && e.response.data && e.response.data.message) || e.message
     }

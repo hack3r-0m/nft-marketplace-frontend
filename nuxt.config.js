@@ -1,5 +1,7 @@
 import config from "./config";
 
+const isProd = process.env.NODE_ENV === 'production';
+
 const scripts = [
   // For GTM Google Analytics
   {
@@ -99,7 +101,7 @@ export default {
     '@nuxtjs/pwa',
     // Doc: https://github.com/nuxt-community/dotenv-module
     // '@nuxtjs/dotenv',
-    '@nuxtjs/sentry',
+    ...(isProd ? ['@nuxtjs/sentry'] : [])
   ],
   /*
    ** Axios module configuration

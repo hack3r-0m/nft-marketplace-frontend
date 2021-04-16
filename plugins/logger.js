@@ -3,14 +3,13 @@ import mixpanel from 'mixpanel-browser'
 
 export default {
   install() {
-    // if (process.env.NODE_ENV === "production") {
-    mixpanel.init(Vue.appConfig.MIXPANEL_TOKEN)
-    // }
+    if (process.env.NODE_ENV === "production") {
+      mixpanel.init(Vue.appConfig.MIXPANEL_TOKEN)
+    }
     let shouldTrack = false
     const logger = {
       initTrack(user) {
-        // if(user && process.env.NODE_ENV === "production"){
-        if (user) {
+        if (user && process.env.NODE_ENV === "production") {
           mixpanel.identify(user.address)
         } else {
           user = {}
@@ -21,9 +20,9 @@ export default {
         shouldTrack = false
       },
       track(event, payload = {}) {
-        // if (process.env.NODE_ENV !== "production") {
-        //     console.log(event, JSON.parse(JSON.stringify(payload)));
-        // }
+        if (process.env.NODE_ENV !== "production") {
+          console.log(event, JSON.parse(JSON.stringify(payload)));
+        }
         // else if (shouldTrack) {
         if (shouldTrack) {
           mixpanel.track(event, JSON.parse(JSON.stringify(payload)))

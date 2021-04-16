@@ -12,4 +12,10 @@ export class UserService {
         const url = this.createUrl_(`details`);
         return this.httpCaller.get(url);
     }
+
+    login(payload) {
+        const url = this.createUrl_(`login`);
+        debugger;
+        return this.httpCaller.post(url, payload);
+    }
 }

@@ -17,7 +17,7 @@ export const action = {
             return
         }
 
-        const response = await getAxios().post('users/login', payload)
+        const response = await Vue.service.user.login(payload);
         const user = response.data.data;
         if (response.status === 200 && user) {
             // Store auth token to local store and add user
