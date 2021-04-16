@@ -145,7 +145,7 @@ import Vue from 'vue'
 import Component from 'nuxt-class-component'
 import { mapGetters } from 'vuex'
 
-import rgbToHsl from '~/plugins/helpers/color-algorithm'
+import rgbToHsl from '~/helpers/color-algorithm'
 import { getColorFromImage } from '~/utils'
 
 import { FormValidator } from '~/components/mixin'

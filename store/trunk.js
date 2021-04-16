@@ -4,7 +4,7 @@ import BigNumber from '~/plugins/bignumber'
 import {
   getBalance as getAccountBalancePromise,
   getContractCode,
-} from '~/plugins/helpers/transaction-utils'
+} from '~/helpers'
 
 // Zero balance
 const ZeroBalance = new BigNumber(0)

@@ -92,11 +92,11 @@ import app from '~/plugins/app'
 import getAxios from '~/plugins/axios'
 
 import BidConfirmation from '~/components/lego/modals/bid-confirmation'
-import { txShowError } from '~/plugins/helpers/transaction-utils'
+import { txShowError } from '~/helpers/transaction-utils'
 import {
-} from '~/plugins/helpers/0x-utils'
+} from '~/helpers/0x-utils'
 
-import { providerEngine } from '~/plugins/helpers/provider-engine'
+import { providerEngine } from '~/helpers/provider-engine'
 
 // 0X
 const {

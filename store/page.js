@@ -34,6 +34,9 @@ export default {
       const category = getters.selectedCategory;
       return category ? category.id : null;
     },
+    activeSort(state) {
+      return state.selectedFilters.selectedSort
+    },
     selectedSort(state) {
       return state.selectedFilters.selectedSort
     },

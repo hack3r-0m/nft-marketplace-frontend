@@ -65,7 +65,7 @@ import moment from 'moment'
 
 import AcceptBid from '~/components/lego/modals/bid-confirmation'
 
-import rgbToHsl from '~/plugins/helpers/color-algorithm'
+import rgbToHsl from '~/helpers/color-algorithm'
 import app from '~/plugins/app'
 import { getColorFromImage } from '~/utils'
 

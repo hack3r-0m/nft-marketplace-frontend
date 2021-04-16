@@ -469,10 +469,10 @@ import BidderRow from '~/components/lego/bidder-row'
 import BuyToken from '~/components/lego/modals/buy-token'
 import CancelConfirm from '~/components/lego/modals/cancel-confirm'
 import DepositWeth from '~/components/lego/modals/deposit-weth'
-import { txShowError } from '~/plugins/helpers/transaction-utils'
+import { txShowError } from '~/helpers/transaction-utils'
 
-import rgbToHsl from '~/plugins/helpers/color-algorithm'
-import { providerEngine } from '~/plugins/helpers/provider-engine'
+import rgbToHsl from '~/helpers/color-algorithm'
+import { providerEngine } from '~/helpers/provider-engine'
 import { getColorFromImage } from '~/utils'
 
 // 0X

@@ -128,8 +128,8 @@ import Component from 'nuxt-class-component'
 import app from '~/plugins/app'
 import { mapGetters } from 'vuex'
 
-import rgbToHsl from '~/plugins/helpers/color-algorithm'
-import { formatUSDValue } from '~/plugins/helpers/index'
+import rgbToHsl from '~/helpers/color-algorithm'
+import { formatUSDValue } from '~/helpers'
 import { getColorFromImage } from '~/utils'
 import OnSaleTag from '~/components/lego/token/on-sale-tag'
 import OwnedTag from '~/components/lego/token/owned-tag'
@@ -179,7 +179,7 @@ export default class SellCard extends Vue {
       const img = this.$el.querySelector('.asset-img')
       // img.crossOrigin = "Anonymous";
 
-      const rgbColor = colorThief.getColor(img)
+      const rgbColor = getColorFromImage(img)
       if (rgbColor) {
         const hsl = rgbToHsl({
           r: rgbColor[0],

@@ -352,15 +352,15 @@ import { FormValidator } from '~/components/mixin'
 import InputToken from '~/components/lego/input-token'
 import getAxios from '~/plugins/axios'
 
-import { parseBalance } from '~/plugins/helpers/token-utils'
-import { formatUSDValue } from '~/plugins/helpers/index'
+import { parseBalance } from '~/helpers/token-utils'
+import { formatUSDValue } from '~/helpers/index'
 import PlaceBid from '~/components/lego/modals/place-bid'
 import ApproveProcess from '~/components/lego/modals/approve-process'
 import DepositWeth from '~/components/lego/modals/deposit-weth'
-import { registerNetwork } from '~/plugins/helpers/metamask-utils'
+import { registerNetwork } from '~/helpers/metamask-utils'
 
-import { providerEngine } from '~/plugins/helpers/provider-engine'
-import { txShowError } from '~/plugins/helpers/transaction-utils'
+import { providerEngine } from '~/helpers/provider-engine'
+import { txShowError } from '~/helpers/transaction-utils'
 
 const { getTypedData } = require('~/plugins/meta-tx')
 

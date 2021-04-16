@@ -85,7 +85,7 @@ import app from '~/plugins/app'
 import Web3 from 'web3'
 
 import getAxios from '~/plugins/axios'
-import { getWalletProvider } from '~/plugins/helpers/providers'
+import { getWalletProvider } from '~/helpers/providers'
 
 import WithdrawConfirmationModal from '~/components/lego/modals/withdraw-confirmation-modal'
 import TokenVerticleList from '~/components/lego/modals/token-verticle-list'

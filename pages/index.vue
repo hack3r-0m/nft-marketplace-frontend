@@ -122,9 +122,7 @@ import Vue from 'vue'
 import Component from 'nuxt-class-component'
 import { mapGetters, mapState } from 'vuex'
 import app from '~/plugins/app'
-import { fuzzysearch } from '~/plugins/helpers/index'
-import { fuzzySearchResult } from '~/plugins/helpers/index'
-import getAxios from '~/plugins/axios'
+import { fuzzysearch } from '~/helpers'
 import { VueWatch, VueDebounce } from '~/components/decorator'
 
 import SellCard from '~/components/lego/sell-card'
@@ -153,6 +151,7 @@ import NotificationModal from '~/components/lego/notification-modal'
       'selectedFilters',
       'selectedCategory',
       'selectedCategoryId',
+      'activeSort',
     ]),
     ...mapState('page', ['isCategoryFetching']),
     ...mapGetters('category', ['categories', 'allCategory']),
@@ -254,31 +253,19 @@ export default class Index extends Vue {
   }
 
   get searchedTokens() {
-    const searchedTokensList = []
-
     if (this.searchInput !== null && this.orderFullList.length > 0) {
-      this.orderFullList.forEach((order) => {
+      return this.orderFullList.filter((order) => {
         if (
           fuzzysearch(this.searchInput, order.name) ||
           fuzzysearch(this.searchInput, order.tokens_id)
         ) {
-          searchedTokensList.push(order)
+          return order
         }
       })
     } else {
       return this.orderFullList
     }
-
-    return searchedTokensList
   }
-
-  get ifSort() {
-    return this.selectedFilters.selectedSort
-      ? `&sort=${this.selectedFilters.selectedSort}`
-      : `&sort=${this.sortItems[0].filter}`
-  }
-
-  // async
 
   async fetchOrders(options = {}) {
     // Do not remove data while fetching
@@ -299,7 +286,7 @@ export default class Index extends Vue {
         offset: offset,
         limit: this.limit,
         category: this.selectedCategoryId,
-        sort: this.ifSort,
+        sort: this.activeSort ? this.activeSort : this.sortItems[0].filter,
       }
 
       response = await Vue.service.order.getOrders(payload)
@@ -325,8 +312,8 @@ export default class Index extends Vue {
     this.$store.dispatch('category/fetchCategories')
   }
 
-  async loadMore() {
-    await this.fetchOrders()
+  loadMore() {
+    this.fetchOrders()
   }
 }
 </script>

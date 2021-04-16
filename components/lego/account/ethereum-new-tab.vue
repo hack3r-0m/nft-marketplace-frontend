@@ -166,7 +166,7 @@ import Component from 'nuxt-class-component'
 import { mapGetters } from 'vuex'
 import getAxios from '~/plugins/axios'
 import app from '~/plugins/app'
-import { fuzzysearch, fuzzySearchResult } from '~/plugins/helpers/index'
+import { fuzzysearch, fuzzySearchResult } from '~/helpers/index'
 
 import NFTTokenModel from '~/components/model/nft-token'
 

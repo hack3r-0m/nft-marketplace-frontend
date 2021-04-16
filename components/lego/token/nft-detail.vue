@@ -289,8 +289,8 @@ import SellToken from '~/components/lego/modals/sell-token'
 import SendToken from '~/components/lego/modals/send-token'
 import CancelConfirm from '~/components/lego/modals/cancel-confirm'
 
-import rgbToHsl from '~/plugins/helpers/color-algorithm'
-import { providerEngine } from '~/plugins/helpers/provider-engine'
+import rgbToHsl from '~/helpers/color-algorithm'
+import { providerEngine } from '~/helpers/provider-engine'
 import { getColorFromImage } from '~/utils'
 
 @Component({

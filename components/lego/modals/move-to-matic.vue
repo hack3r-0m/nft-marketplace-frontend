@@ -77,9 +77,9 @@ import Component from 'nuxt-class-component'
 import { mapGetters } from 'vuex'
 import app from '~/plugins/app'
 
-import rgbToHsl from '~/plugins/helpers/color-algorithm'
+import rgbToHsl from '~/helpers/color-algorithm'
 import { getColorFromImage } from '~/utils'
-import { getWalletProvider } from '~/plugins/helpers/providers'
+import { getWalletProvider } from '~/helpers/providers'
 const MaticPOSClient = require('@maticnetwork/maticjs').MaticPOSClient
 
 @Component({

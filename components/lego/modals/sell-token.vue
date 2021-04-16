@@ -314,8 +314,8 @@
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
 import { mapGetters } from 'vuex'
-import { formatUSDValue } from '~/plugins/helpers/index'
-import { txShowError } from '~/plugins/helpers/transaction-utils'
+import { formatUSDValue } from '~/helpers/index'
+import { txShowError } from '~/helpers/transaction-utils'
 import Web3 from 'web3'
 import moment from 'moment'
 
@@ -325,13 +325,13 @@ import BigNumber from '~/plugins/bignumber'
 
 import { FormValidator } from '~/components/mixin'
 import InputToken from '~/components/lego/input-token'
-import { parseBalance } from '~/plugins/helpers/token-utils'
+import { parseBalance } from '~/helpers/token-utils'
 import ApproveProcess from '~/components/lego/modals/approve-process'
-import { getRandomFutureDateInSeconds } from '~/plugins/helpers/0x-utils'
+import { getRandomFutureDateInSeconds } from '~/helpers/0x-utils'
 import { Textfield } from '@maticnetwork/matic-design-system'
 
-import { providerEngine } from '~/plugins/helpers/provider-engine'
-import { registerNetwork } from '~/plugins/helpers/metamask-utils'
+import { providerEngine } from '~/helpers/provider-engine'
+import { registerNetwork } from '~/helpers/metamask-utils'
 
 const { getTypedData } = require('~/plugins/meta-tx')
 

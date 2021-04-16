@@ -144,9 +144,9 @@ import {
   personalSign,
   signTypedData,
   isMetamaskLocked,
-} from '~/plugins/helpers/metamask-utils'
+} from '~/helpers/metamask-utils'
 import app from '~/plugins/app'
-// import { getWalletConnectProvider } from "~/plugins/helpers/walletconnect-utils";
+// import { getWalletConnectProvider } from "~/helpers/walletconnect-utils";
 
 import { NextNavigation } from '~/components/mixin'
 import { VueWatch } from '~/components/decorator'

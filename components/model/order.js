@@ -4,7 +4,7 @@ import BigNumber from '~/plugins/bignumber'
 import {
   parseBalance,
   toTokenAmount,
-} from '~/plugins/helpers/token-utils'
+} from '~/helpers'
 
 const ZERO = new BigNumber(0)
 

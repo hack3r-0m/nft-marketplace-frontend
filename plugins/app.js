@@ -5,8 +5,8 @@ import AccountModel from '~/components/model/account'
 import {
   registerAccountChange,
   registerNetworkChange,
-} from '~/plugins/helpers/metamask-utils'
-import { getWalletProvider } from '~/plugins/helpers/providers'
+  getWalletProvider
+} from '~/helpers'
 let STORE;
 
 const app = {

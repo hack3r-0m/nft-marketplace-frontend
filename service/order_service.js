@@ -11,7 +11,7 @@ export class OrderService {
 
     getOrders({ offset, limit, category, sort }) {
         const categoryArray = category ? `[${category}]` : `[]`;
-        const url = this.createUrl_(`?offset=${offset}&limit=${limit}&categoryArray=${categoryArray}${sort}`);
+        const url = this.createUrl_(`?offset=${offset}&limit=${limit}&categoryArray=${categoryArray}&sort=${sort}`);
         return this.httpCaller.get(url);
     }
 

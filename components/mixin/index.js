@@ -1,4 +1,4 @@
-import { getNextRoute } from '~/plugins/helpers'
+import { getNextRoute } from '~/helpers'
 
 export const NoSSR = {
   data() {

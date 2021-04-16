@@ -146,9 +146,9 @@ import { FormValidator } from '~/components/mixin'
 import { Textfield } from '@maticnetwork/matic-design-system'
 import { isValidAddress } from 'ethereumjs-util'
 
-import { providerEngine } from '~/plugins/helpers/provider-engine'
-import { registerNetwork } from '~/plugins/helpers/metamask-utils'
-import { txShowError } from '~/plugins/helpers/transaction-utils'
+import { providerEngine } from '~/helpers/provider-engine'
+import { registerNetwork } from '~/helpers/metamask-utils'
+import { txShowError } from '~/helpers/transaction-utils'
 
 const { getTypedData } = require('~/plugins/meta-tx')
 

@@ -224,7 +224,7 @@ import Component from 'nuxt-class-component'
 import { mapGetters } from 'vuex'
 import app from '~/plugins/app'
 import getAxios from '~/plugins/axios'
-import { getWalletProvider } from '~/plugins/helpers/providers'
+import { getWalletProvider } from '~/helpers/providers'
 
 import PreventUnload from 'vue-prevent-unload'
 const MaticPOSClient = require('@maticnetwork/maticjs').MaticPOSClient

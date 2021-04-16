@@ -51,7 +51,7 @@ import { mapGetters } from 'vuex'
 import BigNumber from '~/plugins/bignumber'
 
 import TokenList from '~/components/lego/modals/token-list'
-import { tokenImage } from '~/plugins/helpers/'
+import { tokenImage } from '~/helpers/'
 import { VueDebounce, VueWatch } from '~/components/decorator'
 
 const ZERO = new BigNumber(0)

@@ -3,8 +3,8 @@ import BigNumber from '~/plugins/bignumber'
 import Model from '~/components/model/model'
 import app from '~/plugins/app'
 import MetaNetwork from '@maticnetwork/meta/network'
-import { formatUSDValue } from '~/plugins/helpers/index'
-import { parseBalance, parseUSDBalance } from '~/plugins/helpers/token-utils'
+import { formatUSDValue } from '~/helpers'
+import { parseBalance, parseUSDBalance } from '~/helpers'
 import Vue from "vue";
 
 const uiconfig = Vue.appConfig;

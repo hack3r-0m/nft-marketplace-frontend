@@ -294,7 +294,7 @@ import Decoder from 'eth-decoder'
 import BigNumber from '~/plugins/bignumber'
 import { VueWatch } from '~/components/decorator'
 
-import { getWalletProvider } from '~/plugins/helpers/providers'
+import { getWalletProvider } from '~/helpers/providers'
 
 import PreventUnload from 'vue-prevent-unload'
 const MaticPOSClient = require('@maticnetwork/maticjs').MaticPOSClient

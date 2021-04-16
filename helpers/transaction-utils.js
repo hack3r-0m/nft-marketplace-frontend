@@ -2,8 +2,8 @@ import EthereumTx from 'ethereumjs-tx'
 import app from '~/plugins/app'
 
 import BigNumber from '~/plugins/bignumber'
-import EtherUnits from '~/plugins/helpers/ether-units'
-import { trimHexZero } from '~/plugins/helpers'
+import EtherUnits from './ether-units'
+import { trimHexZero } from './index'
 
 export function adjustGas(gasLimit) {
   if (gasLimit === 21001) {

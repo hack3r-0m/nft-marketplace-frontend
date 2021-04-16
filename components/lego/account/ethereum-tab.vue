@@ -82,7 +82,7 @@ import ItemBanner from "~/components/lego/account/item-banner";
 import MoveToMatic from "~/components/lego/modals/move-to-matic";
 import Deposit from "~/components/lego/modals/deposit";
 
-import { getWalletProvider } from "~/plugins/helpers/providers";
+import { getWalletProvider } from "~/helpers/providers";
 const MaticPOSClient = require("@maticnetwork/maticjs").MaticPOSClient;
 
 @Component({

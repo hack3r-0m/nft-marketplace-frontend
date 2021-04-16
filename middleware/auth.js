@@ -1,4 +1,4 @@
-// import { getDefaultAccount } from '~/plugins/helpers/metamask-utils'
+// import { getDefaultAccount } from '~/helpers/metamask-utils'
 // export default async function({ store, redirect, route, error }) {
 //   const user = store.getters['auth/user']
 //   const selectedAddress = await getDefaultAccount()

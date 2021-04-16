@@ -100,7 +100,7 @@ import Vue from 'vue'
 import Component from 'nuxt-class-component'
 import { mapGetters } from 'vuex'
 
-import { tokenImage } from '~/plugins/helpers/'
+import { tokenImage } from '~/helpers/'
 
 @Component({
   props: {

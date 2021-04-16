@@ -1,7 +1,7 @@
 import Model from '~/components/model/model'
 import app from '~/plugins/app'
 import BigNumber from '~/plugins/bignumber'
-import { parseBalance } from '~/plugins/helpers/token-utils'
+import { parseBalance } from '~/helpers/token-utils'
 
 const ZERO = new BigNumber(0)
 const TEN = new BigNumber(10)

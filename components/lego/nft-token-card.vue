@@ -154,7 +154,7 @@ import { mapGetters } from 'vuex'
 
 import MoreOptions from '~/components/lego/more-options'
 
-import rgbToHsl from '~/plugins/helpers/color-algorithm'
+import rgbToHsl from '~/helpers/color-algorithm'
  
 @Component({
   props: {
