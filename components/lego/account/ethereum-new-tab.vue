@@ -15,10 +15,7 @@
           <div
             class="col-12 col-lg cat-switch d-flex d-lg-none ms-b-16 ms-b-lg-0 justify-content-between justify-content-lg-start"
           >
-            <categories-selector
-              :countFor="2"
-              class="category-wrapper"
-            />
+            <categories-selector :countFor="2" class="category-wrapper" />
           </div>
           <div
             class="col-12 col-lg cat-switch d-none d-lg-flex ms-b-16 ms-b-lg-0 justify-content-between justify-content-lg-start"
@@ -31,12 +28,12 @@
                 :src="allCategory.img_url"
                 :alt="allCategory.name"
                 class="icon align-self-center ms-r-12"
-              >
+              />
               <div class="font-body-large align-self-center font-medium">
                 {{ allCategory.name }}
               </div>
               <div class="count ps-l-12 font-body-large ml-auto">
-                {{ totalMainNft }} {{ $t("collectibles") }}
+                {{ totalMainNft }} {{ $t('collectibles') }}
               </div>
             </div>
             <div
@@ -47,17 +44,17 @@
                 :src="selectedCategory.img_url"
                 :alt="selectedCategory.name"
                 class="icon align-self-center ms-r-12"
-              >
+              />
               <div class="font-body-large align-self-center font-medium">
                 {{ selectedCategory.name }}
               </div>
               <div class="count ps-l-12 font-body-large ml-auto">
                 {{
                   selectedCategory.mainCount ||
-                    (displayedTokens && displayedTokens.length) ||
-                    0
+                  (displayedTokens && displayedTokens.length) ||
+                  0
                 }}
-                {{ $t("collectibles") }}
+                {{ $t('collectibles') }}
               </div>
             </div>
           </div>
@@ -82,11 +79,11 @@
               @click="onDeposit()"
             >
               {{
-                $t("ethereumTab.depositBtn", {
+                $t('ethereumTab.depositBtn', {
                   count:
                     selectedTokens && selectedTokens.length
                       ? selectedTokens.length
-                      : "",
+                      : '',
                 })
               }}
             </button>
@@ -127,7 +124,7 @@
         <deposit
           v-if="
             (selectedCategory && showDepositModal) ||
-              (selectedTokens.length > 0 && showDepositModal)
+            (selectedTokens.length > 0 && showDepositModal)
           "
           :show="showDepositModal"
           :visible="onDeposit"
@@ -144,7 +141,7 @@
           <button-loader
             v-if="
               (hasNextPage && displayedTokens && displayedTokens.length > 0) ||
-                isLoadingTokens
+              isLoadingTokens
             "
             class="mx-auto"
             :loading="isLoadingTokens"
@@ -163,13 +160,9 @@
 <script>
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
-import { mapGetters } from 'vuex'
-import getAxios from '~/plugins/axios'
-import app from '~/plugins/app'
+import { mapGetters, mapState, mapActions } from 'vuex'
 import { fuzzysearch, fuzzySearchResult } from '~/helpers/index'
-
 import NFTTokenModel from '~/components/model/nft-token'
-
 import SellCard from '~/components/lego/sell-card'
 import CategoriesSelector from '~/components/lego/categories-selector'
 import SearchBox from '~/components/lego/search-box'
@@ -178,7 +171,6 @@ import SlideSwitch from '~/components/lego/slide-switch'
 import NoItem from '~/components/lego/no-item'
 import CategorySidebar from '~/components/lego/account/category-sidebar'
 import NFTTokenCard from '~/components/lego/nft-token-card'
-
 import SellToken from '~/components/lego/modals/sell-token'
 import Deposit from '~/components/lego/modals/deposit'
 
@@ -197,39 +189,50 @@ import Deposit from '~/components/lego/modals/deposit'
     CategorySidebar,
   },
   computed: {
-    ...mapGetters('page', ['selectedFilters', 'selectedCategory']),
+    ...mapGetters('page', [
+      'selectedFilters',
+      'selectedCategory',
+      'selectedCategoryId',
+    ]),
     ...mapGetters('category', ['categories', 'allCategory']),
     ...mapGetters('account', ['account', 'userOrders', 'totalMainNft']),
     ...mapGetters('auth', ['user']),
-    ...mapGetters('network', ['networks']),
+    ...mapState('network', {
+      networks: (state) => state.networks,
+    }),
   },
   middleware: [],
   mixins: [],
   watch: {
     selectedFilters: {
-      handler: async function() {
+      handler: async function () {
         // disabled api call on category change
         // this.fetchNFTTokens({ filtering: true });
       },
       deep: true,
     },
   },
+  methods: {
+    ...mapActions('account', {
+      fetchUserMainNFT: 'fetchMainNFT',
+    }),
+  },
 })
 export default class EthereumNewTab extends Vue {
   // Modals
-  showSellModal = false;
-  selectedToken = null;
-  selectedTokens = [];
-  searchInput = null;
-  showDepositModal = false;
-  maxTokenSelection = app.uiconfig.maxBulkDeposit;
+  showSellModal = false
+  selectedToken = null
+  selectedTokens = []
+  searchInput = null
+  showDepositModal = false
+  maxTokenSelection = Vue.appConfig.maxBulkDeposit
 
-  tokensFullList = [];
-  hasNextPage = true;
-  displayTokens = 0;
-  isLoadingTokens = false;
-  limit = 20;
-  fuzzysearch = fuzzysearch;
+  tokensFullList = []
+  hasNextPage = true
+  displayTokens = 0
+  isLoadingTokens = false
+  limit = 20
+  fuzzysearch = fuzzysearch
 
   mounted() {
     this.fetchNFTTokens()
@@ -250,7 +253,9 @@ export default class EthereumNewTab extends Vue {
   }
 
   onSelectToken(token) {
-    const exists = this.selectedTokens.find((t) => t.token_id === token.token_id)
+    const exists = this.selectedTokens.find(
+      (t) => t.token_id === token.token_id,
+    )
     if (typeof exists === 'undefined') {
       if (
         this.selectedTokens &&
@@ -299,40 +304,28 @@ export default class EthereumNewTab extends Vue {
         offset = 0
       }
 
-      // Fetch tokens with pagination and filters
-      const response = await getAxios().get(
-        `tokens/balance?userId=${this.user.id}&chainId=${this.chainId}${this.ifCategory}${this.ifSort}&offset=${offset}&limit=${this.limit}`,
-      )
+      const tokens = await this.fetchUserMainNFT({
+        user: this.user,
+        chainId: this.chainId,
+        category: this.selectedCategoryId,
+        sort: this.selectedFilters.selectedSort,
+        offset: offset,
+        limit: this.limit,
+      })
 
-      if (response.status === 200 && response.data.data) {
-        // Update total token number
-        this.$store.commit('account/totalMainNft', response.data.count)
-        // Check for next page
-        // this.hasNextPage = response.data.data.has_next_page;
-        this.hasNextPage = false
+      // Check for next page
+      // this.hasNextPage = response.data.data.has_next_page;
+      this.hasNextPage = false
 
-        const tokens = []
-        let i = 0
-        response.data.data.forEach((token) => {
-          i++
-          token.id = i
-          token.chainId = this.chainId
-          tokens.push(new NFTTokenModel(token))
-        })
-        this.$store.commit(
-          'category/addUsersMainCount',
-          response.data.balances,
-        )
-        if (options && options.filtering) {
-          this.tokensFullList = tokens
-          this.isLoadingTokens = false
+      if (options && options.filtering) {
+        this.tokensFullList = tokens
+        this.isLoadingTokens = false
 
-          return
-        }
-        this.tokensFullList = [...this.tokensFullList, ...tokens]
+        return
       }
+      this.tokensFullList = [...this.tokensFullList, ...tokens]
     } catch (error) {
-      console.log(error)
+      this.$logger.error(error)
     }
     this.isLoadingTokens = false
   }
@@ -408,18 +401,6 @@ export default class EthereumNewTab extends Vue {
     return this.selectedCateTokens
   }
 
-  get ifCategory() {
-    return this.selectedFilters.selectedCategory
-      ? `&categoryArray=[${this.selectedFilters.selectedCategory.id}]`
-      : '&categoryArray=[]'
-  }
-
-  get ifSort() {
-    return this.selectedFilters.selectedSort
-      ? `&sort=${this.selectedFilters.selectedSort}`
-      : ''
-  }
-
   get chainId() {
     return this.networks.main.chainId
   }
@@ -454,22 +435,22 @@ export default class EthereumNewTab extends Vue {
 </script>
 
 <style lang="scss" scoped>
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 
 .sticky-top {
   &.tab-header {
     top: 126px !important;
-    background-color: light-color("700");
+    background-color: light-color('700');
   }
   &.sidebar-container {
     top: 126px !important;
-    background-color: light-color("700");
+    background-color: light-color('700');
     overflow-x: hidden;
     overflow-y: scroll;
   }
 }
 .category {
-  background-color: light-color("700");
+  background-color: light-color('700');
   box-sizing: border-box;
 
   .icon {
@@ -477,7 +458,7 @@ export default class EthereumNewTab extends Vue {
     height: 24px;
   }
   .count {
-    color: dark-color("300") !important;
+    color: dark-color('300') !important;
   }
 }
 .search-box {
@@ -493,7 +474,7 @@ export default class EthereumNewTab extends Vue {
   padding: 12px !important;
   max-width: 348px;
   height: 100%;
-  border-right: 1px solid light-color("500");
+  border-right: 1px solid light-color('500');
   max-height: 77vh;
   min-height: 77vh;
   border-right: 1px solid #f3f4f7;

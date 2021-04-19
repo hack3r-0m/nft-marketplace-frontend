@@ -230,8 +230,8 @@ import Withdraw from '~/components/lego/modals/withdraw'
     }),
   },
   methods: {
-    ...mapActions('token', {
-      fetchEthereum: 'fetchEthereum',
+    ...mapActions('account', {
+      fetchUserMainNFT: 'fetchMainNFT',
     }),
   },
   middleware: [],
@@ -307,7 +307,7 @@ export default class MaticNewTab extends Vue {
 
   refreshBalance() {
     this.fetchNFTTokens({ filtering: true })
-    this.fetchEthereum({
+    this.fetchUserMainNFT({
       user: this.user,
       chainId: this.mainChainId,
     })
@@ -346,7 +346,7 @@ export default class MaticNewTab extends Vue {
         offset = 0
       }
 
-      const tokens = await this.$store.dispatch('token/fetchNFTTokens', {
+      const tokens = await this.$store.dispatch('account/fetchNFTTokens', {
         user: this.user,
         chainId: this.mainChainId,
         category: this.selectedCategoryId,
