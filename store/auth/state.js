@@ -3,8 +3,6 @@ export const initialState = () => {
         initialized: false,
         token: null,
         user: null,
-        address: null,
-        userId: null,
         loginStrategy: null
     }
 };

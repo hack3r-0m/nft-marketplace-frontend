@@ -7,7 +7,7 @@ import { formatUSDValue } from '~/helpers'
 import { parseBalance, parseUSDBalance } from '~/helpers'
 import Vue from "vue";
 
-const uiconfig = Vue.appConfig;
+
 
 const ZERO = new BigNumber(0)
 const TEN = new BigNumber(10)
@@ -23,6 +23,7 @@ export default class Token extends Model {
   }
 
   get addresses() {
+    const uiconfig = Vue.appConfig;
     const network = new MetaNetwork(
       uiconfig.matic.deployment.network,
       uiconfig.matic.deployment.version,

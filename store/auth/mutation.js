@@ -5,25 +5,13 @@ export const mutation = {
     },
 
     setUser(state, user) {
-        state.initialized = true
         state.user = user
-        if (state.user) {
-            state.userId = user.id
-        } else {
-            state.userId = null
-            state.authToken = null
-        }
-    },
-
-    setUserId(state, value) {
-        state.userId = value
-    },
-
-    setAddress(state, value) {
-        state.address = value
     },
 
     setToken(state, value) {
+        state.token = value
+    },
+    setLoginStrategy(state, value) {
         state.token = value
     },
     reset(state) {

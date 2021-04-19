@@ -11,7 +11,7 @@ export const action = {
     },
 
     // do login
-    async doLogin({ dispatch, commit }, payload) {
+    async doLogin({ dispatch, commit, rootCommit }, payload) {
         if (!payload || !payload.address || !payload.signature) {
             console.log('User addresss and Signature is required for login')
             return
@@ -23,14 +23,14 @@ export const action = {
             // Store auth token to local store and add user
             commit('setLoginStrategy', payload.loginStrategy)
             commit('setToken', response.data.auth_token)
-            commit('user', user)
-            if (user) {
-                commit('address', user.address)
-            } else {
-                commit('address', null)
-            }
-            app.initNetworks(app.vuexStore)
-            app.initAccount(app.vuexStore)
+            commit('setUser', user);
+            // rootCommit(
+            //     'account/account',
+            //     address: getters['address'],
+            // )
+            await dispatch('token/reloadBalances', null, { root: true });
+            // app.initNetworks(app.vuexStore)
+            // app.initAccount(app.vuexStore)
         }
 
         return null

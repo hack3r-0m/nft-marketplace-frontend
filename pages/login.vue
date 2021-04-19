@@ -219,6 +219,8 @@ export default class Login extends Vue {
 
     this.error = null
     if (!isMetamask()) {
+      alert('Metamask not found')
+      this.metamaskLoading = false
       return
     }
 
@@ -251,13 +253,12 @@ export default class Login extends Vue {
           this.getLoginTypedData(from.toLowerCase(), timestamp),
           window.ethereum,
         )
-
         if (result.result) {
           // login with metamask
           await this.login(from, result.result, LOGIN_STRATEGY.metaMask)
         }
       } catch (e) {
-        // ignore error
+        this.$logger.error(e)
       }
 
       this.loading = false
@@ -266,6 +267,7 @@ export default class Login extends Vue {
   }
 
   async login(address, signature, loginStrategy) {
+    debugger
     this.loading = true
     this.$logger.track('user-login-start:login', { address })
     try {

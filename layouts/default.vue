@@ -23,6 +23,12 @@ export default {
   created() {
     this.isMobileDevice = window.innerWidth < 768
   },
+
+  mounted(){
+
+  },
+
+  
 }
 </script>
 

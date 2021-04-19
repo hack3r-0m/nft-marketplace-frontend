@@ -14,11 +14,11 @@ export const getter = {
     },
 
     userId(state) {
-        return state.userId
+        return state.user.id
     },
 
     address(state) {
-        return state.address
+        return state.user.address
     },
 
     emailVerified(state) {

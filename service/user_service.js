@@ -15,7 +15,6 @@ export class UserService {
 
     login(payload) {
         const url = this.createUrl_(`login`);
-        debugger;
         return this.httpCaller.post(url, payload);
     }
 }

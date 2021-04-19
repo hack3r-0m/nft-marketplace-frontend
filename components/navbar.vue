@@ -2,10 +2,7 @@
   <nav class="navbar navbar-expand-lg fixed-top p-0">
     <div class="container-fluid h-100">
       <div class="row mx-auto ps-x-16 w-100 h-100">
-        <nuxt-link
-          class="logo-container d-flex"
-          :to="{ name: 'index' }"
-        >
+        <nuxt-link class="logo-container d-flex" :to="{ name: 'index' }">
           <button
             class="navbar-toggler"
             role="button"
@@ -13,14 +10,8 @@
             :class="{ open: openMenu }"
             @click.prevent.stop="handleOpenMenu(!openMenu)"
           >
-            <svg-sprite-icon
-              name="grabber"
-              class="icon navbar-toggler-icon"
-            />
-            <svg-sprite-icon
-              name="close"
-              class="icon close-icon"
-            />
+            <svg-sprite-icon name="grabber" class="icon navbar-toggler-icon" />
+            <svg-sprite-icon name="close" class="icon close-icon" />
           </button>
           <div class="d-flex">
             <div class="d-flex">
@@ -28,7 +19,7 @@
                 src="~assets/img/open-sea-logo.svg"
                 alt="Open Sea Logo"
                 class="logo align-self-center"
-              >
+              />
             </div>
             <div
               class="d-flex flex-column justify-content-center logo-desc-container"
@@ -56,7 +47,7 @@
                 :to="{ name: 'index' }"
                 :class="{ active: checkIfNestedRoute('index') }"
               >
-                <span class="align-self-center">{{ $t("home.title") }}</span>
+                <span class="align-self-center">{{ $t('home.title') }}</span>
               </nuxt-link>
             </li>
             <li class="nav-item">
@@ -65,7 +56,7 @@
                 :to="{ name: 'account' }"
                 :class="{ active: checkIfNestedRoute('account') }"
               >
-                <span class="align-self-center">{{ $t("account.title") }}</span>
+                <span class="align-self-center">{{ $t('account.title') }}</span>
               </nuxt-link>
             </li>
             <li class="nav-item">
@@ -74,7 +65,7 @@
                 :to="{ name: 'faq' }"
                 :class="{ active: checkIfNestedRoute('faq') }"
               >
-                <span class="align-self-center">{{ $t("faq.title") }}</span>
+                <span class="align-self-center">{{ $t('faq.title') }}</span>
               </nuxt-link>
             </li>
             <li class="nav-item">
@@ -84,7 +75,7 @@
                 rel="noopener noreferrer"
                 target="_blank"
               >
-                <span class="align-self-center">{{ $t("support.title") }}</span>
+                <span class="align-self-center">{{ $t('support.title') }}</span>
               </a>
             </li>
             <li class="nav-item d-md-none">
@@ -93,7 +84,7 @@
                 class="d-flex ms-x-16 nav-profile-container align-self-center"
                 @click.prevent.stop="handleOpenProfile(!openProfile)"
               >
-                <img src="~assets/svg/metamask.svg">
+                <img src="~assets/svg/metamask.svg" />
                 <span class="navbar-user-address">
                   {{ formattedUserAddress }}
                 </span>
@@ -116,12 +107,9 @@
                 :to="{ name: 'login' }"
               >
                 <span class="d-flex with-icon">
-                  <svg-sprite-icon
-                    name="login"
-                    class="align-self-center"
-                  />
+                  <svg-sprite-icon name="login" class="align-self-center" />
                 </span>
-                <span>{{ $t("login") }}</span>
+                <span>{{ $t('login') }}</span>
               </nuxt-link>
             </li>
             <div class="extra-links">
@@ -132,7 +120,7 @@
                   rel="noopener noreferrer"
                   target="_blank"
                 >
-                  <span class="align-self-center">{{ $t("whatsNew") }}</span>
+                  <span class="align-self-center">{{ $t('whatsNew') }}</span>
                 </a>
               </li>
               <li class="nav-item">
@@ -142,17 +130,14 @@
                   rel="noopener noreferrer"
                   target="_blank"
                 >
-                  <span class="align-self-center">{{ $t("helpCenter") }}</span>
+                  <span class="align-self-center">{{ $t('helpCenter') }}</span>
                 </a>
               </li>
             </div>
           </ul>
         </div>
         <div class="d-none d-sm-flex profile-navbar ml-auto ps-l-16">
-          <div
-            v-if="user && false"
-            class="d-flex align-self-center"
-          >
+          <div v-if="user && false" class="d-flex align-self-center">
             <nuxt-link
               class="nav-link d-flex"
               :to="{ name: 'index-notification' }"
@@ -171,7 +156,7 @@
             class="d-flex nav-profile-container align-self-center"
             @click.prevent.stop="handleOpenProfile(!openProfile)"
           >
-            <img src="~assets/svg/metamask.svg">
+            <img src="~assets/svg/metamask.svg" />
             <span class="navbar-user-address">
               {{ formattedUserAddress }}
             </span>
@@ -179,17 +164,11 @@
             <span
               class="down-icon align-self-center d-none d-md-flex justify-content-center"
             >
-              <svg-sprite-icon
-                class="align-self-center"
-                name="right-arrow"
-              />
+              <svg-sprite-icon class="align-self-center" name="right-arrow" />
             </span>
           </div>
 
-          <ul
-            v-if="!user"
-            class="navbar-nav right-nav ps-x-16 pr-1"
-          >
+          <ul v-if="!user" class="navbar-nav right-nav ps-x-16 pr-1">
             <li class="nav-item d-flex">
               <nuxt-link
                 class="align-self-center btn btn-primary login-button d-flex"
@@ -197,12 +176,9 @@
                 :to="{ name: 'login' }"
               >
                 <span class="d-flex with-icon">
-                  <svg-sprite-icon
-                    name="login"
-                    class="align-self-center"
-                  />
+                  <svg-sprite-icon name="login" class="align-self-center" />
                 </span>
-                <span>{{ $t("login") }}</span>
+                <span>{{ $t('login') }}</span>
               </nuxt-link>
             </li>
           </ul>
@@ -218,10 +194,7 @@
       <div class="profile-container">
         <div class="d-flex ps-16 ps-md-32">
           <span class="profile-icon profile-with-status align-self-center">
-            <svg-sprite-icon
-              name="profile"
-              class="profile-logo"
-            />
+            <svg-sprite-icon name="profile" class="profile-logo" />
             <!-- <svg-sprite-icon v-if="!userProfilePic" name="profile" class="profile-logo"></svg-sprite-icon> -->
             <!-- <img v-if="userProfilePic" :src="userProfilePic" :alt="formattedUserAddress" /> -->
             <div class="profile-status d-none">
@@ -234,12 +207,7 @@
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <g filter="url(#filter0_d)">
-                  <circle
-                    cx="16"
-                    cy="15"
-                    r="12"
-                    fill="white"
-                  />
+                  <circle cx="16" cy="15" r="12" fill="white" />
                 </g>
                 <path
                   fill-rule="evenodd"
@@ -257,10 +225,7 @@
                     filterUnits="userSpaceOnUse"
                     color-interpolation-filters="sRGB"
                   >
-                    <feFlood
-                      flood-opacity="0"
-                      result="BackgroundImageFix"
-                    />
+                    <feFlood flood-opacity="0" result="BackgroundImageFix" />
                     <feColorMatrix
                       in="SourceAlpha"
                       type="matrix"
@@ -335,22 +300,19 @@
         <div class="dropdown-divider" />
         <div class="d-flex ps-6 ps-md-12">
           <ul class="profile-option-list w-100">
-            <li
-              class="option-item"
-              @click="openQrCode = !openQrCode"
-            >
+            <li class="option-item" @click="openQrCode = !openQrCode">
               <div class="d-flex">
                 <div class="align-self-center">
                   <img
                     src="~/static/icons/qr-code.svg"
                     alt="qr-code"
                     class="option-icon inactive"
-                  >
+                  />
                   <img
                     src="~/static/icons/active/qr-code.svg"
                     alt="qr-code"
                     class="option-icon active"
-                  >
+                  />
                 </div>
                 <div
                   class="option-text font-body-medium align-self-center ps-x-16"
@@ -377,22 +339,19 @@
               </div>
             </li>
 
-            <li
-              class="option-item"
-              @click="openLogout = true"
-            >
+            <li class="option-item" @click="openLogout = true">
               <div class="d-flex">
                 <div class="align-self-center">
                   <img
                     src="~/static/icons/logout.svg"
                     alt="qr-code"
                     class="option-icon inactive"
-                  >
+                  />
                   <img
                     src="~/static/icons/active/logout.svg"
                     alt="qr-code"
                     class="option-icon active"
-                  >
+                  />
                 </div>
                 <div
                   class="option-text font-body-medium align-self-center ps-x-16"
@@ -426,14 +385,10 @@
     <receive-qr-code
       v-if="user"
       :show="openQrCode"
-      :uri="account.address"
+      :uri="user.address"
       :close="qrClose"
     />
-    <logout-confirm
-      :show="openLogout"
-      :logout="logout"
-      :close="logoutClose"
-    />
+    <logout-confirm :show="openLogout" :logout="logout" :close="logoutClose" />
   </nav>
 </template>
 
@@ -461,22 +416,22 @@ import * as animationData from '~/static/lottie-animations/green-check.json'
   methods: {},
 })
 export default class Navbar extends Vue {
-  defaultOptions = { animationData: animationData.default, loop: false };
-  animationSpeed = 2;
-  openMenu = false;
-  openProfile = false;
-  copyAnim = false;
-  authenticated = false;
-  isAnonymous = false;
-  nextNetwork = null;
-  confirmLoading = false;
-  openQrCode = false;
-  openLogout = false;
+  defaultOptions = { animationData: animationData.default, loop: false }
+  animationSpeed = 2
+  openMenu = false
+  openProfile = false
+  copyAnim = false
+  authenticated = false
+  isAnonymous = false
+  nextNetwork = null
+  confirmLoading = false
+  openQrCode = false
+  openLogout = false
 
   currentNetwork = {
     key: 'matic',
     name: 'Matic',
-  };
+  }
 
   checkIfNestedRoute(...names) {
     if (this.$route && this.$route.name) {
@@ -559,7 +514,7 @@ export default class Navbar extends Vue {
 </script>
 
 <style lang="scss" scoped>
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 
 .col {
   flex-basis: 0 !important;
@@ -567,10 +522,10 @@ export default class Navbar extends Vue {
 }
 
 .tag {
-  background: primary-color("200");
+  background: primary-color('200');
   border-radius: 3px;
-  color: primary-color("600");
-  font-size: font-size("body-small");
+  color: primary-color('600');
+  font-size: font-size('body-small');
   font-weight: 500;
   padding: 4px 5px;
 }
@@ -587,11 +542,11 @@ export default class Navbar extends Vue {
       color: #3291e9;
     }
     .logo-product-name {
-      color: dark-color("300");
+      color: dark-color('300');
     }
     .logo-description {
-      font-size: font-size("body-small");
-      color: dark-color("500");
+      font-size: font-size('body-small');
+      color: dark-color('500');
     }
   }
 }
@@ -605,7 +560,7 @@ export default class Navbar extends Vue {
 
 .navbar {
   height: $navbar-local-height;
-  background-color: light-color("700");
+  background-color: light-color('700');
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.05);
 
   .navbar-toggler {
@@ -615,7 +570,7 @@ export default class Navbar extends Vue {
     padding-right: 24px;
 
     .icon {
-      fill: dark-color("700");
+      fill: dark-color('700');
       height: 16px;
       width: 16px;
     }
@@ -652,16 +607,16 @@ export default class Navbar extends Vue {
   }
 
   .main-nav {
-    background-color: light-color("700");
+    background-color: light-color('700');
 
     .nav-link {
       height: 100%;
       padding-left: 15px;
       padding-right: 15px;
-      color: dark-color("500");
+      color: dark-color('500');
       padding-bottom: 2px;
       &.active {
-        @include font-setting("body-medium", "medium");
+        @include font-setting('body-medium', 'medium');
         border-bottom: 2px solid $link-color;
         padding-bottom: 0px;
         color: $link-color;
@@ -681,7 +636,7 @@ export default class Navbar extends Vue {
     svg {
       height: 20px;
       width: 20px;
-      fill: light-color("700");
+      fill: light-color('700');
       transform: rotate(180deg);
     }
   }
@@ -692,7 +647,7 @@ export default class Navbar extends Vue {
     width: 40px;
     border-radius: 50%;
     &:hover {
-      background-color: light-color("500");
+      background-color: light-color('500');
     }
 
     cursor: pointer;
@@ -705,12 +660,12 @@ export default class Navbar extends Vue {
 
   .nav-profile-container {
     cursor: pointer;
-    background: light-color("500");
+    background: light-color('500');
     padding: 10px 18px 10px 14px;
     border-radius: 24px;
 
     .navbar-user-address {
-      @include font-setting("body-medium", "400");
+      @include font-setting('body-medium', '400');
       margin: 0 13px 0 10px;
     }
 
@@ -720,7 +675,7 @@ export default class Navbar extends Vue {
       .svg-sprite-icon {
         width: 10px;
         height: 14px;
-        fill: rgba(dark-color("700"), 0.4);
+        fill: rgba(dark-color('700'), 0.4);
         transform: rotate(90deg);
       }
     }
@@ -729,10 +684,10 @@ export default class Navbar extends Vue {
 
 .profile-navbar {
   height: 100%;
-  border-left: 1px solid light-color("500");
+  border-left: 1px solid light-color('500');
 
   .network-switch-nav {
-    border-right: 1px solid light-color("500");
+    border-right: 1px solid light-color('500');
   }
 
   .profile-with-status {
@@ -753,13 +708,13 @@ export default class Navbar extends Vue {
       height: 10px;
     }
     .status-icon.matic circle {
-      fill: primary-color("500");
+      fill: primary-color('500');
     }
     .status-icon.main circle {
-      fill: green-color("500");
+      fill: green-color('500');
     }
     .status-icon.other circle {
-      fill: dark-color("700");
+      fill: dark-color('700');
     }
   }
 }
@@ -768,7 +723,7 @@ export default class Navbar extends Vue {
   // width: 446px;
   position: absolute;
   right: 0;
-  color: dark-color("700");
+  color: dark-color('700');
   border-radius: 16px;
   max-width: 445px;
   width: 100%;
@@ -778,7 +733,7 @@ export default class Navbar extends Vue {
   }
 
   .profile-address {
-    background-color: light-color("500");
+    background-color: light-color('500');
     border-radius: 4px;
     padding: 0 12px;
     height: 34px;
@@ -793,7 +748,7 @@ export default class Navbar extends Vue {
       font-size: 10px;
       letter-spacing: 0.04em;
       text-transform: uppercase;
-      color: dark-color("300");
+      color: dark-color('300');
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -814,11 +769,11 @@ export default class Navbar extends Vue {
     z-index: 99;
   }
   .copy-icon {
-    fill: dark-color("300");
+    fill: dark-color('300');
   }
 
   .logout-icon {
-    fill: dark-color("500");
+    fill: dark-color('500');
     width: 20px;
     height: 20px;
     margin-right: 5px;
@@ -856,7 +811,7 @@ export default class Navbar extends Vue {
     cursor: pointer;
 
     .option-text {
-      color: dark-color("500");
+      color: dark-color('500');
     }
 
     .option-icon.active {
@@ -872,10 +827,10 @@ export default class Navbar extends Vue {
     }
 
     &:hover {
-      background-color: light-color("600");
+      background-color: light-color('600');
 
       .option-text {
-        color: primary-color("600");
+        color: primary-color('600');
       }
       .option-icon.inactive {
         display: none;
@@ -885,7 +840,7 @@ export default class Navbar extends Vue {
       }
 
       .right-arrow path {
-        fill: primary-color("600");
+        fill: primary-color('600');
       }
     }
   }
@@ -901,7 +856,7 @@ export default class Navbar extends Vue {
       left: 0;
       right: 0;
       height: auto;
-      background-color: rgba(dark-color("700"), 0.3);
+      background-color: rgba(dark-color('700'), 0.3);
       width: 100%;
       height: auto;
 
@@ -909,11 +864,11 @@ export default class Navbar extends Vue {
         display: block !important;
 
         .main-nav {
-          background-color: light-color("700");
+          background-color: light-color('700');
           width: 100%;
           flex-direction: column;
           height: auto;
-          border-top: 1px solid light-color("500");
+          border-top: 1px solid light-color('500');
           border-bottom-left-radius: 12px;
           border-bottom-right-radius: 12px;
           padding-bottom: 8px;
