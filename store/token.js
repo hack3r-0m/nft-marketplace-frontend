@@ -58,12 +58,9 @@ export default {
       }
     },
 
-    async fetchBalances(
-      { rootGetters, state, dispatch },
-      payload = { refresh: false },
-    ) {
+    async fetchBalances({ rootState, state, dispatch }, payload = { refresh: false }) {
       const tokens = state.erc20Tokens
-      const networks = rootGetters['network/networks']
+      const networks = rootState['network']['networks']
 
       for (let i = 0; i < tokens.length; i++) {
         await dispatch(
@@ -91,5 +88,35 @@ export default {
       dispatch('trunk/resetBalances', {}, { root: true })
       await dispatch('fetchBalances')
     },
-  },
+
+    async fetchEthereum({ commit }, payload) {
+      const response = await Vue.service.token.fetchBalance(payload);
+
+      if (response.status === 200 && response.data.count) {
+        commit('account/totalMainNft', response.data.count, { root: true })
+      }
+    },
+    async fetchNFTTokens({ commit }, payload) {
+      const tokens = []
+      const response = await Vue.service.token.fetchBalance(payload);
+
+      if (response.status === 200 && response.data.data) {
+
+        const balances = {}
+        response.data.data.forEach((token, i) => {
+          token.id = i + 1;
+          token.chainId = this.chainId
+          tokens.push(new NFTTokenModel(token))
+          if (token.contract in balances) {
+            balances[token.contract]++
+          } else {
+            balances[token.contract] = 1
+          }
+        })
+        commit('account/totalMaticNft', response.data.count, { root: true })
+        commit('category/addUsersMaticCount', balances, { root: true });
+      }
+      return tokens;
+    },
+  }
 }

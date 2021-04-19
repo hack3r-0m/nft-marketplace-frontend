@@ -1,33 +1,15 @@
 export const getter = {
-    selectedNetwork(state) {
+    selectedNetwork(state, getters) {
         return state.networks[
-            state.selectedNetworkKey ||
-            configStore.get('selectedNetworkKey') ||
-            'matic'
+            getters.selectedNetworkKey
         ]
     },
 
     selectedNetworkKey(state) {
-        return (
-            state.selectedNetworkKey ||
-            configStore.get('selectedNetworkKey') ||
-            'matic'
-        )
+        return state.selectedNetworkKey || 'matic'
     },
 
     rootChainNetwork(state) {
-        return state.networks[
-            state.selectedNetworkKey ||
-            configStore.get('selectedNetworkKey') ||
-            'main'
-        ]
-    },
-
-    networks(state) {
-        return state.networks
-    },
-
-    networkMeta(state) {
-        return state.networkMeta
+        return state.networks[state.selectedNetworkKey || 'main']
     },
 }

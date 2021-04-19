@@ -134,7 +134,7 @@ import Vue from 'vue'
 import Component from 'nuxt-class-component'
 import Web3 from 'web3'
 import moment from 'moment'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import ethUtil from 'ethereumjs-util'
 // import Portis from "@portis/web3";
 
@@ -162,7 +162,10 @@ import { LOGIN_STRATEGY } from '~/constants'
   },
   mixins: [NextNavigation],
   computed: {
-    ...mapGetters('network', ['networks', 'selectedNetwork']),
+    ...mapState('network', {
+      networks: (q) => q.networks,
+    }),
+    ...mapGetters('network', ['selectedNetwork']),
   },
 })
 export default class Login extends Vue {
@@ -178,6 +181,7 @@ export default class Login extends Vue {
   queryParams = {}
 
   async mounted() {
+    this.$logger.debug('networks', this.networks)
     this.nextRoute = this.nextRoute || { name: 'index' }
     this.queryParams = this.$route.query
     this.loaded = true
@@ -267,7 +271,6 @@ export default class Login extends Vue {
   }
 
   async login(address, signature, loginStrategy) {
-    debugger
     this.loading = true
     this.$logger.track('user-login-start:login', { address })
     try {

@@ -1,4 +1,6 @@
 import Vue from "vue";
+import AccountModel from '~/components/model/account'
+
 export const action = {
     reset({ commit }) {
         commit("reset");
@@ -24,11 +26,15 @@ export const action = {
             commit('setLoginStrategy', payload.loginStrategy)
             commit('setToken', response.data.auth_token)
             commit('setUser', user);
-            // rootCommit(
-            //     'account/account',
-            //     address: getters['address'],
-            // )
+            commit('account/account', new AccountModel({
+                address: user.address
+            }),
+                {
+                    root: true
+                }
+            )
             await dispatch('token/reloadBalances', null, { root: true });
+            await dispatch('account/fetchActiveOrders', null, { root: true });
             // app.initNetworks(app.vuexStore)
             // app.initAccount(app.vuexStore)
         }

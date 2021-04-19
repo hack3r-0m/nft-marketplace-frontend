@@ -35,7 +35,7 @@ export default {
         }
       },
       debug(...args) {
-        console.log(args)
+        console.log(...args)
       },
     }
     Vue.logger = logger

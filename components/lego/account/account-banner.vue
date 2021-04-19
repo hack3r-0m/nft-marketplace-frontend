@@ -3,10 +3,7 @@
     <div
       class="col-12 col-lg d-flex flex-column flex-md-row justify-content-center justify-content-lg-start"
     >
-      <svg-sprite-icon
-        name="profile"
-        class="profile-pic align-self-center"
-      />
+      <svg-sprite-icon name="profile" class="profile-pic align-self-center" />
       <div
         class="d-flex flex-column align-self-center ps-l-md-16 text-center text-md-left ps-t-16 ps-t-md-0"
       >
@@ -21,15 +18,12 @@
             {{ account.shortChecksumAddress }}
           </div>
           &nbsp; &nbsp;
-          <div
-            class="copy-wrapper"
-            @click.stop.prevent="copyAddress"
-          >
+          <div class="copy-wrapper" @click.stop.prevent="copyAddress">
             <img
               v-if="copyAnim === false"
               name="copy-white"
               src="~/assets/svg/copy-white.svg"
-            >
+            />
             <lottie
               v-if="copyAnim === true"
               :options="defaultOptions"
@@ -47,7 +41,7 @@
         class="d-flex flex-column align-self-center ms-r-32 justify-content-start"
       >
         <div class="white-color name ps-b-4 font-heading-small font-semibold">
-          {{ $t("account.banner.totalNft") }}
+          {{ $t('account.banner.totalNft') }}
         </div>
         <div class="white-color amount font-body-medium text-right">
           {{ totalMaticNft + totalMainNft }}
@@ -57,55 +51,49 @@
         class="d-flex flex-column align-self-center ms-r-32 justify-content-start"
       >
         <div class="white-color name ps-b-4 font-heading-small font-semibold">
-          {{ $t("account.banner.WETHBalance") }}
+          {{ $t('account.banner.WETHBalance') }}
         </div>
         <div
           v-if="erc20TokenBySymbol('WETH')"
           class="white-color amount font-body-medium text-right"
         >
-          {{ formattedFullUSDBalance("WETH") }}
+          {{ formattedFullUSDBalance('WETH') }}
         </div>
       </div>
       <div
         class="d-flex flex-column align-self-center ms-r-32 justify-content-start"
       >
         <div class="white-color name ps-b-4 font-heading-small font-semibold">
-          {{ $t("account.banner.DAIBalance") }}
+          {{ $t('account.banner.DAIBalance') }}
         </div>
         <div
           v-if="erc20TokenBySymbol('DAI')"
           class="white-color amount font-body-medium text-right"
         >
-          {{ formattedFullUSDBalance("DAI") }}
+          {{ formattedFullUSDBalance('DAI') }}
         </div>
       </div>
       <div
         class="d-flex flex-column align-self-center ms-r-32 justify-content-start"
       >
         <div class="white-color name ps-b-4 font-heading-small font-semibold">
-          {{ $t("account.banner.USDCBalance") }}
+          {{ $t('account.banner.USDCBalance') }}
         </div>
         <div
           v-if="erc20TokenBySymbol('USDC')"
           class="white-color amount font-body-medium text-right"
         >
-          {{ formattedFullUSDBalance("USDC") }}
+          {{ formattedFullUSDBalance('USDC') }}
         </div>
       </div>
 
       <div class="align-self-center">
-        <button
-          class="btn btn-light ml-auto"
-          @click="depositModal = true"
-        >
-          {{ $t("account.banner.depositWeth") }}
+        <button class="btn btn-light ml-auto" @click="depositModal = true">
+          {{ $t('account.banner.depositWeth') }}
         </button>
       </div>
     </div>
-    <deposit-weth
-      :show="depositModal"
-      :close="closeDepositModal"
-    />
+    <deposit-weth :show="depositModal" :close="closeDepositModal" />
   </div>
 </template>
 
@@ -114,7 +102,7 @@ import Vue from 'vue'
 import Component from 'nuxt-class-component'
 import copy from 'copy-to-clipboard'
 import Lottie from 'vue-lottie'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 
 import app from '~/plugins/app'
 import DepositWeth from '~/components/lego/modals/deposit-weth'
@@ -124,6 +112,9 @@ import * as animationData from '~/static/lottie-animations/green-check.json'
   props: {},
   components: { DepositWeth, Lottie },
   computed: {
+    ...mapState('auth', {
+      user: (state) => state.user,
+    }),
     ...mapGetters('account', ['account', 'totalMaticNft', 'totalMainNft']),
     ...mapGetters('token', ['totalCurrencyBalance', 'erc20Tokens']),
     ...mapGetters('network', ['networkMeta']),
@@ -152,9 +143,9 @@ import * as animationData from '~/static/lottie-animations/green-check.json'
   },
 })
 export default class AccountBanner extends Vue {
-  defaultOptions = { animationData: animationData.default, loop: false };
-  animationSpeed = 2;
-  copyAnim = false;
+  defaultOptions = { animationData: animationData.default, loop: false }
+  animationSpeed = 2
+  copyAnim = false
 
   // Widget event listener
   maticWidgetEventsListener = (event) => {
@@ -168,7 +159,7 @@ export default class AccountBanner extends Vue {
     if (targetedEvents.includes(event.data.type)) {
       this.$store.dispatch('token/reloadBalances')
     }
-  };
+  }
 
   mounted() {
     // Register widget event listner
@@ -208,13 +199,13 @@ export default class AccountBanner extends Vue {
 </script>
 
 <style lang="scss" scoped="true">
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 
 .white-color {
-  color: light-color("700");
+  color: light-color('700');
 }
 .account-banner {
-  background-color: primary-color("600");
+  background-color: primary-color('600');
 
   .profile-pic {
     min-width: 64px !important;
