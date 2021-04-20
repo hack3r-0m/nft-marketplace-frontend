@@ -1,6 +1,6 @@
 <template>
   <div class="container-fluid p-0">
-    <navbar-section />
+    <navbar-section v-if="false" />
     <div class="content-container">
       <div class="nuxt-section">
         <nuxt />
@@ -19,21 +19,21 @@ export default {
     NavbarSection,
     Toast,
   },
-
+  computed: {
+    shouldShowNavBar() {
+      return this.$route.name != 'login'
+    },
+  },
   created() {
     this.isMobileDevice = window.innerWidth < 768
   },
 
-  mounted(){
-
-  },
-
-  
+  mounted() {},
 }
 </script>
 
 <style lang="scss" scoped="true">
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 
 .nuxt-section {
   margin-top: $navbar-local-height;
@@ -41,7 +41,7 @@ export default {
 
 .logo-container {
   height: 100px;
-  background-color: theme-color("primary");
+  background-color: theme-color('primary');
 }
 
 .logo {
