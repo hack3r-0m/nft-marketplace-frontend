@@ -15,11 +15,6 @@ const app = {
   gasLimit: 3500000,
   maticDecimals: 18,
   bus: new Vue(),
-  orderTypes: {
-    FIXED: 'FIXED',
-    NEGOTIATION: 'NEGOTIATION',
-    AUCTION: 'AUCTION',
-  },
 
   async init(store, sentry) {
     STORE = store;

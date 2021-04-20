@@ -6,3 +6,8 @@ export const LOGIN_STRATEGY = {
     portis: 'portis',
 };
 
+export const ORDER_TYPES = {
+    fixed: 'FIXED',
+    negotiation: 'NEGOTIATION',
+    auction: 'AUCTION',
+};

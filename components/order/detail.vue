@@ -119,7 +119,7 @@
                 {{ order.price }} {{ erc20Token.symbol }}
               </div>
               <div
-                v-if="order.type === app.orderTypes.NEGOTIATION"
+                v-if="order.type === ORDER_TYPES.negotiation"
                 class="font-body-medium ps-b-20"
               >
                 Minimum Price:
@@ -129,7 +129,7 @@
               </div>
               <div
                 v-if="
-                  order.type === app.orderTypes.NEGOTIATION && order.highest_bid
+                  order.type === ORDER_TYPES.negotiation && order.highest_bid
                 "
                 class="font-body-medium ps-b-20"
               >
@@ -165,7 +165,7 @@
               v-if="
                 isInsufficientBalance &&
                 order.status === 0 &&
-                (order.type === app.orderTypes.FIXED || !validation['balance'])
+                (order.type === ORDER_TYPES.fixed || !validation['balance'])
               "
               class="font-body-medium font-semibold text-primary text-center cursor-pointer ps-t-16"
               @click="depositModal = true"
@@ -265,7 +265,7 @@
 
             <div
               v-if="
-                order.type !== app.orderTypes.FIXED &&
+                order.type !== ORDER_TYPES.fixed &&
                 bidsFullList &&
                 bidsFullList.length
               "
@@ -340,7 +340,7 @@
                 {{ order.price }} {{ erc20Token.symbol }}
               </div>
               <div
-                v-if="order.type === app.orderTypes.NEGOTIATION"
+                v-if="order.type === ORDER_TYPES.negotiation"
                 class="font-body-medium ps-b-20"
               >
                 Minimum Price:
@@ -350,7 +350,7 @@
               </div>
               <div
                 v-if="
-                  order.type === app.orderTypes.NEGOTIATION && order.highest_bid
+                  order.type === ORDER_TYPES.negotiation && order.highest_bid
                 "
                 class="font-body-medium ps-b-20"
               >
@@ -386,7 +386,7 @@
               v-if="
                 isInsufficientBalance &&
                 order.status === 0 &&
-                (order.type === app.orderTypes.FIXED || !validation['balance'])
+                (order.type === ORDER_TYPES.fixed || !validation['balance'])
               "
               class="font-body-medium font-semibold text-primary text-center cursor-pointer ps-t-16"
               @click="depositModal = true"
@@ -441,9 +441,7 @@
 <script>
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
-import app from '~/plugins/app'
 import { mapGetters } from 'vuex'
-
 import TokenShortInfo from '~/components/lego/token/token-short-info'
 import WishlistButton from '~/components/lego/wishlist-button'
 import BidderRow from '~/components/lego/bidder-row'
@@ -451,7 +449,6 @@ import BuyToken from '~/components/lego/modals/buy-token'
 import CancelConfirm from '~/components/lego/modals/cancel-confirm'
 import DepositWeth from '~/components/lego/modals/deposit-weth'
 import { txShowError } from '~/helpers/transaction-utils'
-
 import rgbToHsl from '~/helpers/color-algorithm'
 import { providerEngine } from '~/helpers/provider-engine'
 import { getColorFromImage } from '~/utils'
@@ -461,6 +458,7 @@ const { ContractWrappers } = require('@0x/contract-wrappers')
 const { generatePseudoRandomSalt, signatureUtils } = require('@0x/order-utils')
 const { BigNumber } = require('@0x/utils')
 const { Web3Wrapper } = require('@0x/web3-wrapper')
+import {  ORDER_TYPES } from "~/constants";
 
 @Component({
   props: {
@@ -602,16 +600,16 @@ export default class TokenDetail extends Vue {
   }
 
   get isOwnersToken() {
-    if (this.user && this.order.type !== app.orderTypes.FIXED) {
+    if (this.user && this.order.type !== ORDER_TYPES.fixed) {
       return this.user.id === this.order.taker_address
-    } else if (this.user && this.order.type === app.orderTypes.FIXED) {
+    } else if (this.user && this.order.type === ORDER_TYPES.fixed) {
       return this.user.id === this.order.maker_address
     }
     return false
   }
 
   get buttonVal() {
-    return this.order.type === app.orderTypes.FIXED ? 'Buy Now' : 'Place a Bid'
+    return this.order.type === ORDER_TYPES.fixed ? 'Buy Now' : 'Place a Bid'
   }
 
   get validation() {
@@ -647,7 +645,7 @@ export default class TokenDetail extends Vue {
         return this.$router.push({ name: 'index' })
       }
       this.order = order
-      if (order && order.type !== app.orderTypes.FIXED) {
+      if (order && order.type !== ORDER_TYPES.fixed) {
         await this.fetchBidders()
       }
     } catch (error) {
@@ -692,7 +690,7 @@ export default class TokenDetail extends Vue {
   async cancelOrder() {
     this.isLoading = true
     try {
-      if (this.order.type === app.orderTypes.FIXED) {
+      if (this.order.type === ORDER_TYPES.fixed) {
         const signedOrder = JSON.parse(this.order.signature)
         const takerAssetAmount = Web3Wrapper.toBaseUnitAmount(
           new BigNumber(this.order.price),
@@ -805,7 +803,7 @@ export default class TokenDetail extends Vue {
   }
 
   async fetchBidders() {
-    if (this.isLoadingBids || this.order.type === app.orderTypes.FIXED) {
+    if (this.isLoadingBids || this.order.type === ORDER_TYPES.fixed) {
       return
     }
     try {
