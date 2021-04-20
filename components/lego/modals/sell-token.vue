@@ -1,17 +1,8 @@
 <template>
   <div class="section position-absolute">
-    <div
-      v-if="!showApproveModal"
-      class="modal-backdrop show"
-    />
-    <div
-      v-if="!showApproveModal"
-      class="modal transaction-prog-modal show"
-    >
-      <div
-        class="modal-dialog w-sm-100 align-self-center"
-        role="document"
-      >
+    <div v-if="!showApproveModal" class="modal-backdrop show" />
+    <div v-if="!showApproveModal" class="modal transaction-prog-modal show">
+      <div class="modal-dialog w-sm-100 align-self-center" role="document">
         <div class="box in-process-box">
           <div class="box-body">
             <div class="container-fluid">
@@ -24,15 +15,14 @@
                   class="nav-item col ps-y-24 px-0 text-center nav-link font-body-medium"
                   :class="{ 'active font-medium': activeTab === tab.id }"
                   @click.prevent="changeTab(tab.id)"
-                >{{ tab.title }}</a>
+                >
+                  {{ tab.title }}
+                </a>
               </nav>
               <div
                 class="row ps-x-16 ps-x-md-32 ps-x-lg-40 ps-y-32 bottom-border d-flex"
               >
-                <div
-                  v-if="isErc1155"
-                  class="d-flex align-self-center ps-b-8"
-                >
+                <div v-if="isErc1155" class="d-flex align-self-center ps-b-8">
                   <div
                     class="align-self-center font-heading-small font-semibold"
                   >
@@ -47,10 +37,7 @@
                     Available : {{ nftToken.amount }}
                   </div>
                 </div>
-                <div
-                  v-if="isErc1155"
-                  class="col-md-12 p-0"
-                >
+                <div v-if="isErc1155" class="col-md-12 p-0">
                   <Textfield
                     v-if="isErc1155"
                     type="text"
@@ -65,7 +52,7 @@
                   >
                     Valid quantity is required
                   </div>
-                  <br>
+                  <br />
                 </div>
 
                 <div
@@ -117,9 +104,9 @@
                   <div
                     v-if="
                       dirty &&
-                        (isErc721
-                          ? !validation['price']
-                          : !validation['pricePerUnit'])
+                      (isErc721
+                        ? !validation['price']
+                        : !validation['pricePerUnit'])
                     "
                     class="w-100 font-caption error-text ps-t-12"
                   >
@@ -145,18 +132,12 @@
                 </div>
                 <div class="d-flex ml-auto align-self-center">
                   <label class="switch align-self-center">
-                    <input
-                      v-model="negotiation"
-                      type="checkbox"
-                    >
+                    <input v-model="negotiation" type="checkbox" />
                     <span class="slider round" />
                   </label>
                 </div>
                 <transition name="fade">
-                  <div
-                    v-if="negotiation"
-                    class="col-md-12 p-0"
-                  >
+                  <div v-if="negotiation" class="col-md-12 p-0">
                     <div
                       v-if="isErc721"
                       class="w-100 font-body-small ps-y-12 text-gray-500"
@@ -204,9 +185,9 @@
                     <div
                       v-if="
                         dirty &&
-                          (isErc721
-                            ? !validation['minPrice']
-                            : !validation['minPricePerUnit'])
+                        (isErc721
+                          ? !validation['minPrice']
+                          : !validation['minPricePerUnit'])
                       "
                       class="w-100 font-caption error-text ps-t-4"
                     >
@@ -235,17 +216,23 @@
                     class="time-pill font-body-small"
                     :class="{ active: duration === EXPIRY_DURATION.ONE_WEEK }"
                     @click="changeDuration(EXPIRY_DURATION.ONE_WEEK)"
-                  >1 week</span>
+                  >
+                    1 week
+                  </span>
                   <span
                     class="time-pill font-body-small"
                     :class="{ active: duration === EXPIRY_DURATION.ONE_MONTH }"
                     @click="changeDuration(EXPIRY_DURATION.ONE_MONTH)"
-                  >1 month</span>
+                  >
+                    1 month
+                  </span>
                   <span
                     class="time-pill font-body-small"
                     :class="{ active: duration === EXPIRY_DURATION.CUSTOM }"
                     @click="changeDuration(EXPIRY_DURATION.CUSTOM)"
-                  >Custom</span>
+                  >
+                    Custom
+                  </span>
                 </div>
                 <div class="col-md-12 ps-x-0 ps-t-24">
                   <input
@@ -255,14 +242,14 @@
                     :min="minimumDate"
                     :change="onAuctionDateTimeChange()"
                     @click="toCustom()"
-                  >
+                  />
                   <input
                     v-model="auction_time"
                     class="form-control form-control-inline float-right w-auto ps-y-0"
                     type="time"
                     :change="onAuctionDateTimeChange()"
                     @click="toCustom()"
-                  >
+                  />
                 </div>
               </div>
               <div
@@ -313,7 +300,7 @@
 <script>
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import { formatUSDValue } from '~/helpers/index'
 import { txShowError } from '~/helpers/transaction-utils'
 import Web3 from 'web3'
@@ -330,7 +317,7 @@ import ApproveProcess from '~/components/lego/modals/approve-process'
 import { getRandomFutureDateInSeconds } from '~/helpers/0x-utils'
 import { Textfield } from '@maticnetwork/matic-design-system'
 
-import { providerEngine } from '~/helpers/provider-engine'
+import { getProviderEngine } from '~/helpers/provider-engine'
 import { registerNetwork } from '~/helpers/metamask-utils'
 
 const { getTypedData } = require('~/plugins/meta-tx')
@@ -375,29 +362,32 @@ const TEN = BigNumber(10)
     ...mapGetters('token', ['selectedERC20Token']),
     ...mapGetters('account', ['account']),
     ...mapGetters('auth', ['user']),
-    ...mapGetters('network', ['networks', 'networkMeta']),
+    ...mapGetters('network', ['networkMeta']),
+    ...mapState('network', {
+      networks: (state) => state.networks,
+    }),
     ...mapGetters('category', ['categories']),
   },
   methods: {},
   mixins: [FormValidator],
 })
 export default class SellToken extends Vue {
-  activeTab = 0;
-  duration = 0;
-  negotiation = false;
-  isLoading = false;
-  dirty = false;
-  error = '';
-  expiry_date_time = '';
-  auction_time = moment().format('HH:mm');
-  auction_date = moment().add(1, 'days').format('YYYY-MM-DD');
-  minimumDate = this.auction_date;
-  showApproveModal = false;
-  isApprovedStatus = false;
-  isSignedStatus = false;
-  approveLoading = false;
-  signLoading = false;
-  showNetworkChangeNeeded = false;
+  activeTab = 0
+  duration = 0
+  negotiation = false
+  isLoading = false
+  dirty = false
+  error = ''
+  expiry_date_time = ''
+  auction_time = moment().format('HH:mm')
+  auction_date = moment().add(1, 'days').format('YYYY-MM-DD')
+  minimumDate = this.auction_date
+  showApproveModal = false
+  isApprovedStatus = false
+  isSignedStatus = false
+  approveLoading = false
+  signLoading = false
+  showNetworkChangeNeeded = false
 
   approvalModalText = {
     approve: {
@@ -408,13 +398,13 @@ export default class SellToken extends Vue {
       title: 'Sign sell order',
       subText: 'Sign sell transaction',
     },
-  };
+  }
 
-  price = 0;
-  minPrice = 0;
-  pricePerUnit = 0;
-  minPricePerUnit = 0;
-  erc1155Amount = null;
+  price = 0
+  minPrice = 0
+  pricePerUnit = 0
+  minPricePerUnit = 0
+  erc1155Amount = null
 
   tabs = [
     {
@@ -427,12 +417,12 @@ export default class SellToken extends Vue {
       commission: '',
       btnTitle: 'List for Sale',
     },
-  ];
+  ]
 
   mounted() {
     // initialize duration
-    this.changeDuration(this.EXPIRY_DURATION.ONE_WEEK);
-    this.$logger.track("mounted:sell-token", this.nftToken);
+    this.changeDuration(this.EXPIRY_DURATION.ONE_WEEK)
+    this.$logger.track('mounted:sell-token', this.nftToken)
   }
 
   // Handlers
@@ -526,7 +516,7 @@ export default class SellToken extends Vue {
       )
       const makerAddress = this.account.address
       const chainId = this.networks.matic.chainId
-      const contractWrappers = new ContractWrappers(providerEngine(), {
+      const contractWrappers = new ContractWrappers(getProviderEngine(), {
         chainId: chainId,
       })
 
@@ -548,7 +538,7 @@ export default class SellToken extends Vue {
       } else {
         const erc721TokenCont = new ERC721TokenContract(
           nftContract,
-          providerEngine(),
+          getProviderEngine(),
         )
 
         isApprovedForAll = await erc721TokenCont
@@ -569,8 +559,8 @@ export default class SellToken extends Vue {
   }
 
   async approveClickedFunc() {
-    this.showNetworkChangeNeeded = false;
-    this.approveLoading = true;
+    this.showNetworkChangeNeeded = false
+    this.approveLoading = true
 
     try {
       this.$logger.track('approval-start:sell-token')
@@ -586,7 +576,7 @@ export default class SellToken extends Vue {
       const erc20Address = this.selectedERC20Token.address
       const makerAddress = this.account.address
       const chainId = this.networks.matic.chainId
-      const contractWrappers = new ContractWrappers(providerEngine(), {
+      const contractWrappers = new ContractWrappers(getProviderEngine(), {
         chainId: chainId,
       })
       const decimalnftTokenId = this.nftToken.token_id
@@ -603,10 +593,7 @@ export default class SellToken extends Vue {
         takerAssetAmount = this.price.toString(10)
         minPrice = this.minPrice
 
-        erc721TokenCont = new ERC721TokenContract(
-          nftContract,
-          providerEngine(),
-        )
+        erc721TokenCont = new ERC721TokenContract(nftContract, getProviderEngine())
         console.log(erc721TokenCont)
         this.$logger.track('approve0x-721-start:sell-token')
         isApproved = await this.approve0x(
@@ -667,7 +654,7 @@ export default class SellToken extends Vue {
       const makerAddress = this.account.address
       const chainId = this.networks.matic.chainId
       const decimalnftTokenId = this.nftToken.token_id
-      const contractWrappers = new ContractWrappers(providerEngine(), {
+      const contractWrappers = new ContractWrappers(getProviderEngine(), {
         chainId: chainId,
       })
 
@@ -742,7 +729,7 @@ export default class SellToken extends Vue {
       if (orderType === app.orderTypes.FIXED) {
         this.$logger.track('sign-fixed-order-start:sell-token')
         signedOrder = await signatureUtils.ecSignOrderAsync(
-          providerEngine(),
+          getProviderEngine(),
           orderTemplate,
           makerAddress,
         )
@@ -788,7 +775,7 @@ export default class SellToken extends Vue {
         // ERC721 contract
         const erc721TokenCont = new ERC721TokenContract(
           nftContract,
-          providerEngine(),
+          getProviderEngine(),
         )
 
         // Owner of current token
@@ -831,9 +818,9 @@ export default class SellToken extends Vue {
       //   await registerNetwork();
       //   return true;
       // } catch (error) {
-        this.error = 'selectMatic'
-        this.showNetworkChangeNeeded = true;
-        return false;
+      this.error = 'selectMatic'
+      this.showNetworkChangeNeeded = true
+      return false
       // }
     }
     return true
@@ -875,41 +862,41 @@ export default class SellToken extends Vue {
             const makerERC721ApprovalTxHash = await tokenCont
               .setApprovalForAll(
                 contractWrappers.contractAddresses.erc721Proxy,
-                true
+                true,
               )
               .sendTransactionAsync({
                 from: makerAddress,
                 gas: 100000,
                 gasPrice: 1000000000,
-              });
+              })
 
             if (makerERC721ApprovalTxHash) {
-              console.log("Approve Hash", makerERC721ApprovalTxHash);
+              console.log('Approve Hash', makerERC721ApprovalTxHash)
               app.addToast(
-                "Approved successfully",
-                "You successfully approved the token to put on sale",
+                'Approved successfully',
+                'You successfully approved the token to put on sale',
                 {
-                  type: "success",
-                }
-              );
-              return true;
+                  type: 'success',
+                },
+              )
+              return true
             }
           } catch (error) {
-            console.log(error);
+            console.log(error)
             if (
               error.message.includes(
-                "MetaMask is having trouble connecting to the network"
+                'MetaMask is having trouble connecting to the network',
               )
             ) {
-              txShowError(error, null, "Please Try Again");
+              txShowError(error, null, 'Please Try Again')
             } else {
               app.addToast(
-                "Failed to approve",
-                "You need to approve the transaction to sale the NFT",
+                'Failed to approve',
+                'You need to approve the transaction to sale the NFT',
                 {
-                  type: "failure",
-                }
-              );
+                  type: 'failure',
+                },
+              )
             }
           }
         } else {
@@ -1199,8 +1186,8 @@ export default class SellToken extends Vue {
           : true,
       erc1155Amount: this.isErc1155
         ? new BigNumber(this.erc1155Amount).lte(
-          new BigNumber(this.nftToken.amount),
-        ) &&
+            new BigNumber(this.nftToken.amount),
+          ) &&
           new BigNumber(parseFloat(this.erc1155Amount)).eq(
             new BigNumber(parseInt(this.erc1155Amount)),
           ) &&
@@ -1274,21 +1261,21 @@ export default class SellToken extends Vue {
 </script>
 
 <style lang="scss" scoped>
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 
 .hide-modal {
   opacity: 0;
 }
 
 .text-gray-500 {
-  color: dark-color("500");
+  color: dark-color('500');
 }
 .text-gray-300 {
-  color: dark-color("300");
+  color: dark-color('300');
 }
 .time-pill {
-  background-color: light-color("500");
-  color: dark-color("700");
+  background-color: light-color('500');
+  color: dark-color('700');
   padding-left: 1rem;
   padding-right: 1rem;
   padding-top: 0.5rem;
@@ -1299,8 +1286,8 @@ export default class SellToken extends Vue {
   cursor: pointer;
 
   &.active {
-    background-color: dark-color("700");
-    color: light-color("700");
+    background-color: dark-color('700');
+    color: light-color('700');
   }
 }
 
@@ -1327,7 +1314,7 @@ export default class SellToken extends Vue {
 }
 
 .error-text {
-  color: red-color("400");
+  color: red-color('400');
 }
 .ps-y-0 {
   padding-top: 0px !important;

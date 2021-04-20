@@ -359,7 +359,7 @@ import ApproveProcess from '~/components/lego/modals/approve-process'
 import DepositWeth from '~/components/lego/modals/deposit-weth'
 import { registerNetwork } from '~/helpers/metamask-utils'
 
-import { providerEngine } from '~/helpers/provider-engine'
+import { getProviderEngine } from '~/helpers/provider-engine'
 import { txShowError } from '~/helpers/transaction-utils'
 
 const { getTypedData } = require('~/plugins/meta-tx')
@@ -608,7 +608,7 @@ export default class BuyToken extends Vue {
           .address
 
         const makerAddress = this.account.address
-        const contractWrappers = new ContractWrappers(providerEngine(), {
+        const contractWrappers = new ContractWrappers(getProviderEngine(), {
           chainId,
         })
 
@@ -622,7 +622,7 @@ export default class BuyToken extends Vue {
         const matic = new Web3(this.networks.matic.rpc)
         const erc20TokenCont = new ERC20TokenContract(
           erc20Address,
-          providerEngine(),
+          getProviderEngine(),
         )
 
         const allowance = await erc20TokenCont
@@ -648,7 +648,7 @@ export default class BuyToken extends Vue {
           this.erc20Token.decimal,
         )
         const signedOrder = JSON.parse(this.order.signature)
-        const contractWrappers = new ContractWrappers(providerEngine(), {
+        const contractWrappers = new ContractWrappers(getProviderEngine(), {
           chainId: signedOrder.chainId,
         })
 
@@ -656,7 +656,7 @@ export default class BuyToken extends Vue {
         const matic = new Web3(this.networks.matic.rpc)
         const erc20TokenCont = new ERC20TokenContract(
           erc20Address,
-          providerEngine(),
+          getProviderEngine(),
         )
 
         const allowance = await erc20TokenCont
@@ -697,7 +697,7 @@ export default class BuyToken extends Vue {
         const makerAssetAmount = this.makerAmount.toString(10)
         const takerAssetAmount = new BigNumber(1)
         const decimalnftTokenId = this.order.tokens_id
-        const contractWrappers = new ContractWrappers(providerEngine(), {
+        const contractWrappers = new ContractWrappers(getProviderEngine(), {
           chainId,
         })
 
@@ -739,7 +739,7 @@ export default class BuyToken extends Vue {
           this.erc20Token.decimal,
         )
         const signedOrder = JSON.parse(this.order.signature)
-        const contractWrappers = new ContractWrappers(providerEngine(), {
+        const contractWrappers = new ContractWrappers(getProviderEngine(), {
           chainId: signedOrder.chainId,
         })
 
@@ -792,7 +792,7 @@ export default class BuyToken extends Vue {
         const makerAssetAmount = this.makerAmount.toString(10)
         let takerAssetAmount = null
         const decimalnftTokenId = this.order.tokens_id
-        const contractWrappers = new ContractWrappers(providerEngine(), {
+        const contractWrappers = new ContractWrappers(getProviderEngine(), {
           chainId,
         })
 
@@ -806,7 +806,7 @@ export default class BuyToken extends Vue {
         const exchangeAddress = contractWrappers.contractAddresses.exchange
         const erc20TokenCont = new ERC20TokenContract(
           erc20Address,
-          providerEngine(),
+          getProviderEngine(),
         )
 
         const makerAssetData = await contractWrappers.devUtils
@@ -854,7 +854,7 @@ export default class BuyToken extends Vue {
         }
         this.$logger.track('signing-start-negotiation:buy-token')
         const signedOrder = await signatureUtils.ecSignOrderAsync(
-          providerEngine(),
+          getProviderEngine(),
           orderTemplate,
           makerAddress,
         )
@@ -908,7 +908,7 @@ export default class BuyToken extends Vue {
           this.erc20Token.decimal,
         )
         const signedOrder = JSON.parse(this.order.signature)
-        const contractWrappers = new ContractWrappers(providerEngine(), {
+        const contractWrappers = new ContractWrappers(getProviderEngine(), {
           chainId: signedOrder.chainId,
         })
 
@@ -956,7 +956,7 @@ export default class BuyToken extends Vue {
           }
           this.$logger.track('metamask-sign-fixed-start:buy-token')
           const takerSign = await signatureUtils.ecSignTransactionAsync(
-            providerEngine(),
+            getProviderEngine(),
             zrx,
             takerAddress,
           )
@@ -1039,7 +1039,7 @@ export default class BuyToken extends Vue {
     const matic = new Web3(this.networks.matic.rpc)
     const erc20TokenCont = new ERC20TokenContract(
       erc20Address,
-      providerEngine(),
+      getProviderEngine(),
     )
 
     const allowance = await erc20TokenCont

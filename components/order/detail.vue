@@ -450,7 +450,7 @@ import CancelConfirm from '~/components/lego/modals/cancel-confirm'
 import DepositWeth from '~/components/lego/modals/deposit-weth'
 import { txShowError } from '~/helpers/transaction-utils'
 import rgbToHsl from '~/helpers/color-algorithm'
-import { providerEngine } from '~/helpers/provider-engine'
+import { getProviderEngine } from '~/helpers/provider-engine'
 import { getColorFromImage } from '~/utils'
 
 // 0X
@@ -706,7 +706,7 @@ export default class TokenDetail extends Vue {
         signedOrder.takerFee = BigNumber(signedOrder.takerFee)
 
         const chainId = this.networks.matic.chainId
-        const contractWrappers = new ContractWrappers(providerEngine(), {
+        const contractWrappers = new ContractWrappers(getProviderEngine(), {
           chainId: chainId,
         })
 
@@ -729,7 +729,7 @@ export default class TokenDetail extends Vue {
         }
 
         const takerSign = await signatureUtils.ecSignTransactionAsync(
-          providerEngine(),
+          getProviderEngine(),
           zrx,
           signedOrder.makerAddress,
         )

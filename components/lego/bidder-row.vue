@@ -96,7 +96,7 @@ import { txShowError } from '~/helpers/transaction-utils'
 import {
 } from '~/helpers/0x-utils'
 
-import { providerEngine } from '~/helpers/provider-engine'
+import { getProviderEngine } from '~/helpers/provider-engine'
 
 // 0X
 const {
@@ -262,7 +262,7 @@ export default class BidderRow extends Vue {
         //   this.order.erc20tokens.decimal
         // );
         const signedOrder = JSON.parse(this.bid.signature)
-        const contractWrappers = new ContractWrappers(providerEngine(), {
+        const contractWrappers = new ContractWrappers(getProviderEngine(), {
           chainId: signedOrder.chainId,
         })
 
@@ -281,7 +281,7 @@ export default class BidderRow extends Vue {
         if (this.isErc721) {
           tokenContract = new ERC721TokenContract(
             nftContract,
-            providerEngine(),
+            getProviderEngine(),
           )
 
           // Owner of current token
@@ -368,7 +368,7 @@ export default class BidderRow extends Vue {
           }
           this.$logger.track('accept-metamask-sign-start:bid-options')
           const takerSign = await signatureUtils.ecSignTransactionAsync(
-            providerEngine(),
+            getProviderEngine(),
             zrx,
             takerAddress,
           )
@@ -567,7 +567,7 @@ export default class BidderRow extends Vue {
         signedOrder.takerFee = BigNumber(signedOrder.takerFee)
 
         const chainId = this.networks.matic.chainId
-        const contractWrappers = new ContractWrappers(providerEngine(), {
+        const contractWrappers = new ContractWrappers(getProviderEngine(), {
           chainId: chainId,
         })
         this.$logger.track('cancel-bid-api-cancel-order:bid-options')
@@ -590,7 +590,7 @@ export default class BidderRow extends Vue {
         }
         this.$logger.track('cancel-bid-metamask-start:bid-options')
         const takerSign = await signatureUtils.ecSignTransactionAsync(
-          providerEngine(),
+          getProviderEngine(),
           zrx,
           signedOrder.makerAddress,
         )

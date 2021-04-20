@@ -146,7 +146,7 @@ import { FormValidator } from '~/components/mixin'
 import { Textfield } from '@maticnetwork/matic-design-system'
 import { isValidAddress } from 'ethereumjs-util'
 
-import { providerEngine } from '~/helpers/provider-engine'
+import { getProviderEngine } from '~/helpers/provider-engine'
 import { registerNetwork } from '~/helpers/metamask-utils'
 import { txShowError } from '~/helpers/transaction-utils'
 
@@ -264,7 +264,7 @@ export default class SendToken extends Vue {
         // ERC721 contract
         erc721TokenCont = new ERC721TokenContract(
           nftContract,
-          providerEngine(),
+          getProviderEngine(),
         )
 
         // Owner of current token

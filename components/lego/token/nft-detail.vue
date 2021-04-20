@@ -281,7 +281,7 @@ import SendToken from '~/components/lego/modals/send-token'
 import CancelConfirm from '~/components/lego/modals/cancel-confirm'
 
 import rgbToHsl from '~/helpers/color-algorithm'
-import { providerEngine } from '~/helpers/provider-engine'
+import { getProviderEngine } from '~/helpers/provider-engine'
 import { getColorFromImage } from '~/utils'
 
 @Component({
@@ -429,7 +429,6 @@ export default class NftDetail extends Vue {
             token.contract.match(new RegExp(this.contractAddress, 'i'))
           )
         })
-debugger;
         if (currentToken.length > 0) {
           currentToken = currentToken[0]
         } else {
