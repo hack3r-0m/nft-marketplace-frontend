@@ -52,9 +52,14 @@ export class OrderService {
 
     validateOrder(orderId) {
         const url = this.createUrl_(`validate`);
-        return this.httpCaller.post({
+        return this.httpCaller.post(url, {
             orderId: orderId
         });
+    }
+
+    cancelOrder(orderId, payload) {
+        const url = this.createUrl_(`${orderId}/cancel`);
+        return this.httpCaller.patch(url, payload);
     }
 
 }

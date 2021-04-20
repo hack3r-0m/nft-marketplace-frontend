@@ -403,7 +403,11 @@
           </div>
         </div>
       </div>
-      <deposit-weth v-if="depositModal" :show="depositModal" :close="closeDepositModal" />
+      <deposit-weth
+        v-if="depositModal"
+        :show="depositModal"
+        :close="closeDepositModal"
+      />
       <buy-token
         v-if="showBuyToken && order"
         :show="showBuyToken"
@@ -458,7 +462,7 @@ const { ContractWrappers } = require('@0x/contract-wrappers')
 const { generatePseudoRandomSalt, signatureUtils } = require('@0x/order-utils')
 const { BigNumber } = require('@0x/utils')
 const { Web3Wrapper } = require('@0x/web3-wrapper')
-import {  ORDER_TYPES } from "~/constants";
+import { ORDER_TYPES } from '~/constants'
 
 @Component({
   props: {
@@ -515,7 +519,7 @@ export default class TokenDetail extends Vue {
   order = {}
 
   get token() {
-    return this.order.token;
+    return this.order.token
   }
 
   // initialize
@@ -755,18 +759,18 @@ export default class TokenDetail extends Vue {
       }
     }
     try {
-      const response = await getAxios().patch(
-        `orders/${this.order.id}/cancel`,
-        data,
-      )
-      if (response.status === 200) {
+      const response = await this.$store.dispatch('order/cancelOrder', {
+        orderId: this.order.id,
+        payload: data,
+      })
+      if (response) {
         this.$router.push({ name: 'account' })
         app.addToast('Order canceled', 'You canceled the order successfully', {
           type: 'success',
         })
       }
     } catch (error) {
-      console.error(error)
+      this.$logger.error(error)
       txShowError(error, null, 'Something went wrong')
     }
   }

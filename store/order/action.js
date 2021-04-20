@@ -45,6 +45,13 @@ export const action = {
         return {
             order, isOrderValid
         }
+    },
+    async cancelOrder(_, { orderId, payload }) {
+        const response = await Vue.service.order.cancelOrder(orderId, payload);
+        if (response.status === 200) {
+            return true;
+        }
+        return false;
     }
 }
 
