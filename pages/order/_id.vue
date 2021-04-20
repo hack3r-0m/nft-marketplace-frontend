@@ -1,35 +1,27 @@
 <template>
   <div class="container-fluid p-0">
-    <token-detail
-      v-if="tokenId"
-      :tokenId="tokenId"
-    />
+    <OrderDetail v-if="orderId" :orderId="orderId" />
   </div>
 </template>
 
 <script>
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
-
-import TokenDetail from '~/components/lego/token/token-detail'
+import OrderDetail from '~/components/order/detail'
 
 @Component({
-  props: {},
   components: {
-    TokenDetail,
+    OrderDetail,
   },
-  middleware: [],
-  mixins: [],
 })
-export default class Token extends Vue {
-  tokenId = null;
+export default class Order extends Vue {
 
-  mounted() {
-    this.tokenId = this.$route.params.id
+  get orderId() {
+    return this.$route.params.id
   }
 }
 </script>
 
 <style lang="scss" scoped>
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 </style>

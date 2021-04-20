@@ -6,6 +6,7 @@
   "private": true,
   "scripts": {
     "dev": "cross-env HOST=0.0.0.0 nuxt",
+    "dev:prod": "cross-env NODE_ENV=production HOST=0.0.0.0 nuxt",
     "build": "cross-env NODE_ENV=production nuxt generate",
     "start": "serve -p 3000 dist/",
     "precommit": "yarn run lint",

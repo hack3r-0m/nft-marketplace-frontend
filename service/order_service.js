@@ -40,4 +40,21 @@ export class OrderService {
         return this.httpCaller.get(url);
     }
 
+    getBidInfo(orderId) {
+        const url = this.createUrl_(`bids/${orderId}`);
+        return this.httpCaller.get(url);
+    }
+
+    getOrderDetail(orderId) {
+        const url = this.createUrl_(`${orderId}`);
+        return this.httpCaller.get(url);
+    }
+
+    validateOrder(orderId) {
+        const url = this.createUrl_(`validate`);
+        return this.httpCaller.post({
+            orderId: orderId
+        });
+    }
+
 }

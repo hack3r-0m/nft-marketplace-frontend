@@ -1,9 +1,6 @@
 <template>
   <div>
-    <div
-      v-if="order.id && !isLoadingDetails"
-      class="container-fluid ps-y-16"
-    >
+    <div v-if="order.id && !isLoadingDetails" class="container-fluid ps-y-16">
       <div class="row ps-y-16 ps-x-md-16">
         <div class="col-md-7 d-flex">
           <token-short-info
@@ -18,16 +15,13 @@
           v-if="false"
           class="col-md d-flex justify-content-start ps-t-16 ps-t-md-0 justify-content-md-end"
         >
-          <wishlist-button
-            :wishlisted="isFavorite"
-            :onClick="addToWishlist"
-          />
+          <wishlist-button :wishlisted="isFavorite" :onClick="addToWishlist" />
           <a class="btn btn-light align-self-center action ms-l-16">
             <img
               src="~/static/icons/active/share.svg"
               alt="favorited"
               class="icon option-icon active"
-            >
+            />
             <span>Share</span>
           </a>
         </div>
@@ -47,36 +41,36 @@
               height="500px"
             >
               <source
-                :src="order.token.img_url"
+                :src="token.image_url"
                 type="video/webm"
                 @error="handleNotVideo"
-              >
+              />
               <source
-                :src="order.token.img_url"
+                :src="token.image_url"
                 type="video/ogg"
                 @error="handleNotVideo"
-              >
+              />
               <source
-                :src="order.token.img_url"
+                :src="token.image_url"
                 type="video/mp4"
                 @error="handleNotVideo"
-              >
+              />
             </video>
             <img
               v-else
               class="asset-img align-self-center"
-              :src="order.token.img_url"
+              :src="token.image_url"
               alt="Kitty"
               @load="onImageLoad"
               @error="imageLoadError"
-            >
+            />
           </div>
           <div
             class="feature-info mobile d-flex d-lg-none flex-column ps-16 ps-lg-40 ms-y-16"
           >
             <h3 class="font-heading-medium font-semibold">
-              About {{ order.token.name }}
-              {{ isErc1155 ? `( ${order.quantity} )` : "" }}
+              About {{ token.name }}
+              {{ isErc1155 ? `( ${order.quantity} )` : '' }}
             </h3>
             <p
               v-if="orderDescription && orderDescription.length > 200"
@@ -85,36 +79,36 @@
             >
               {{ orderDescription.slice(0, orderDescription.length / 2) }}
               <span class="dots">...</span>
-              <span class="more">{{
-                orderDescription.slice(
-                  orderDescription.length / 2,
-                  orderDescription.length
-                )
-              }}</span>
+              <span class="more">
+                {{
+                  orderDescription.slice(
+                    orderDescription.length / 2,
+                    orderDescription.length,
+                  )
+                }}
+              </span>
               <a
                 v-if="!showMore"
                 class="font-body-small d-flex ps-t-8 font-medium"
                 href="#more-info"
                 @click.prevent="showMore = true"
-              >More info</a>
+              >
+                More info
+              </a>
               <a
                 v-if="showMore"
                 class="font-body-small d-flex ps-t-8 font-medium"
                 href="#more-info"
                 @click.prevent="showMore = false"
-              >Show less</a>
+              >
+                Show less
+              </a>
             </p>
-            <p
-              v-else
-              class="font-body-medium"
-            >
+            <p v-else class="font-body-medium">
               {{ orderDescription }}
             </p>
 
-            <div
-              v-if="showListedDetails"
-              class="ms-t-16"
-            >
+            <div v-if="showListedDetails" class="ms-t-16">
               <div class="font-body-small text-gray-300 ps-y-4">
                 Listed for
               </div>
@@ -160,8 +154,8 @@
             <div
               v-if="
                 isInsufficientBalance &&
-                  !validation['balance'] &&
-                  order.status === 0
+                !validation['balance'] &&
+                order.status === 0
               "
               class="font-body-small text-danger text-center ps-t-12"
             >
@@ -170,8 +164,8 @@
             <div
               v-if="
                 isInsufficientBalance &&
-                  order.status === 0 &&
-                  (order.type === app.orderTypes.FIXED || !validation['balance'])
+                order.status === 0 &&
+                (order.type === app.orderTypes.FIXED || !validation['balance'])
               "
               class="font-body-medium font-semibold text-primary text-center cursor-pointer ps-t-16"
               @click="depositModal = true"
@@ -202,7 +196,9 @@
                     :href="category.url"
                     target="_blank"
                     rel="noopener noreferrer"
-                  >Visit Website</a>
+                  >
+                    Visit Website
+                  </a>
 
                   <span
                     v-if="category.description"
@@ -222,7 +218,7 @@
             </div>
 
             <div
-              v-if="order.token.attributes_metadata"
+              v-if="order.tokens.attributes"
               class="properties details-section--dropdown"
             >
               <div
@@ -244,30 +240,22 @@
                 class="d-flex flex-row flex-wrap ps-t-16 ps-l-16"
               >
                 <div
-                  v-for="attribute in order.token.attributes_metadata"
-                  :key="`${attribute.trait_type}-${attribute.value}`"
+                  v-for="(attribute, index) in order.tokens.attributes"
+                  :key="index"
                   class="col-md-3 p-0 pr-4 justify-content-between"
                 >
                   <div
                     class="d-flex flex-column text-center properties-pill p-3 mb-4"
                   >
-                    <p
-                      class="property-title m-0 p-0 text-truncate"
-                    >
+                    <p class="property-title m-0 p-0 text-truncate">
                       {{ attribute.trait_type | pascal }}
                     </p>
-                    <p
-                      class="property-detail m-0 pt-1 text-truncate"
-                    >
-                      <template
-                        v-if="attribute.trait_type === 'birthday'"
-                      >
-                        {{  attribute.value | date-human }}
+                    <p class="property-detail m-0 pt-1 text-truncate">
+                      <template v-if="attribute.trait_type === 'birthday'">
+                        {{ attribute.value | date-human }}
                       </template>
-                      <template
-                        v-else
-                      >
-                        {{  attribute.value | pascal }}
+                      <template v-else>
+                        {{ attribute.value | pascal }}
                       </template>
                     </p>
                   </div>
@@ -278,8 +266,8 @@
             <div
               v-if="
                 order.type !== app.orderTypes.FIXED &&
-                  bidsFullList &&
-                  bidsFullList.length
+                bidsFullList &&
+                bidsFullList.length
               "
               class="d-flex flex-column ps-y-16 ps-y-md-32 bids"
             >
@@ -303,7 +291,7 @@
           <div class="feature-info d-flex flex-column ps-16 ps-lg-40 w-100">
             <h3 class="font-heading-medium font-semibold">
               About {{ order.token.name }}
-              {{ isErc1155 ? `( ${order.quantity} )` : "" }}
+              {{ isErc1155 ? `( ${order.quantity} )` : '' }}
             </h3>
             <p
               v-if="orderDescription && orderDescription.length > 200"
@@ -312,36 +300,36 @@
             >
               {{ orderDescription.slice(0, orderDescription.length / 2) }}
               <span class="dots">...</span>
-              <span class="more">{{
-                orderDescription.slice(
-                  orderDescription.length / 2,
-                  orderDescription.length
-                )
-              }}</span>
+              <span class="more">
+                {{
+                  orderDescription.slice(
+                    orderDescription.length / 2,
+                    orderDescription.length,
+                  )
+                }}
+              </span>
               <a
                 v-if="!showMore"
                 class="font-body-small d-flex ps-t-8 font-medium"
                 href="#more-info"
                 @click.prevent="showMore = true"
-              >More info</a>
+              >
+                More info
+              </a>
               <a
                 v-if="showMore"
                 class="font-body-small d-flex ps-t-8 font-medium"
                 href="#more-info"
                 @click.prevent="showMore = false"
-              >Show less</a>
+              >
+                Show less
+              </a>
             </p>
-            <p
-              v-else
-              class="font-body-medium"
-            >
+            <p v-else class="font-body-medium">
               {{ orderDescription }}
             </p>
 
-            <div
-              v-if="showListedDetails"
-              class="mt-auto"
-            >
+            <div v-if="showListedDetails" class="mt-auto">
               <div class="font-body-small text-gray-300 ps-y-4">
                 Listed for
               </div>
@@ -387,8 +375,8 @@
             <div
               v-if="
                 isInsufficientBalance &&
-                  !validation['balance'] &&
-                  order.status === 0
+                !validation['balance'] &&
+                order.status === 0
               "
               class="font-body-small text-danger text-center ps-t-12"
             >
@@ -397,8 +385,8 @@
             <div
               v-if="
                 isInsufficientBalance &&
-                  order.status === 0 &&
-                  (order.type === app.orderTypes.FIXED || !validation['balance'])
+                order.status === 0 &&
+                (order.type === app.orderTypes.FIXED || !validation['balance'])
               "
               class="font-body-medium font-semibold text-primary text-center cursor-pointer ps-t-16"
               @click="depositModal = true"
@@ -415,10 +403,7 @@
           </div>
         </div>
       </div>
-      <deposit-weth
-        :show="depositModal"
-        :close="closeDepositModal"
-      />
+      <deposit-weth :show="depositModal" :close="closeDepositModal" />
       <buy-token
         v-if="showBuyToken && order"
         :show="showBuyToken"
@@ -456,12 +441,8 @@
 <script>
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
-import getAxios from '~/plugins/axios'
 import app from '~/plugins/app'
 import { mapGetters } from 'vuex'
-
-import OrderModel from '~/components/model/order'
-import BidModel from '~/components/model/bid'
 
 import TokenShortInfo from '~/components/lego/token/token-short-info'
 import WishlistButton from '~/components/lego/wishlist-button'
@@ -476,18 +457,16 @@ import { providerEngine } from '~/helpers/provider-engine'
 import { getColorFromImage } from '~/utils'
 
 // 0X
-const {
-  ContractWrappers,
-} = require('@0x/contract-wrappers')
+const { ContractWrappers } = require('@0x/contract-wrappers')
 const { generatePseudoRandomSalt, signatureUtils } = require('@0x/order-utils')
 const { BigNumber } = require('@0x/utils')
 const { Web3Wrapper } = require('@0x/web3-wrapper')
 
 @Component({
   props: {
-    tokenId: {
+    orderId: {
       type: [Number, String],
-      required: false,
+      required: true,
     },
   },
   components: {
@@ -520,26 +499,30 @@ const { Web3Wrapper } = require('@0x/web3-wrapper')
   },
 })
 export default class TokenDetail extends Vue {
-  bg = '#ffffff';
-  showMore = false;
-  showCategoryInfo = true;
-  showProperties = true;
-  showBuyToken = false;
-  showCancelConfirm = false;
+  bg = '#ffffff'
+  showMore = false
+  showCategoryInfo = true
+  showProperties = true
+  showBuyToken = false
+  showCancelConfirm = false
 
-  limit = app.uiconfig.defaultPageSize;
-  bidsFullList = [];
-  hasNextPage = true;
-  isLoadingBids = false;
-  isLoadingDetails = false;
-  isLoading = false;
-  isVideoFormat = true;
+  limit = Vue.appConfig.defaultPageSize
+  bidsFullList = []
+  hasNextPage = true
+  isLoadingBids = false
+  isLoadingDetails = false
+  isLoading = false
+  isVideoFormat = true
 
-  order = {};
+  order = {}
+
+  get token() {
+    return this.order.token;
+  }
 
   // initialize
-  async mounted() {
-    await this.fetchOrder()
+  mounted() {
+    this.fetchOrder()
   }
 
   onImageLoad() {
@@ -547,7 +530,7 @@ export default class TokenDetail extends Vue {
       const img = this.$el.querySelector('.asset-img')
       // img.crossOrigin = "Anonymous";
 
-      const rgbColor = colorThief.getColor(img)
+      const rgbColor = getColorFromImage(img)
       if (rgbColor) {
         const hsl = rgbToHsl({
           r: rgbColor[0],
@@ -594,7 +577,7 @@ export default class TokenDetail extends Vue {
 
   get erc20Token() {
     return this.erc20Tokens.filter(
-      (token) => token.id === this.order.erc20tokens_id,
+      (token) => token.id === this.order.erc20TokenId,
     )[0]
   }
 
@@ -643,48 +626,34 @@ export default class TokenDetail extends Vue {
 
   // async
   async fetchOrder() {
-    if (!this.tokenId || this.isLoadingDetails) {
+    if (!this.orderId || this.isLoadingDetails) {
       return
     }
     this.isLoadingDetails = true
     try {
-      const response = await getAxios().get(`orders/${this.tokenId}`)
-      if (response.status === 200 && response.data.data) {
-        const data = new OrderModel(response.data.data)
-        this.order = data
-      } else if (response.status === 202 && response.data.data) {
-        const data = new OrderModel(response.data.data)
-        const sellerAddress = data.seller_users.address
-
-        this.order = data
-        if (this.account.address === sellerAddress) {
-          // Do nothing
-        } else {
-          const res = await getAxios().post(`orders/validate`, {
-            orderId: this.tokenId,
-          })
-
-          if (res.status === 200) {
-            txShowError(
-              'Order Invalid',
-              'Order Invalid',
-              'This order is no longer valid or has been sold out. Please try to buy some other NFT.',
-            )
-            this.$router.push({ name: 'index' })
-          }
-        }
+      const { order, isOrderValid } = await this.$store.dispatch(
+        'order/getOrderDetail',
+        {
+          orderId: this.orderId,
+          account: this.account,
+        },
+      )
+      if (!isOrderValid) {
+        txShowError(
+          'Order Invalid',
+          'Order Invalid',
+          'This order is no longer valid or has been sold out. Please try to buy some other NFT.',
+        )
+        return this.$router.push({ name: 'index' })
+      }
+      this.order = order
+      if (order && order.type !== app.orderTypes.FIXED) {
+        await this.fetchBidders()
       }
     } catch (error) {
-      console.log(error)
+      this.$$logger.error(error)
     }
-
     this.isLoadingDetails = false
-    if (
-      Object.keys(this.order).length !== 0 &&
-      this.order.type !== app.orderTypes.FIXED
-    ) {
-      await this.fetchBidders()
-    }
   }
 
   // actions
@@ -729,9 +698,7 @@ export default class TokenDetail extends Vue {
           new BigNumber(this.order.price),
           this.erc20Token.decimal,
         )
-        signedOrder.makerAssetAmount = BigNumber(
-          signedOrder.makerAssetAmount,
-        )
+        signedOrder.makerAssetAmount = BigNumber(signedOrder.makerAssetAmount)
         signedOrder.takerAssetAmount = takerAssetAmount
         signedOrder.expirationTimeSeconds = BigNumber(
           signedOrder.expirationTimeSeconds,
@@ -842,30 +809,24 @@ export default class TokenDetail extends Vue {
       return
     }
     try {
-      let response
-      response = await getAxios().get(`orders/bids/${this.order.id}`)
-      if (response.status === 200 && response.data.data.order) {
-        const bids = []
-        response.data.data.order.forEach(function(bid) {
-          bid.erc20Token = this.erc20Token
-          bid.order = this.order
-          if (bid.status === 0) {
-            // if bid is active
-            bids.push(new BidModel(bid))
-          }
-        }, this)
-        this.hasNextPage = response.data.data.has_next_page
-        this.bidsFullList = bids
-      }
+      const { bids, hasNextPage } = await this.$store.dispatch(
+        'order/getBidInfo',
+        {
+          order: this.order,
+          erc20Token: this.erc20Token,
+        },
+      )
+      this.hasNextPage = hasNextPage
+      this.bidsFullList = bids
     } catch (error) {
-      console.log(error)
+      this.$logger.error(error)
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 .feature-image {
   width: 100%;
   padding-top: 3.75rem;
@@ -894,12 +855,12 @@ export default class TokenDetail extends Vue {
 }
 .details-section {
   &--dropdown {
-    border: 1px solid light-color("500");
+    border: 1px solid light-color('500');
     border-radius: 6px;
     margin-bottom: 20px;
 
     .header-wrapper {
-      background-color: light-color("500");
+      background-color: light-color('500');
     }
   }
 }
@@ -909,7 +870,7 @@ export default class TokenDetail extends Vue {
   .svg-sprite-icon {
     width: 10px;
     height: 14px;
-    fill: rgba(dark-color("700"), 0.4);
+    fill: rgba(dark-color('700'), 0.4);
   }
   &.down-icon {
     .svg-sprite-icon {
@@ -935,22 +896,22 @@ export default class TokenDetail extends Vue {
 }
 
 .text-gray-300 {
-  color: dark-color("300");
+  color: dark-color('300');
 }
 
 .properties {
   .properties-pill {
-    background: primary-color("100");
-    border: 1px solid primary-color("300");
+    background: primary-color('100');
+    border: 1px solid primary-color('300');
     border-radius: 8px;
   }
   .property-title {
-    @include font-setting("body-medium", "700");
+    @include font-setting('body-medium', '700');
     font-weight: 600;
   }
   .property-detail {
-    @include font-setting("body-large", "500");
-    color: dark-color("500");
+    @include font-setting('body-large', '500');
+    color: dark-color('500');
   }
 }
 

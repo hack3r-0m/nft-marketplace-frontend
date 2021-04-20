@@ -8,7 +8,7 @@ import token from './token'
 import category from './category'
 import network from './network'
 import trunk from './trunk'
-import { saveStore } from '~/constants';
+import order from './order'
 export let STORE;
 
 const createStore = () => {
@@ -28,6 +28,7 @@ const createStore = () => {
       network,
       trunk,
       page,
+      order
     },
   });
   return STORE;
