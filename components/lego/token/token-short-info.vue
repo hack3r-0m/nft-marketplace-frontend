@@ -17,7 +17,7 @@
         <a href @click.prevent>{{ shortAddress }}</a>
         in
         <a
-          :href="order.external_link"
+          :href="token.external_link"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -34,7 +34,7 @@ import Component from 'nuxt-class-component'
 
 @Component({
   props: {
-    order: {
+    token: {
       type: Object,
       required: false,
     },
@@ -49,11 +49,9 @@ import Component from 'nuxt-class-component'
   mixins: [],
 })
 export default class TokenShortInfo extends Vue {
-  get token() {
-    return this.order.tokens
-  }
+  
   get shortAddress() {
-    const address = this.order.token.owner
+    const address = this.token.owner
     if (address) {
       const addressStart = address.slice(0, 4)
       const addressEnd = address.slice(address.length - 4)
@@ -63,11 +61,11 @@ export default class TokenShortInfo extends Vue {
   }
 
   get isErc1155() {
-    return this.order.token_type === 'ERC1155'
+    return this.token.type === 'ERC1155'
   }
 
   get isErc721() {
-    return this.order.token_type === 'ERC721'
+    return this.token.type === 'ERC721'
   }
 }
 </script>

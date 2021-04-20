@@ -7,9 +7,9 @@
       <div class="row ps-y-16 ps-x-md-16">
         <div class="col-md-7 d-flex">
           <token-short-info
-            v-if="category"
+            v-if="token.name"
             class="align-self-center"
-            :order="token"
+            :token="token"
             :category="category"
           />
         </div>
@@ -32,17 +32,17 @@
                 :src="token.img_url"
                 type="video/webm"
                 @error="handleNotVideo"
-              >
+              />
               <source
                 :src="token.img_url"
                 type="video/ogg"
                 @error="handleNotVideo"
-              >
+              />
               <source
                 :src="token.img_url"
                 type="video/mp4"
                 @error="handleNotVideo"
-              >
+              />
             </video>
             <img
               v-else
@@ -51,7 +51,7 @@
               alt="Kitty"
               @load="onImageLoad"
               @error="imageLoadError"
-            >
+            />
           </div>
           <div class="details-section">
             <div
@@ -67,44 +67,41 @@
               >
                 {{ tokenDescription.slice(0, tokenDescription.length / 2) }}
                 <span class="dots">...</span>
-                <span class="more">{{
-                  tokenDescription.slice(
-                    tokenDescription.length / 2,
-                    tokenDescription.length
-                  )
-                }}</span>
+                <span class="more">
+                  {{
+                    tokenDescription.slice(
+                      tokenDescription.length / 2,
+                      tokenDescription.length,
+                    )
+                  }}
+                </span>
                 <a
                   v-if="!showMore"
                   class="font-body-small d-flex ps-t-8 font-medium"
                   href="#more-info"
                   @click.prevent="showMore = true"
-                >More info</a>
+                >
+                  More info
+                </a>
                 <a
                   v-if="showMore"
                   class="font-body-small d-flex ps-t-8 font-medium"
                   href="#more-info"
                   @click.prevent="showMore = false"
-                >Show less</a>
+                >
+                  Show less
+                </a>
               </p>
-              <p
-                v-else
-                class="font-body-medium"
-              >
+              <p v-else class="font-body-medium">
                 {{ tokenDescription }}
               </p>
 
-              <button
-                class="btn btn-primary ms-t-32"
-                @click="onSellToken"
-              >
-                {{ $t("sell") }}
+              <button class="btn btn-primary ms-t-32" @click="onSellToken">
+                {{ $t('sell') }}
               </button>
 
-              <button
-                class="btn btn-primary ms-t-16"
-                @click="onTransferToken"
-              >
-                {{ $t("transfer") }}
+              <button class="btn btn-primary ms-t-16" @click="onTransferToken">
+                {{ $t('transfer') }}
               </button>
             </div>
 
@@ -123,7 +120,9 @@
                     :href="category.url"
                     target="_blank"
                     rel="noopener noreferrer"
-                  >Visit Website</a>
+                  >
+                    Visit Website
+                  </a>
 
                   <span
                     v-if="category.description"
@@ -172,17 +171,15 @@
                   <div
                     class="d-flex flex-column text-center properties-pill p-3 mb-4"
                   >
-                    <p
-                      class="property-title m-0 p-0 text-truncate"
-                    >
+                    <p class="property-title m-0 p-0 text-truncate">
                       {{ attribute.trait_type | pascal }}
                     </p>
                     <p class="property-detail m-0 pt-1 text-truncate">
                       <template v-if="attribute.trait_type === 'birthday'">
-                        {{  attribute.value | date-human }}
+                        {{ attribute.value | (date - human) }}
                       </template>
                       <template v-else>
-                        {{  attribute.value | pascal }}
+                        {{ attribute.value | pascal }}
                       </template>
                     </p>
                   </div>
@@ -209,33 +206,28 @@
                 class="font-body-small d-flex ps-t-8 font-medium"
                 href="#more-info"
                 @click.prevent="showMore = true"
-              >More info</a>
+              >
+                More info
+              </a>
               <a
                 v-if="showMore"
                 class="font-body-small d-flex ps-t-8 font-medium"
                 href="#more-info"
                 @click.prevent="showMore = false"
-              >Show less</a>
+              >
+                Show less
+              </a>
             </p>
-            <p
-              v-else
-              class="font-body-medium"
-            >
+            <p v-else class="font-body-medium">
               {{ tokenDescription }}
             </p>
 
-            <button
-              class="btn btn-primary ms-t-32"
-              @click="onSellToken"
-            >
-              {{ $t("sell") }}
+            <button class="btn btn-primary ms-t-32" @click="onSellToken">
+              {{ $t('sell') }}
             </button>
 
-            <button
-              class="btn btn-primary ms-t-16"
-              @click="onTransferToken"
-            >
-              {{ $t("transfer") }}
+            <button class="btn btn-primary ms-t-16" @click="onTransferToken">
+              {{ $t('transfer') }}
             </button>
           </div>
         </div>
@@ -276,7 +268,6 @@
 <script>
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
-import getAxios from '~/plugins/axios'
 import app from '~/plugins/app'
 import { mapGetters } from 'vuex'
 
@@ -326,22 +317,22 @@ import { getColorFromImage } from '~/utils'
   mixins: [],
 })
 export default class NftDetail extends Vue {
-  bg = '#ffffff';
-  showMore = false;
-  showCategoryInfo = true;
-  showProperties = true;
+  bg = '#ffffff'
+  showMore = false
+  showCategoryInfo = true
+  showProperties = true
 
-  isLoadingDetails = false;
-  isLoading = false;
-  isVideoFormat = true;
-  showSellModal = false;
-  showSendModal = false;
+  isLoadingDetails = false
+  isLoading = false
+  isVideoFormat = true
+  showSellModal = false
+  showSendModal = false
 
-  token = {};
+  token = {}
 
   // initialize
-  async mounted() {
-    await this.fetchNFTTokens()
+  mounted() {
+    this.fetchNFTTokens()
   }
 
   onImageLoad() {
@@ -349,7 +340,7 @@ export default class NftDetail extends Vue {
       const img = this.$el.querySelector('.asset-img')
       // img.crossOrigin = "Anonymous";
 
-      const rgbColor = colorThief.getColor(img)
+      const rgbColor = getColorFromImage(img)
       if (rgbColor) {
         const hsl = rgbToHsl({
           r: rgbColor[0],
@@ -425,19 +416,20 @@ export default class NftDetail extends Vue {
     }
     this.isLoadingDetails = true
     try {
-      const response = await getAxios().get(
-        `tokens/balance?userId=${this.user.id}&chainId=${this.chainId}`,
-      )
-
-      if (response.status === 200 && response.data.data) {
+      const response = await Vue.service.token.fetchBalance({
+        user: this.user,
+        chainId: this.chainId,
+      })
+      const tokens = response.data.data
+      if (response.status === 200 && tokens) {
         // should use a endpoint that returns detail for just one token
-        let currentToken = response.data.data.filter((token) => {
+        let currentToken = tokens.filter((token) => {
           return (
             token.token_id === this.tokenId &&
             token.contract.match(new RegExp(this.contractAddress, 'i'))
           )
         })
-
+debugger;
         if (currentToken.length > 0) {
           currentToken = currentToken[0]
         } else {
@@ -449,7 +441,7 @@ export default class NftDetail extends Vue {
         this.token = data
       }
     } catch (error) {
-      console.log(error)
+      this.$logger.error(error)
     }
     this.isLoadingDetails = false
   }
@@ -457,7 +449,7 @@ export default class NftDetail extends Vue {
 </script>
 
 <style lang="scss" scoped>
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 .feature-image {
   width: 100%;
   padding-top: 3.75rem;
@@ -486,12 +478,12 @@ export default class NftDetail extends Vue {
 }
 .details-section {
   &--dropdown {
-    border: 1px solid light-color("500");
+    border: 1px solid light-color('500');
     border-radius: 6px;
     margin-bottom: 20px;
 
     .header-wrapper {
-      background-color: light-color("500");
+      background-color: light-color('500');
     }
   }
 }
@@ -501,7 +493,7 @@ export default class NftDetail extends Vue {
   .svg-sprite-icon {
     width: 10px;
     height: 14px;
-    fill: rgba(dark-color("700"), 0.4);
+    fill: rgba(dark-color('700'), 0.4);
   }
   &.down-icon {
     .svg-sprite-icon {
@@ -528,17 +520,17 @@ export default class NftDetail extends Vue {
 
 .properties {
   .properties-pill {
-    background: primary-color("100");
-    border: 1px solid primary-color("300");
+    background: primary-color('100');
+    border: 1px solid primary-color('300');
     border-radius: 8px;
   }
   .property-title {
-    @include font-setting("body-medium", "700");
+    @include font-setting('body-medium', '700');
     font-weight: 600;
   }
   .property-detail {
-    @include font-setting("body-large", "500");
-    color: dark-color("500");
+    @include font-setting('body-large', '500');
+    color: dark-color('500');
   }
 }
 

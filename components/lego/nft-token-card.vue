@@ -15,46 +15,40 @@
         type="checkbox"
         :name="token.name"
         :checked="isSelected"
-      >
+      />
       <span class="checkmark align-self-center" />
     </div>
     <NuxtLink
       :to="
         !order
           ? {
-            name: 'category-contractAddress-tokenId',
-            params: {
-              contractAddress: token.contract,
-              tokenId: token.token_id,
-            },
-            query: { chainId: token.chainId },
-          }
+              name: 'category-contractAddress-tokenId',
+              params: {
+                contractAddress: token.contract,
+                tokenId: token.token_id,
+              },
+              query: { chainId: token.chainId },
+            }
           : { name: 'order-id', params: { id: order.id } }
       "
     >
       <div class="img-wrapper d-flex ps-t-12 justify-content-center">
-        <video
-          v-if="isVideoFormat"
-          autoplay
-          muted
-          loop
-          width="100%"
-        >
+        <video v-if="isVideoFormat" autoplay muted loop width="100%">
           <source
             :src="token.img_url"
             type="video/webm"
             @error="handleNotVideo"
-          >
+          />
           <source
             :src="token.img_url"
             type="video/ogg"
             @error="handleNotVideo"
-          >
+          />
           <source
             :src="token.img_url"
             type="video/mp4"
             @error="handleNotVideo"
-          >
+          />
         </video>
         <img
           v-else
@@ -63,7 +57,7 @@
           :alt="token.name"
           @load="onImageLoad"
           @error="imageLoadError"
-        >
+        />
       </div>
 
       <div
@@ -76,10 +70,7 @@
         }"
       />
     </NuxtLink>
-    <div
-      v-if="!isAllCategories && !order"
-      class="more-actions"
-    >
+    <div v-if="!isAllCategories && !order" class="more-actions">
       <MoreOptions :options="moreOptions" />
     </div>
 
@@ -90,7 +81,7 @@
       <img
         :src="token.category.img_url"
         class="icon ms-2 ms-l-4 ms-r-4 align-self-center"
-      >
+      />
       <div class="font-caps font-medium caps align-self-center ps-r-6">
         {{ token.category.name }}
       </div>
@@ -99,7 +90,7 @@
       class="w-100 title font-body-small font-medium ms-b-8 ps-x-12 ms-b-16"
       :title="token.name"
     >
-      {{ token.name }} {{ isErc1155 ? "( " + token.amount + " )" : "" }}
+      {{ token.name }} {{ isErc1155 ? '( ' + token.amount + ' )' : '' }}
     </h3>
     <div
       v-if="!isMainToken && !order"
@@ -113,13 +104,13 @@
           query: { chainId: token.chainId },
         }"
       >
-        <a class="btn btn-transparent w-100 align-self-center">{{
-          $t("sell")
-        }}</a>
+        <a class="btn btn-transparent w-100 align-self-center">
+          {{ $t('sell') }}
+        </a>
 
-        <a class="btn btn-transparent w-100 align-self-center">{{
-          $t("transfer")
-        }}</a>
+        <a class="btn btn-transparent w-100 align-self-center">
+          {{ $t('transfer') }}
+        </a>
       </NuxtLink>
     </div>
 
@@ -139,9 +130,9 @@
       class="actions matic-chain d-flex justify-content-between text-center w-100 d-flex"
       @click="deposit(token)"
     >
-      <a class="btn btn-transparent w-100 align-self-center">{{
-        $t("moveToMatic")
-      }}</a>
+      <a class="btn btn-transparent w-100 align-self-center">
+        {{ $t('moveToMatic') }}
+      </a>
     </div>
   </nuxt-link>
 </template>
@@ -149,13 +140,10 @@
 <script>
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
-import app from '~/plugins/app'
-import { mapGetters } from 'vuex'
-
+import { mapGetters, mapState } from 'vuex'
 import MoreOptions from '~/components/lego/more-options'
-
 import rgbToHsl from '~/helpers/color-algorithm'
- 
+
 @Component({
   props: {
     token: {
@@ -206,19 +194,18 @@ import rgbToHsl from '~/helpers/color-algorithm'
   components: { MoreOptions },
   computed: {
     ...mapGetters('category', ['categories']),
-    ...mapGetters('network', ['networks']),
+    ...mapState('network', {
+      networks: (state) => state.networks,
+    }),
     ...mapGetters('account', ['userOrders']),
   },
   middleware: [],
   mixins: [],
 })
 export default class NFTTokenCard extends Vue {
-  bg = '#f3f4f7';
-  maxTokenSelection = app.uiconfig.maxBulkDeposit;
-  isVideoFormat = true;
-
-  // Initial
-  mounted() {}
+  bg = '#f3f4f7'
+  maxTokenSelection = Vue.appConfig.maxBulkDeposit
+  isVideoFormat = true
 
   async onImageLoad() {
     try {
@@ -370,7 +357,7 @@ export default class NFTTokenCard extends Vue {
 </script>
 
 <style lang="scss" scoped="true">
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 
 a {
   color: inherit;
@@ -383,7 +370,7 @@ a {
   margin: 0.625rem;
   position: relative;
 
-  background: light-color("700");
+  background: light-color('700');
   border-radius: $default-card-box-border-radius;
   .img-wrapper {
     width: 100%;
@@ -403,7 +390,7 @@ a {
     position: absolute;
     background: linear-gradient(
       360deg,
-      light-color("500") 0%,
+      light-color('500') 0%,
       rgba(236, 235, 223, 0) 100%
     );
   }
@@ -411,7 +398,7 @@ a {
   .category-pill {
     width: fit-content;
     border-radius: 19px;
-    background: light-color("700");
+    background: light-color('700');
     .icon {
       width: 20px;
       height: 20px;
@@ -424,7 +411,7 @@ a {
     text-overflow: ellipsis;
   }
   .price {
-    color: dark-color("400");
+    color: dark-color('400');
   }
 }
 .nft-card:hover {
@@ -451,19 +438,19 @@ a {
 }
 .actions {
   height: 45px;
-  border-top: 1px solid rgba(dark-color("700"), 0.1);
+  border-top: 1px solid rgba(dark-color('700'), 0.1);
   &.matic-chain {
     .btn-transparent {
-      color: primary-color("600");
+      color: primary-color('600');
       border-radius: 0px;
     }
 
     .btn-red {
-      color: red-color("600");
+      color: red-color('600');
     }
 
     .btn:nth-child(2) {
-      border-left: 1px solid rgba(dark-color("700"), 0.1);
+      border-left: 1px solid rgba(dark-color('700'), 0.1);
     }
   }
 }

@@ -2,6 +2,7 @@ import getAxios from '~/plugins/axios'
 import app from '~/plugins/app'
 import OrderModel from '~/components/model/order'
 import Vue from "vue";
+import NFTTokenModel from '~/components/model/nft-token'
 
 export default {
   namespaced: true,
