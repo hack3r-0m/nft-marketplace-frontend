@@ -789,7 +789,7 @@ export default class SellToken extends Vue {
             'submit-to-marketplace-not-token-owner:sell-token',
             { nftToken, owner, address: this.account.address },
           )
-          app.addToast(
+          this.$toast.show(
             'You are no owner of this token',
             'You are no longer owner of this token, refresh to update the data',
             {
@@ -872,7 +872,7 @@ export default class SellToken extends Vue {
 
             if (makerERC721ApprovalTxHash) {
               console.log('Approve Hash', makerERC721ApprovalTxHash)
-              app.addToast(
+              this.$toast.show(
                 'Approved successfully',
                 'You successfully approved the token to put on sale',
                 {
@@ -890,7 +890,7 @@ export default class SellToken extends Vue {
             ) {
               txShowError(error, null, 'Please Try Again')
             } else {
-              app.addToast(
+             this.$toast.show(
                 'Failed to approve',
                 'You need to approve the transaction to sale the NFT',
                 {
@@ -919,7 +919,7 @@ export default class SellToken extends Vue {
 
           if (makerERC1155ApprovalTxHash) {
             console.log('Approve Hash', makerERC1155ApprovalTxHash)
-            app.addToast(
+            app.this.$toast.show(
               'Approved successfully',
               'You successfully approved the token to put on sale',
               {
@@ -928,7 +928,7 @@ export default class SellToken extends Vue {
             )
             return true
           }
-          app.addToast(
+          app.this.$toast.show(
             'Failed to approve',
             'You need to approve the transaction to sale the NFT',
             {
@@ -977,14 +977,14 @@ export default class SellToken extends Vue {
             const response = await getAxios().post(`orders/executeMetaTx`, tx)
             if (response.status === 200) {
               console.log('Approved')
-              app.addToast('Approved', 'You successfully approved', {
+              app.this.$toast.show('Approved', 'You successfully approved', {
                 type: 'success',
               })
               return true
             }
           } catch (error) {
             console.log(error)
-            app.addToast(
+            app.this.$toast.show(
               'Failed to approve',
               'You need to approve the transaction to sale the NFT',
               {
@@ -1136,7 +1136,7 @@ export default class SellToken extends Vue {
       const response = await getAxios().post('orders', formData)
       if (response.status === 200) {
         this.refreshNFTTokens()
-        app.addToast(
+        app.this.$toast.show(
           'Sell order added successfully',
           'Your NFT successfully added on sale',
           {
@@ -1150,7 +1150,7 @@ export default class SellToken extends Vue {
       }
     } catch (error) {
       console.error(error)
-      app.addToast(
+      app.this.$toast.show(
         'Sell order failed to add',
         'Failed to add you NFT on sale',
         {

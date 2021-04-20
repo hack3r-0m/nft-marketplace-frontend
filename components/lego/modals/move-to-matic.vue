@@ -187,7 +187,7 @@ export default class MoveToMatic extends Vue {
       const txHash = await maticPOS.approveERC721ForDeposit(contract, tokenId)
       if (txHash) {
         console.log('Approved : ', txHash)
-        app.addToast(
+       this.$toast.show(
           'Token approved successfully',
           'Your successfully token approved for deposit.',
           { type: 'success' },
@@ -196,7 +196,7 @@ export default class MoveToMatic extends Vue {
       }
     } catch (error) {
       console.error(error)
-      app.addToast(
+      this.$toast.show(
         'Failed to approve',
         'Something went wrong while approving NFT for deposit.',
         { type: 'failure' },
@@ -223,7 +223,7 @@ export default class MoveToMatic extends Vue {
         )
         if (txHash) {
           console.log('Deposited : ', txHash)
-          app.addToast(
+          this.$toast.show(
             'Token deposited successfully',
             'Your token deposited successfully to matic network, it will take 3-5 minute to appear on matic network',
             { type: 'success' },
@@ -234,7 +234,7 @@ export default class MoveToMatic extends Vue {
       }
     } catch (error) {
       console.error(error)
-      app.addToast(
+      this.$toast.show(
         'Failed to deposit',
         'Something went wrong while depositing token',
         { type: 'failure' },

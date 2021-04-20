@@ -876,7 +876,7 @@ export default class BuyToken extends Vue {
 
           if (response.status === 200 && response.data) {
             this.refreshBids()
-            app.addToast(
+            this.$toast.show(
               'Offered/bided successfully',
               'Your offer/bid has been successfully submitted',
               {
@@ -1089,7 +1089,7 @@ export default class BuyToken extends Vue {
                 { response },
               )
               console.log('Approved')
-              app.addToast('Approved', 'You successfully approved', {
+              this.$toast.show('Approved', 'You successfully approved', {
                 type: 'success',
               })
               return true
@@ -1122,7 +1122,7 @@ export default class BuyToken extends Vue {
             })
           if (erc20Approve) {
             console.log('Approved')
-            app.addToast('Approved', 'You successfully approved', {
+            this.$toast.show('Approved', 'You successfully approved', {
               type: 'success',
             })
             this.$logger.track('approving-0x-complete-non-meta-tx:buy-token', {
@@ -1220,7 +1220,7 @@ export default class BuyToken extends Vue {
         data,
       )
       if (response.status === 200) {
-        app.addToast(
+        this.$toast.show(
           'Order bought successfully',
           'You bought the order successfully',
           {

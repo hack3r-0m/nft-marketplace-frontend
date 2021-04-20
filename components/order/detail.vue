@@ -765,7 +765,7 @@ export default class TokenDetail extends Vue {
       })
       if (response) {
         this.$router.push({ name: 'account' })
-        app.addToast('Order canceled', 'You canceled the order successfully', {
+        this.$toast.show('Order canceled', 'You canceled the order successfully', {
           type: 'success',
         })
       }
@@ -788,7 +788,7 @@ export default class TokenDetail extends Vue {
       }
     } catch (error) {
       if (error.response.status === 401) {
-        app.addToast(
+        this.$toast.show(
           'Signin to add to favourites',
           'You need to login to add token to wishlist',
           {

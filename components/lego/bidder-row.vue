@@ -400,7 +400,7 @@ export default class BidderRow extends Vue {
           data,
         )
         if (response.status === 200) {
-          app.addToast(
+          this.$toast.show(
             'Accepted successfully',
             'You accepted the bid for your order',
             {
@@ -456,7 +456,7 @@ export default class BidderRow extends Vue {
           console.log('Approving 2')
           if (makerERC721ApprovalTxHash) {
             console.log('Approve Hash', makerERC721ApprovalTxHash)
-            app.addToast('Approved', 'You successfully approved', {
+           this.$toast.show('Approved', 'You successfully approved', {
               type: 'success',
             })
             return true
@@ -493,7 +493,7 @@ export default class BidderRow extends Vue {
           console.log('Approving 2')
           if (makerERC1155ApprovalTxHash) {
             console.log('Approve Hash', makerERC1155ApprovalTxHash)
-            app.addToast('Approved', 'You successfully approved', {
+            this.$toast.show('Approved', 'You successfully approved', {
               type: 'success',
             })
             return true
@@ -525,7 +525,7 @@ export default class BidderRow extends Vue {
         )
         if (response.status === 200) {
           this.$logger.track('deny-bid-success:bid-options')
-          app.addToast(
+          this.$toast.show(
             'Bid declined successfully',
             'You declined bid successfully',
             {
@@ -625,7 +625,7 @@ export default class BidderRow extends Vue {
           data,
         )
         if (response.status === 200) {
-          app.addToast(
+          this.$toast.show(
             'Bid cancelled successfully',
             'You cancelled your bid successfully',
             {

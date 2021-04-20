@@ -1,4 +1,5 @@
 export * from "./vuex_store";
+import Vue from 'vue'
 
 export const LOGIN_STRATEGY = {
     metaMask: 'metamask',
@@ -11,3 +12,5 @@ export const ORDER_TYPES = {
     negotiation: 'NEGOTIATION',
     auction: 'AUCTION',
 };
+
+export const APP_BUS = new Vue();

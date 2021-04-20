@@ -161,19 +161,6 @@ const app = {
     return app.vuexStore.getters['network/matic']
   },
 
-
-  addToast(title, body, options = {}) {
-    const toastId = Date.now()
-    options.id = toastId
-    options.details = body
-    this.bus.$emit('toast:add', title, options)
-    setInterval(this.removeToast(toastId), 5000)
-  },
-
-  removeToast(id) {
-    this.bus.$emit('toast:remove', id)
-  },
-
   refreshApp() {
     window.location.reload(true)
   },
@@ -185,19 +172,6 @@ const app = {
     // redirect to login
     location.replace('/login')
   },
-
-  walletconnectModal: {
-    open: (uri, onClose) => {
-      app.bus.$once('walletconnect:session:abort', () => {
-        onClose()
-      })
-      app.bus.$emit('walletconnect:session:new', uri)
-    },
-    close: () => {
-      app.bus.$emit('walletconnect:session:close')
-    },
-  },
-
   get ethereumNetworks() {
     console.log("store", STORE);
     return STORE.state["network"].networks;
