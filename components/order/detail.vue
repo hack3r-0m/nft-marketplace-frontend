@@ -6,7 +6,7 @@
           <token-short-info
             v-if="category"
             class="align-self-center"
-            :order="order"
+            :token="token"
             :category="category"
           />
         </div>
@@ -551,7 +551,7 @@ export default class TokenDetail extends Vue {
 
   get category() {
     return this.categories.filter(
-      (item) => item.id === this.order.categories_id,
+      (item) => item.id === this.order.categories.id,
     )[0]
   }
 
@@ -651,7 +651,7 @@ export default class TokenDetail extends Vue {
         await this.fetchBidders()
       }
     } catch (error) {
-      this.$$logger.error(error)
+      this.$logger.error(error)
     }
     this.isLoadingDetails = false
   }
