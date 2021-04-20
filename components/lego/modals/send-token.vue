@@ -380,7 +380,7 @@ export default class SendToken extends Vue {
             this.refreshNFTTokens()
             if (response.status === 200) {
               // console.log("Transfer receipt: " + response);
-              app.this.$toast.show(
+              this$toast.show(
                 'Transferred',
                 'You successfully transferred the token',
                 {
@@ -422,7 +422,7 @@ export default class SendToken extends Vue {
               this.refreshNFTTokens()
             }, 10000)
 
-            app.this.$toast.show(
+            this$toast.show(
               'Transferred successfully',
               'You successfully transferred the token',
               {
@@ -459,7 +459,7 @@ export default class SendToken extends Vue {
               this.refreshNFTTokens()
             }, 10000)
 
-            app.this.$toast.show(
+            this$toast.show(
               'Transferred successfully',
               'You successfully transferred the token',
               {

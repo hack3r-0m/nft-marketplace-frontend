@@ -144,7 +144,7 @@ export function beautifyErrorMessage(message) {
 
 export function txShowError(error, errorHeader, defaultMessage = '') {
   // error toast
-  app.this.$toast.show(
+  this.$toast.show(
     errorHeader || 'Error',
     beautifyErrorMessage(error ? error?.message : null) || defaultMessage,
     {
@@ -169,7 +169,7 @@ export function txShowSuccess(txId) {
     },
   }
   // success toast
-  app.this.$toast.show('Success', 'View transaction status ', options)
+  this.$toast.show('Success', 'View transaction status ', options)
 }
 
 export function txShowResultToast(txPromise) {
