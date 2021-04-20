@@ -146,5 +146,19 @@ export default {
       }
       return tokens;
     },
+    async addToFavourite(_, id) {
+      const response = await Vue.service.user.addToFavourite(id);
+      if (response.status === 200) {
+        // this can be optimized by only pushing the order into favouriteorders array
+        await dispatch('account/fetchFavoritesOrders')
+      }
+    },
+    async removeFromFavourite(_, order) {
+      const response = await Vue.service.user.removeFromFavourite(order.id);
+      if (response.status === 200) {
+        // this can be optimized by only removing the order into favouriteorders array
+        await dispatch('account/fetchFavoritesOrders')
+      }
+    }
   },
 }

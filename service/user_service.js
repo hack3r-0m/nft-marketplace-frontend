@@ -17,4 +17,16 @@ export class UserService {
         const url = this.createUrl_(`login`);
         return this.httpCaller.post(url, payload);
     }
+
+    removeFromFavourite(orderId) {
+        const url = this.createUrl_(`favourites/${orderId}`);
+        return this.httpCaller.delete(url);
+    }
+
+    addToFavourite(orderId) {
+        const url = this.createUrl_(`favourites`);
+        return this.httpCaller.post(url, {
+            orderId: orderId
+        });
+    }
 }

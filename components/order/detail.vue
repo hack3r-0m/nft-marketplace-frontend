@@ -252,7 +252,7 @@
                     </p>
                     <p class="property-detail m-0 pt-1 text-truncate">
                       <template v-if="attribute.trait_type === 'birthday'">
-                        {{ attribute.value | date-human }}
+                        {{ attribute.value | (date - human) }}
                       </template>
                       <template v-else>
                         {{ attribute.value | pascal }}
@@ -593,14 +593,14 @@ export default class TokenDetail extends Vue {
     return false
   }
 
-  get isFavoriteId() {
+  get favouriteId() {
     if (this.user && this.favouriteOrders) {
       const order = this.favouriteOrders.filter(
         (order) => order.order_id === this.order.id,
       )
       return order[0].id
     }
-    return false
+    return null
   }
 
   get isOwnersToken() {
@@ -779,15 +779,13 @@ export default class TokenDetail extends Vue {
     // Add current order to users wishlist if not wishlisted or if it is then remove it
     try {
       if (this.isFavorite) {
-        const response = await getAxios().delete(
-          `users/favourites/${this.isFavoriteId}`,
+        await this.$store.dispatch(
+          'account/removeFromFavourite',
+          this.favouriteId,
         )
       } else {
-        const response = await getAxios().post('users/favourites', {
-          orderId: this.order.id,
-        })
+        await this.$store.dispatch('account/addToFavourite', this.order)
       }
-      this.$store.dispatch('account/fetchFavoritesOrders')
     } catch (error) {
       if (error.response.status === 401) {
         app.addToast(
