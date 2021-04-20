@@ -1,7 +1,6 @@
 <template>
   <section>
     <div
-      v-if="show"
       class="deposit-weth modal fade show"
       :class="{ 'hide-modal': showReceiveModal }"
     >
@@ -109,11 +108,6 @@ import ReceiveQrCode from '~/components/lego/receive-qr-code'
 
 @Component({
   props: {
-    show: {
-      type: Boolean,
-      required: false,
-      default: false,
-    },
     close: {
       type: Function,
       required: false,

@@ -403,7 +403,7 @@
           </div>
         </div>
       </div>
-      <deposit-weth :show="depositModal" :close="closeDepositModal" />
+      <deposit-weth v-if="depositModal" :show="depositModal" :close="closeDepositModal" />
       <buy-token
         v-if="showBuyToken && order"
         :show="showBuyToken"

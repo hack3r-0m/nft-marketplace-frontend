@@ -42,7 +42,6 @@ export const action = {
                 }
             }
         }
-        debugger;
         return {
             order, isOrderValid
         }

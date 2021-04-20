@@ -93,7 +93,7 @@
         </button>
       </div>
     </div>
-    <deposit-weth :show="depositModal" :close="closeDepositModal" />
+    <deposit-weth v-if="depositModal" :close="closeDepositModal" />
   </div>
 </template>
 

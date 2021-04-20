@@ -334,7 +334,7 @@
     />
 
     <deposit-weth
-      :show="depositModal"
+      v-if="depositModal"
       :close="closeDepositModal"
     />
   </div>
