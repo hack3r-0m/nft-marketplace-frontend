@@ -99,14 +99,14 @@ export default {
         commit('pendingWithdrawals', response.data.data.assetMigrations)
       }
     },
-    async fetchUserNFT(_, payload){
+    async fetchUserNFT(_, payload) {
       const response = await Vue.service.token.fetchBalance(payload);
-      if (response.status === 200){
+      if (response.status === 200) {
         return response.data;
       }
     },
     async fetchMainNFT({ commit, dispatch }, payload) {
-      const response = await dispatch('fetchUserNFT',payload);
+      const response = await dispatch('fetchUserNFT', payload);
       const tokens = [];
       if (response.count) {
         commit('totalMainNft', response.data.count);
@@ -120,9 +120,9 @@ export default {
       }
       return tokens;
     },
-    async fetchMaticNFT({ commit,dispatch }, payload) {
+    async fetchMaticNFT({ commit, dispatch }, payload) {
       const tokens = []
-      const response = await dispatch('fetchUserNFT',payload);
+      const response = await dispatch('fetchUserNFT', payload);
 
       if (response.data) {
         const balances = {}
@@ -153,6 +153,15 @@ export default {
       if (response.status === 200) {
         // this can be optimized by only removing the order into favouriteorders array
         await dispatch('account/fetchFavoritesOrders')
+      }
+    },
+    async fetchNotification({ commit }, userId) {
+      const response = await Vue.service.user.fetchNotification(userId);
+      if (response.status === 200) {
+        commit(
+          'totalUnreadOrderActivity',
+          response.data.data.unread_count,
+        )
       }
     }
   },

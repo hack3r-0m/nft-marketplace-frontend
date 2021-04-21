@@ -44,4 +44,9 @@ export class UserService {
         const url = `assetmigrate/?user_id=${userId}&type=["WITHDRAW"]&status=[0,1]`;
         return this.httpCaller.get(url);
     }
+
+    fetchNotification(userId) {
+        const url = this.createUrl_(`notification/${userId}`);
+        return this.httpCaller.get(url);
+    }
 }
