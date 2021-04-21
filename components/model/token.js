@@ -23,30 +23,16 @@ export default class Token extends Model {
   }
 
   get addresses() {
-    const uiconfig = Vue.appConfig;
-    const network = new MetaNetwork(
-      uiconfig.matic.deployment.network,
-      uiconfig.matic.deployment.version,
-    )
-
     const addresses = {}
     if (this.erc20tokensaddresses) {
       this.erc20tokensaddresses.forEach((address) => {
-        if (address.chain_id === network.Matic.ChainId) {
-          addresses[network.Matic.ChainId] = address.address
-        } else {
-          addresses[address.chain_id] = address.address
-        }
+        addresses[address.chain_id] = address.address
       })
     }
     return addresses
   }
 
   get address() {
-    if (!this.addresses) {
-      return null
-    }
-
     const network = app.getSelectedNetwork()
     if (network) {
       return this.addresses[network.id]
@@ -139,18 +125,14 @@ export default class Token extends Model {
     return null
   }
 
-  getBalance(networkId) {
+  getBalance(networkId, getTokenBalance) {
     const address = this.getAddress(networkId)
 
     if (!address) {
       return ZERO
     }
 
-    const value = app.vuexStore.getters['trunk/tokenBalance'](
-      address.toLowerCase(),
-      networkId,
-    )
-
+    const value = getTokenBalance(address.toLowerCase(), networkId);
     return parseBalance(value, this.decimal)
   }
 
