@@ -9,10 +9,6 @@ export const getter = {
         return !!state.user
     },
 
-    user(state) {
-        return state.user
-    },
-
     userId(state) {
         return state.user.id
     },
