@@ -380,8 +380,7 @@ export default class BidderRow extends Vue {
           }
         }
       } catch (error) {
-        // throw error;
-        console.error(error)
+        this.$logger.error(error);
         txShowError(error, null, 'Something went wrong')
       }
     }
@@ -409,7 +408,9 @@ export default class BidderRow extends Vue {
           )
           this.$router.push({ name: 'account' })
         }
-      } catch (error) {}
+      } catch (error) {
+        this.$logger.error(error);
+      }
       this.$store.dispatch('category/fetchCategories')
     }
   }
@@ -535,7 +536,7 @@ export default class BidderRow extends Vue {
           this.refreshBids()
         }
       } catch (error) {
-        console.error(error)
+        this.$logger.error(error);
         txShowError(error, null, 'Something went wrong')
       }
     }
@@ -608,7 +609,7 @@ export default class BidderRow extends Vue {
         this.$logger.track('handle-cancel-bid-completed:bid-options')
       }
     } catch (error) {
-      console.log(error)
+      this.$logger.error(error);
     }
     this.isLoading = false
     this.onCancelClose()
@@ -635,7 +636,7 @@ export default class BidderRow extends Vue {
           this.refreshBids()
         }
       } catch (error) {
-        console.error(error)
+        this.$logger.error(error);
         txShowError(error, null, 'Something went wrong')
       }
     }

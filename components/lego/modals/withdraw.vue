@@ -315,6 +315,7 @@ export default class Withdraw extends Vue {
           return response.data.data
         }
       } catch (error) {
+        this.$logger.error(error);
         this$toast.show(
           'Failed to init withdraw',
           'You need to sign the transaction to start withdraw',
@@ -322,7 +323,6 @@ export default class Withdraw extends Vue {
             type: 'failure',
           },
         )
-        throw error
       }
     }
   }

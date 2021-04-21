@@ -392,7 +392,7 @@ export default class SendToken extends Vue {
               return true
             }
           } catch (error) {
-            console.error(error)
+            this.$logger.error(error);
             txShowError(null, 'Failed to Transfer', 'Failed to transfer asset')
           }
         }

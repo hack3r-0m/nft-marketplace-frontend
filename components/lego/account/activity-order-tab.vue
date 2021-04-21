@@ -104,7 +104,7 @@ export default class ActivityOrderTab extends Vue {
         this.hasNextPage = false
       }
     } catch (error) {
-      // console.log(error);
+      this.$logger.error(error);
       this.isLoading = false
       this.hasNextPage = false
     }
@@ -113,7 +113,9 @@ export default class ActivityOrderTab extends Vue {
   async markAsRead() {
     try {
       await getAxios().put(`users/notification/mark-read/${this.user.id}`)
-    } catch (error) {}
+    } catch (error) {
+      this.$logger.error(error);
+    }
   }
 
   // Getters

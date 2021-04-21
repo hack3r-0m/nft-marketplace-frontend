@@ -382,7 +382,7 @@ export default class MaticNewTab extends Vue {
         )
       }
     } catch (error) {
-      // console.log(error);
+      this.$logger.error(error);
     }
   }
 

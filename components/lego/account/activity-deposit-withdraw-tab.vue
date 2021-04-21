@@ -102,7 +102,7 @@ export default class ActivityDepositWithdrawTab extends Vue {
         this.hasNextPage = false
       }
     } catch (error) {
-      // console.log(error);
+      this.$logger.error(error);
       this.isLoading = false
       this.hasNextPage = false
     }

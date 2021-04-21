@@ -986,7 +986,7 @@ export default class BuyToken extends Vue {
           }
         }
       } catch (error) {
-        console.log(error)
+        this.$logger.error(error);
         this.isSignedStatus = false
         this.signLoading = false
         txShowError(error, null, 'Something went wrong')
@@ -1095,7 +1095,7 @@ export default class BuyToken extends Vue {
               return true
             }
           } catch (error) {
-            console.log(error)
+            this.$logger.error(error);
             txShowError(
               null,
               'Failed to approve',
@@ -1231,7 +1231,7 @@ export default class BuyToken extends Vue {
         this.close()
       }
     } catch (error) {
-      console.log(error)
+      this.$logger.error(error);
       txShowError(
         null,
         'Failed to buy order',

@@ -478,7 +478,9 @@ export default class WithdrawConfirmationModal extends Vue {
           this.handleCheckpointInclusion()
         }
       }
-    } catch (error) {}
+    } catch (error) {
+      this.$logger.error(error);
+    }
   }
 
   getMaticPOS() {
@@ -571,7 +573,9 @@ export default class WithdrawConfirmationModal extends Vue {
       if (response.status === 200) {
         this.isCheckpointed = true
       }
-    } catch (error) {}
+    } catch (error) {
+      this.$logger.error(error);
+    }
   }
 
   async handleExit(txHash) {
@@ -589,7 +593,9 @@ export default class WithdrawConfirmationModal extends Vue {
         this.isExited = true
         this.refreshBalance()
       }
-    } catch (error) {}
+    } catch (error) {
+      this.$logger.error(error);
+    }
   }
 
   async handleExitedTokens() {
@@ -606,7 +612,9 @@ export default class WithdrawConfirmationModal extends Vue {
         this.isExited = true
         this.refreshBalance()
       }
-    } catch (error) {}
+    } catch (error) {
+      this.$logger.error(error);
+    }
   }
 
   onCancel() {

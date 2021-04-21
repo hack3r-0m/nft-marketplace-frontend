@@ -102,7 +102,7 @@ export default class Index extends Vue {
         this.$store.commit('account/totalMainNft', mainNftResponse.data.count)
       }
     } catch (error) {
-      // console.log(error);
+      this.$logger.error(error);
     }
     try {
       const maticNftResponse = await getAxios().get(
@@ -115,7 +115,7 @@ export default class Index extends Vue {
         )
       }
     } catch (error) {
-      // console.log(error);
+      this.$logger.error(error);
     }
     try {
       const activityResponse = await getAxios().get(
@@ -129,7 +129,7 @@ export default class Index extends Vue {
         )
       }
     } catch (error) {
-      // console.log(error);
+      this.$logger.error(error);
     }
   }
 

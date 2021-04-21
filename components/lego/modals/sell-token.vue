@@ -983,7 +983,7 @@ export default class SellToken extends Vue {
               return true
             }
           } catch (error) {
-            console.log(error)
+            this.$logger.error(error);
             this$toast.show(
               'Failed to approve',
               'You need to approve the transaction to sale the NFT',
@@ -1149,7 +1149,7 @@ export default class SellToken extends Vue {
         this.close()
       }
     } catch (error) {
-      console.error(error)
+      this.$logger.error(error);
       this$toast.show(
         'Sell order failed to add',
         'Failed to add you NFT on sale',

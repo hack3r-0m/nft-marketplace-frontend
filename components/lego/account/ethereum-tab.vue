@@ -237,7 +237,7 @@ return;
         this.tokensFullList = [...this.tokensFullList, ...tokens];
       }
     } catch (error) {
-      console.log(error);
+      this.$logger.error(error);
     }
     this.isLoadingTokens = false;
   }

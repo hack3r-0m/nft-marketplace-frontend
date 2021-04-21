@@ -396,7 +396,7 @@ export default class DepositConfirmationModal extends Vue {
       }
       const res = await getAxios().post('assetmigrate', data)
     } catch (error) {
-      console.log(error)
+      this.$logger.error(error);
     }
     this.refreshBalance()
   }
