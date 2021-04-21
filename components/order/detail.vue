@@ -252,7 +252,7 @@
                     </p>
                     <p class="property-detail m-0 pt-1 text-truncate">
                       <template v-if="attribute.trait_type === 'birthday'">
-                        {{ attribute.value | (date - human) }}
+                        {{ attribute.value | (date-human) }}
                       </template>
                       <template v-else>
                         {{ attribute.value | pascal }}
@@ -470,6 +470,9 @@ import { ORDER_TYPES } from '~/constants'
       type: [Number, String],
       required: true,
     },
+  },
+  created() {
+    this.ORDER_TYPES = ORDER_TYPES
   },
   components: {
     TokenShortInfo,
@@ -765,9 +768,13 @@ export default class TokenDetail extends Vue {
       })
       if (response) {
         this.$router.push({ name: 'account' })
-        this.$toast.show('Order canceled', 'You canceled the order successfully', {
-          type: 'success',
-        })
+        this.$toast.show(
+          'Order canceled',
+          'You canceled the order successfully',
+          {
+            type: 'success',
+          },
+        )
       }
     } catch (error) {
       this.$logger.error(error)
