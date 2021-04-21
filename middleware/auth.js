@@ -1,6 +1,6 @@
 import { getDefaultAccount } from '~/helpers/metamask-utils'
 export default async function ({ store, redirect, route, error }) {
-    const user = store.getters['auth/user']
+    const user = store.state['auth'].user;
     const selectedAddress = await getDefaultAccount()
 
     // is initialized but not authenticated redirect to login

@@ -29,4 +29,14 @@ export class UserService {
             orderId: orderId
         });
     }
+
+    fetchActiveOrders(userId) {
+        const url = this.createUrl_(`${userId}/activeorders`);
+        return this.httpCaller.get(url);
+    }
+
+    fetchFavouriteOrders(userId) {
+        const url = this.createUrl_(`${userId}/favourites`);
+        return this.httpCaller.get(url);
+    }
 }

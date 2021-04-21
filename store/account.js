@@ -1,5 +1,4 @@
 import getAxios from '~/plugins/axios'
-import app from '~/plugins/app'
 import OrderModel from '~/components/model/order'
 import Vue from "vue";
 import NFTTokenModel from '~/components/model/nft-token'
@@ -68,46 +67,40 @@ export default {
   },
 
   actions: {
-    async fetchActiveOrders({ commit }) {
-      try {
-        const user = app.vuexStore.getters['auth/user']
-        const response = await getAxios().get(`users/${user.id}/activeorders`)
-        if (response.status === 200 && response.data.data.length > 0) {
-          const orders = []
-          response.data.data.forEach((order) =>
-            orders.push(new OrderModel(order)),
-          )
-          commit('userOrders', orders)
-        }
-      } catch (error) { }
-    },
-    async fetchFavoritesOrders({ commit }) {
-      try {
-        const user = app.vuexStore.getters['auth/user']
-        const response = await getAxios().get(`users/${user.id}/favourites`)
-        if (response.status === 200 && response.data.data.length > 0) {
-          const orders = []
-          response.data.data.forEach(function (fav) {
-            fav.orders.image = fav.image
-            fav.orders.name = fav.name
-            fav.orders.description = fav.description
-            fav.order = new OrderModel(fav.orders)
-            orders.push(fav)
-          })
-          commit('favouriteOrders', orders)
-        }
-      } catch (error) { }
-    },
-    async fetchPendingWithdrawals({ commit }) {
-      try {
-        const user = app.vuexStore.getters['auth/user']
-        const response = await getAxios().get(
-          `assetmigrate/?user_id=${user.id}&type=["WITHDRAW"]&status=[0,1]`,
+    async fetchActiveOrders({ rootState, commit }) {
+      const user = rootState.auth.user;
+      const response = await Vue.service.user.fetchActiveOrders(user.id);
+      if (response.status === 200 && response.data.data.length > 0) {
+        const orders = []
+        response.data.data.forEach((order) =>
+          orders.push(new OrderModel(order)),
         )
-        if (response.status === 200 && response.data.data) {
-          commit('pendingWithdrawals', response.data.data.assetMigrations)
-        }
-      } catch (error) { }
+        commit('userOrders', orders)
+      }
+    },
+    async fetchFavoritesOrders({ rootState, commit }) {
+      const user = rootState.auth.user;
+      const response = await Vue.service.user.fetchFavouriteOrders(user.id);
+      if (response.status === 200 && response.data.data.length > 0) {
+        const orders = []
+        response.data.data.forEach(function (fav) {
+          fav.orders.image = fav.image
+          fav.orders.name = fav.name
+          fav.orders.description = fav.description
+          fav.order = new OrderModel(fav.orders)
+          orders.push(fav)
+        })
+        commit('favouriteOrders', orders)
+      }
+    },
+    async fetchPendingWithdrawals({ rootState, commit }) {
+      const user = rootState.auth.user;
+      const response = await getAxios().get(
+        `assetmigrate/?user_id=${user.id}&type=["WITHDRAW"]&status=[0,1]`,
+      )
+      if (response.status === 200 && response.data.data) {
+        commit('pendingWithdrawals', response.data.data.assetMigrations)
+      }
     },
     async fetchMainNFT({ commit }, payload) {
       const response = await Vue.service.token.fetchBalance(payload);

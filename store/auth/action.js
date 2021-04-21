@@ -13,7 +13,7 @@ export const action = {
     },
 
     // do login
-    async doLogin({ dispatch, commit, rootCommit }, payload) {
+    async doLogin({ dispatch, commit }, payload) {
         if (!payload || !payload.address || !payload.signature) {
             console.log('User addresss and Signature is required for login')
             return
@@ -22,31 +22,42 @@ export const action = {
         const response = await Vue.service.user.login(payload);
         const user = response.data.data;
         if (response.status === 200 && user) {
-            // Store auth token to local store and add user
-            commit('setLoginStrategy', payload.loginStrategy)
-            commit('setToken', response.data.auth_token)
-            commit('setUser', user);
-            commit('account/account', new AccountModel({
-                address: user.address
-            }),
-                {
-                    root: true
-                }
-            )
-            await dispatch('token/reloadBalances', null, { root: true });
-            await dispatch('account/fetchActiveOrders', null, { root: true });
-            // app.initNetworks(app.vuexStore)
-            // app.initAccount(app.vuexStore)
+            dispatch("initUser", {
+                loginStrategy: payload.loginStrategy,
+                authToken: response.data.auth_token,
+                user: user,
+            })
         }
-
         return null
     },
 
-    async checkLogin({ dispatch }) {
+    async initUser({ dispatch, commit, getters }, { loginStrategy, authToken, user, }) {
+        commit('setLoginStrategy', loginStrategy)
+        commit('setToken', authToken)
+        commit('setUser', user);
+        commit('account/account', new AccountModel({
+            address: user.address
+        }),
+            {
+                root: true
+            }
+        )
+        await dispatch('token/reloadBalances', null, { root: true });
+        await dispatch('account/fetchActiveOrders', null, { root: true });
+        await dispatch('account/fetchFavoritesOrders', null, { root: true });
+        Vue.logger.initTrack({ address: getters['address'] })
+    },
+
+    async getConfig({ dispatch }) {
         try {
             const response = await Vue.service.user.getDetails();
-            if (response.status === 200) {
-                dispatch('login', response.data.data)
+            const user = response.data.data;
+            if (response.status === 200 && user) {
+                dispatch("initUser", {
+                    loginStrategy: payload.loginStrategy,
+                    authToken: response.data.auth_token,
+                    user: user,
+                })
                 return true;
             }
         } catch (err) {

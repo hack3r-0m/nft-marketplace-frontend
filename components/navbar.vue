@@ -394,7 +394,7 @@
 
 <script>
 import Vue from 'vue'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import Component from 'nuxt-class-component'
 
 import copy from 'copy-to-clipboard'
@@ -409,7 +409,9 @@ import * as animationData from '~/static/lottie-animations/green-check.json'
   props: {},
   components: { Lottie, ReceiveQrCode, LogoutConfirm },
   computed: {
-    ...mapGetters('auth', ['user']),
+    ...mapState('auth', {
+      user: (state) => state.user,
+    }),
     ...mapGetters('account', ['account']),
     ...mapGetters('network', ['selectedNetwork', 'rootChainNetwork']),
   },

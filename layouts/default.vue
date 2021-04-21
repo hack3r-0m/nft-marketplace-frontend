@@ -1,6 +1,6 @@
 <template>
   <div class="container-fluid p-0">
-    <navbar-section v-if="false" />
+    <navbar-section v-if="shouldShowNavBar" />
     <div class="content-container">
       <div class="nuxt-section">
         <nuxt />
@@ -48,18 +48,27 @@ export default {
   async mounted() {
     // set and Initialise networks
     this.initNetworks()
-    // TODO: initialize Authentication
-    await this.initAuthentication()
     // Initialize Categories
-    this.initCategories()
+    this.fetchCategories()
+    // TODO: initialize Authentication
+    await this.getConfig()
     // Initialize tokens
-    this.initTokens()
+    this.fetchERC20Tokens()
   },
 
   methods: {
     ...mapActions('network', {
       setNetworks: 'setNetworks',
       setProviders: 'setProviders',
+    }),
+    ...mapActions('auth', {
+      getConfig: 'getConfig',
+    }),
+    ...mapActions('category', {
+      fetchCategories: 'fetchCategories',
+    }),
+    ...mapActions('token', {
+      fetchERC20Tokens: 'fetchERC20Tokens',
     }),
     async initNetworks() {
       const metaNetwork = new MetaNetwork(
@@ -124,51 +133,6 @@ export default {
             this.ethereumNetworks.matic.rpc,
           ),
         })
-      }
-    },
-
-    async initAuthentication() {
-      // Check auth token is there and is valid or not
-      const isLoggedIn = await this.$store.dispatch('auth/checkLogin')
-      if (!isLoggedIn) return
-      // Initialize account
-      await this.initAccount()
-      Vue.$sentry.setUser({ id: store.getters['auth/address'] })
-    },
-
-    async initAccount() {
-      // store commit
-      await this.$store.commit(
-        'account/account',
-        new AccountModel({
-          address: store.getters['auth/address'],
-        }),
-      )
-      Vue.logger.initTrack({ address: store.getters['auth/address'] })
-      await this.$store.dispatch('token/reloadBalances')
-      // user profile data
-      this.initUserProfile()
-    },
-
-    async initCategories() {
-      await this.$store.dispatch('category/fetchCategories')
-    },
-
-    async initTokens() {
-      await this.$store.dispatch('token/fetchERC20Tokens')
-
-      const user = this.loggedInUser
-      if (user) {
-        // Load account balance
-        await this.$store.dispatch('token/reloadBalances')
-      }
-    },
-
-    async initUserProfile() {
-      const user = store.getters['auth/user']
-      if (user) {
-        this.$store.dispatch('account/fetchActiveOrders')
-        this.$store.dispatch('account/fetchFavoritesOrders')
       }
     },
     async logout(navigateToLogin = true) {
