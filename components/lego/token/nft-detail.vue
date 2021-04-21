@@ -418,12 +418,12 @@ export default class NftDetail extends Vue {
     }
     this.isLoadingDetails = true
     try {
-      const response = await Vue.service.token.fetchBalance({
+      const response = await this.$store.dispatch("account/fetchUserNFT")({
         user: this.user,
         chainId: this.chainId,
       })
-      const tokens = response.data.data
-      if (response.status === 200 && tokens) {
+      const tokens = response.data
+      if (tokens) {
         // should use a endpoint that returns detail for just one token
         let currentToken = tokens.filter((token) => {
           return (

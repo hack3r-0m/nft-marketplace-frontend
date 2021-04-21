@@ -1,4 +1,3 @@
-import getAxios from '~/plugins/axios'
 import OrderModel from '~/components/model/order'
 import Vue from "vue";
 import NFTTokenModel from '~/components/model/nft-token'
@@ -100,29 +99,34 @@ export default {
         commit('pendingWithdrawals', response.data.data.assetMigrations)
       }
     },
-    async fetchMainNFT({ commit }, payload) {
+    async fetchUserNFT(_, payload){
       const response = await Vue.service.token.fetchBalance(payload);
+      if (response.status === 200){
+        return response.data;
+      }
+    },
+    async fetchMainNFT({ commit, dispatch }, payload) {
+      const response = await dispatch('fetchUserNFT',payload);
       const tokens = [];
-      if (response.status === 200 && response.data.count) {
+      if (response.count) {
         commit('totalMainNft', response.data.count);
 
-        response.data.data.forEach((token, i) => {
+        response.data.forEach((token, i) => {
           token.id = i + 1;
-          token.chainId = this.chainId
+          token.chainId = payload.chainId
           tokens.push(new NFTTokenModel(token))
         })
-        commit('category/addUsersMainCount', response.data.balances, { root: true })
+        commit('category/addUsersMainCount', response.balances, { root: true })
       }
       return tokens;
     },
-    async fetchNFTTokens({ commit }, payload) {
+    async fetchMaticNFT({ commit,dispatch }, payload) {
       const tokens = []
-      const response = await Vue.service.token.fetchBalance(payload);
+      const response = await dispatch('fetchUserNFT',payload);
 
-      if (response.status === 200 && response.data.data) {
-
+      if (response.data) {
         const balances = {}
-        response.data.data.forEach((token, i) => {
+        response.data.forEach((token, i) => {
           token.id = i + 1;
           token.chainId = payload.chainId
           tokens.push(new NFTTokenModel(token))
@@ -132,7 +136,7 @@ export default {
             balances[token.contract] = 1
           }
         })
-        commit('totalMaticNft', response.data.count)
+        commit('totalMaticNft', response.count)
         commit('category/addUsersMaticCount', balances, { root: true });
       }
       return tokens;
