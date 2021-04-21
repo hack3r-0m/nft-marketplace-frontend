@@ -717,16 +717,14 @@ export default class TokenDetail extends Vue {
           chainId: chainId,
         })
 
-        const dataVal = await getAxios().get(
-          `orders/exchangedata/encoded?orderId=${this.order.id}&functionName=cancelOrder`,
-        )
+        const dataVal = await  this.$store.dispatch("order/getExcodedDataForCancelOrder", this.order.id);
 
         const zrx = {
           salt: generatePseudoRandomSalt(),
           expirationTimeSeconds: signedOrder.expirationTimeSeconds,
           gasPrice: Vue.appConfig.TX_DEFAULTS.gasPrice,
           signerAddress: signedOrder.makerAddress,
-          data: dataVal.data.data,
+          data: dataVal,
           domain: {
             name: '0x Protocol',
             version: '3.0.0',

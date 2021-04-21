@@ -52,6 +52,12 @@ export const action = {
             return true;
         }
         return false;
+    },
+    async getExcodedDataForCancelOrder(_,orderId){
+        const response = await Vue.service.order.getExcodedDataForCancelOrder(orderId);
+        if (response.status === 200) {
+            return response.data.data;
+        }
     }
 }
 

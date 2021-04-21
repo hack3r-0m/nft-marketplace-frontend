@@ -62,4 +62,9 @@ export class OrderService {
         return this.httpCaller.patch(url, payload);
     }
 
+    getExcodedDataForCancelOrder(orderId) {
+        const url = this.createUrl_(`exchangedata/encoded?orderId=${orderId}&functionName=cancelOrder`);
+        return this.httpCaller.get(url);
+    }
+
 }
