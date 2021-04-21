@@ -71,7 +71,7 @@
 <script>
 import Vue from "vue";
 import Component from "nuxt-class-component";
-import { mapGetters } from "vuex";
+import { mapGetters,mapState } from "vuex";
 import getAxios from "~/plugins/axios";
 
 import NFTTokenModel from "~/components/model/nft-token";
@@ -100,7 +100,9 @@ import SellToken from "~/components/lego/modals/sell-token";
     ...mapGetters("page", ["selectedFilters"]),
     ...mapGetters("category", ["categories"]),
     ...mapGetters("account", ["account", "userOrders"]),
-    ...mapGetters("auth", ["user"]),
+     ...mapState('auth', {
+      user : state => state.user
+    }),
     ...mapGetters("network", ["networks"]),
   },
   middleware: [],

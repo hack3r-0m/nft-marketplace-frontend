@@ -196,7 +196,9 @@ import Deposit from '~/components/lego/modals/deposit'
     ]),
     ...mapGetters('category', ['categories', 'allCategory']),
     ...mapGetters('account', ['account', 'userOrders', 'totalMainNft']),
-    ...mapGetters('auth', ['user']),
+     ...mapState('auth', {
+      user : state => state.user
+    }),
     ...mapState('network', {
       networks: (state) => state.networks,
     }),

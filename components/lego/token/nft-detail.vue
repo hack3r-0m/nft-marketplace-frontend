@@ -269,7 +269,7 @@
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
 import app from '~/plugins/app'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 
 import NFTTokenModel from '~/components/model/nft-token'
 
@@ -310,7 +310,9 @@ import { getColorFromImage } from '~/utils'
   computed: {
     ...mapGetters('category', ['categories']),
     ...mapGetters('token', ['erc20Tokens']),
-    ...mapGetters('auth', ['user']),
+     ...mapState('auth', {
+      user : state => state.user
+    }),
     ...mapGetters('network', ['networks']),
   },
   middleware: [],

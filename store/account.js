@@ -95,9 +95,7 @@ export default {
     },
     async fetchPendingWithdrawals({ rootState, commit }) {
       const user = rootState.auth.user;
-      const response = await getAxios().get(
-        `assetmigrate/?user_id=${user.id}&type=["WITHDRAW"]&status=[0,1]`,
-      )
+      const response = await Vue.service.user.fetchPendingWithdrawals(user.id);
       if (response.status === 200 && response.data.data) {
         commit('pendingWithdrawals', response.data.data.assetMigrations)
       }

@@ -39,4 +39,9 @@ export class UserService {
         const url = this.createUrl_(`${userId}/favourites`);
         return this.httpCaller.get(url);
     }
+
+    fetchPendingWithdrawals(userId) {
+        const url = `assetmigrate/?user_id=${userId}&type=["WITHDRAW"]&status=[0,1]`;
+        return this.httpCaller.get(url);
+    }
 }
