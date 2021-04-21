@@ -11,7 +11,7 @@ export default async function ({ $sentry }) {
   // Initialize app
   Vue.use(logger)
   Vue.use(toast, APP_BUS)
-  console.log('app runing with env', Vue.appConfig);
+  console.log('app runing with env', process.env.NODE_ENV);
   Vue.$sentry = $sentry;
   window['vue'] = Vue;
 }

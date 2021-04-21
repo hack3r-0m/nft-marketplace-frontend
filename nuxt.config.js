@@ -1,5 +1,5 @@
 import config from "./config";
-
+import webpack from "webpack";
 const isProd = process.env.NODE_ENV === 'production';
 
 const scripts = [
@@ -112,6 +112,11 @@ export default {
    ** Build configuration
    */
   build: {
+    plugins : [
+      new webpack.DefinePlugin({
+        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
+      }),
+    ],
     // extractCSS
     extractCSS: true,
 
@@ -138,7 +143,7 @@ export default {
     extend(config, ctx) {
       config.node = {
         fs: 'empty',
-      }
+      };
 
       // if (ctx.isDev && ctx.isClient) {
       //   config.module.rules.push({
