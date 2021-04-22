@@ -1,6 +1,5 @@
 import OrderModel from '~/components/model/order'
 import Vue from "vue";
-import NFTTokenModel from '~/components/model/nft-token'
 
 export default {
   namespaced: true,
@@ -114,7 +113,7 @@ export default {
         response.data.forEach((token, i) => {
           token.id = i + 1;
           token.chainId = payload.chainId
-          tokens.push(new NFTTokenModel(token))
+          tokens.push(token)
         })
         commit('category/addUsersMainCount', response.balances, { root: true })
       }
@@ -129,7 +128,7 @@ export default {
         response.data.forEach((token, i) => {
           token.id = i + 1;
           token.chainId = payload.chainId
-          tokens.push(new NFTTokenModel(token))
+          tokens.push(token)
           if (token.contract in balances) {
             balances[token.contract]++
           } else {

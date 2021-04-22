@@ -270,9 +270,6 @@ import Vue from 'vue'
 import Component from 'nuxt-class-component'
 import app from '~/plugins/app'
 import { mapGetters, mapState } from 'vuex'
-
-import NFTTokenModel from '~/components/model/nft-token'
-
 import TokenShortInfo from '~/components/lego/token/token-short-info'
 import WishlistButton from '~/components/lego/wishlist-button'
 import BuyToken from '~/components/lego/modals/buy-token'
@@ -438,8 +435,7 @@ export default class NftDetail extends Vue {
         }
 
         currentToken.chainId = this.chainId
-        const data = new NFTTokenModel(currentToken)
-        this.token = data
+        this.token = currentToken
       }
     } catch (error) {
       this.$logger.error(error)
