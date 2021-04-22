@@ -350,7 +350,7 @@ export default class MaticNewTab extends Vue {
 
       const tokens = await this.$store.dispatch('account/fetchMaticNFT', {
         user: this.user,
-        chainId: this.mainChainId,
+        chainId: this.chainId,
         category: this.selectedCategoryId,
         sort: this.selectedFilters.selectedSort,
         offset: offset,
