@@ -252,7 +252,7 @@
                     </p>
                     <p class="property-detail m-0 pt-1 text-truncate">
                       <template v-if="attribute.trait_type === 'birthday'">
-                        {{ attribute.value | (date-human) }}
+                        {{ attribute.value | dateHuman }}
                       </template>
                       <template v-else>
                         {{ attribute.value | pascal }}
@@ -445,7 +445,7 @@
 <script>
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
-import { mapGetters } from 'vuex'
+import { mapGetters,mapState } from 'vuex'
 import TokenShortInfo from '~/components/lego/token/token-short-info'
 import WishlistButton from '~/components/lego/wishlist-button'
 import BidderRow from '~/components/lego/bidder-row'
@@ -486,8 +486,12 @@ import { ORDER_TYPES } from '~/constants'
     ...mapGetters('category', ['categories']),
     ...mapGetters('token', ['erc20Tokens']),
     ...mapGetters('account', ['account', 'favouriteOrders']),
-    ...mapGetters('auth', ['user']),
-    ...mapGetters('network', ['networks']),
+     ...mapState('auth', {
+      user : state => state.user
+    }),
+    ...mapState('network', {
+      networks: (state) => state.networks,
+    }),
   },
   middleware: [],
   mixins: [],

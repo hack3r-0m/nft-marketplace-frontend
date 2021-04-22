@@ -176,7 +176,7 @@
                     </p>
                     <p class="property-detail m-0 pt-1 text-truncate">
                       <template v-if="attribute.trait_type === 'birthday'">
-                        {{ attribute.value | (date - human) }}
+                        {{ attribute.value | dateHuman }}
                       </template>
                       <template v-else>
                         {{ attribute.value | pascal }}
