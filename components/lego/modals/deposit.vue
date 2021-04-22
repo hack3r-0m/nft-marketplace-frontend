@@ -86,11 +86,7 @@
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
 import { mapGetters } from 'vuex'
-import app from '~/plugins/app'
-
-import getBaseAxios from '~/plugins/axios'
 import { getWalletProvider } from '~/helpers/providers'
-
 import DepositConfirmationModal from '~/components/lego/modals/deposit-confirmation-modal'
 import TokenVerticleList from '~/components/lego/modals/token-verticle-list'
 const MaticPOSClient = require('@maticnetwork/maticjs').MaticPOSClient

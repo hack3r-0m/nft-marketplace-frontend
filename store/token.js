@@ -1,5 +1,4 @@
 /* eslint no-param-reassign: 0 */
-import TokenModel from '~/components/model/token'
 import BigNumber from '~/plugins/bignumber';
 import Vue from "vue";
 

@@ -70,8 +70,6 @@
 import Vue from "vue";
 import Component from "nuxt-class-component";
 import { mapGetters } from "vuex";
-import getAxios from "~/plugins/axios";
-
 import NFTTokenModel from "~/components/model/nft-token";
 import SellCard from "~/components/lego/sell-card";
 import CategoriesSelector from "~/components/lego/categories-selector";

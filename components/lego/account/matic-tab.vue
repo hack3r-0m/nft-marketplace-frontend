@@ -72,7 +72,6 @@
 import Vue from "vue";
 import Component from "nuxt-class-component";
 import { mapGetters,mapState } from "vuex";
-import getAxios from "~/plugins/axios";
 
 import NFTTokenModel from "~/components/model/nft-token";
 
