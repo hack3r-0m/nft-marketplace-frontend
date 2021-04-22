@@ -53,11 +53,25 @@ export const action = {
         }
         return false;
     },
-    async getExcodedDataForCancelOrder(_,orderId){
+    async getExcodedDataForCancelOrder(_, orderId) {
         const response = await Vue.service.order.getExcodedDataForCancelOrder(orderId);
         if (response.status === 200) {
             return response.data.data;
         }
+    },
+    async create(_, payload) {
+        const response = await Vue.service.order.create(payload);
+        if (response.status === 200) {
+            return true;
+        }
+        return false;
+    },
+    async executeMetaTx(_, payload) {
+        const response = await Vue.service.order.executeMetaTx(payload);
+        if (response.status === 200) {
+            return true;
+        }
+        return false;
     }
 }
 

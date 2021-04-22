@@ -67,4 +67,13 @@ export class OrderService {
         return this.httpCaller.get(url);
     }
 
+    create(payload) {
+        const url = this.createUrl_("");
+        return this.httpCaller.post(url, payload)
+    }
+    executeMetaTx(payload) {
+        const url = this.createUrl_("executeMetaTx");
+        return this.httpCaller.post(url, payload)
+    }
+
 }

@@ -23,8 +23,8 @@ export default {
         if (process.env.NODE_ENV !== "production") {
           console.log(event, JSON.parse(JSON.stringify(payload)));
         }
-        // else if (shouldTrack) {
-        if (shouldTrack) {
+        else if (shouldTrack) {
+        // if (shouldTrack) {
           mixpanel.track(event, JSON.parse(JSON.stringify(payload)))
         }
       },

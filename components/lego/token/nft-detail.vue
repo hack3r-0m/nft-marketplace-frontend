@@ -384,11 +384,7 @@ export default class NftDetail extends Vue {
   // Get
   get category() {
     const ct = this.categoryByToken(this.token);
-    debugger;
     return ct;
-     this.categories.filter(
-      (item) => item.id === this.token.categories_id,
-    )[0]
   }
   
   get tokenDescription() {
@@ -433,7 +429,6 @@ export default class NftDetail extends Vue {
         }
 
         currentToken.chainId = this.chainId;
-        debugger;
         this.token = currentToken
       }
     } catch (error) {

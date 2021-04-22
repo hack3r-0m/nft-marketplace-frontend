@@ -2,7 +2,7 @@
 import Vue from "vue";
 const config = require("./default");
 // debugger;
-if (process.env.NODE_ENV === "production") {
+if (process.env.NODE_ENV === "production" || process.env.BUILD_ENV === "production") {
     Object.assign(config, require("./production"))
 }
 else {

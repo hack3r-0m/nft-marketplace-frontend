@@ -70,6 +70,14 @@ export default {
         })
         return category;
       }
+    },
+    contractAddressByToken(state, getters) {
+      return (token, chainId) => {
+        const category = getters.categoryByToken(token);
+        if (category) {
+          return chainId ? category.chainAddress[chainId] : category.chainAddress;
+        }
+      }
     }
   },
   actions: {
