@@ -4,6 +4,7 @@ import BigNumber from '~/plugins/bignumber'
 import {
   getBalance as getAccountBalancePromise,
   getContractCode,
+  parseBalance, parseUSDBalance
 } from '~/helpers'
 
 // Zero balance
@@ -35,12 +36,18 @@ export default {
   },
 
   getters: {
+
     tokenBalance(state, getters, rootState, rootGetters) {
-      return (address, networkId) => {
-        return (
+      return (token, networkId) => {
+        const address = token.chainAddress[networkId]
+        if (!address) {
+          return ZeroBalance
+        }
+        const value = (
           state.tokenBalance[`${networkId}:${address.toLowerCase()}`] ||
           ZeroBalance
         )
+        return parseBalance(value, token.decimal)
       }
     },
 
@@ -66,49 +73,39 @@ export default {
     },
 
     async loadTokenBalance(
-      { state, commit, rootGetters },
+      { state, commit, rootGetters, getters },
       { address, token, refresh = false, network },
     ) {
       if (!network) {
         return
       }
 
-      const tokenAddress = token.getAddress(network.id)
-      if (!tokenAddress) {
-        return ZeroBalance
-      }
-      const cacheId = `${network.id}:${tokenAddress.toLowerCase()}`
       if (refresh) {
         // remove balance
         commit('resetCache', { which: 'tokenBalance' })
         commit('resetCache', { which: 'contractObject' })
       }
 
-      let result = state.tokenBalance[cacheId]
+      let result = getters["tokenBalance"](token, network.id)
       if (result) {
         return result
       }
 
       result = ZeroBalance
-      try {
-        const accountAddress =
-          address || rootGetters['account/account'].address
+      const accountAddress =
+        address || rootGetters['account/account'].address
 
-        // Fetch balance
-        let r = null
-        // if (token.isEther && !network.isMatic || token.isMatic && network.isMatic) {
-        if (token.isEther && !network.isMatic) {
-          r = await getAccountBalancePromise(network, accountAddress)
-        } else {
-          const c = await token.getContract(network)
-          r = await c.methods.balanceOf(accountAddress).call()
-        }
-
-        result = new BigNumber(r)
-      } catch (e) {
-        // console.error("error::loadTokenBalance", e)
+      // Fetch balance
+      let r = null
+      // if (token.isEther && !network.isMatic || token.isMatic && network.isMatic) {
+      if (token.isEther && !network.isMatic) {
+        r = await getAccountBalancePromise(network, accountAddress)
+      } else {
+        const c = await token.getContract(network)
+        r = await c.methods.balanceOf(accountAddress).call()
       }
 
+      result = new BigNumber(r)
       commit('setCache', {
         which: 'tokenBalance',
         id: cacheId,

@@ -17,6 +17,13 @@ export default {
 
   mutations: {
     erc20Tokens(state, tokens) {
+      tokens.forEach(token => {
+        const addresses = {};
+        token.erc20tokensaddresses.forEach((address) => {
+          addresses[address.chain_id] = address.address
+        })
+        token.chainAddress = addresses;
+      })
       state.erc20Tokens = tokens
     },
     selectedERC20Token(state, token) {
@@ -39,12 +46,12 @@ export default {
       const tokens = state.erc20Tokens;
       const tokensBalance = []
       tokens.reduce((a, t) => {
-        const v = t.getBalance(network.chainId,rootGetters['trunk/tokenBalance'])
+        const v = rootGetters['trunk/tokenBalance'](t, network.chainId);
         tokensBalance.push(v)
         return a.plus(v)
       }, ZERO)
       return tokensBalance
-    },
+    }
   },
 
   actions: {
@@ -53,8 +60,8 @@ export default {
       if (response.status === 200 && response.data.data.erc20Tokens) {
         const erc20Tokens = response.data.data.erc20Tokens
         const tokens = []
-        erc20Tokens.forEach((token) => tokens.push(new TokenModel(token)))
-        commit('erc20Tokens', tokens)
+        // erc20Tokens.forEach((token) => tokens.push(new TokenModel(token)))
+        commit('erc20Tokens', erc20Tokens)
       }
     },
 
@@ -89,6 +96,6 @@ export default {
       await dispatch('fetchBalances')
     },
 
-   
+
   }
 }
