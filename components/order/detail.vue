@@ -572,10 +572,6 @@ export default class TokenDetail extends Vue {
     return this.order.token_type === 'ERC721'
   }
 
-  get app() {
-    return app
-  }
-
   get isUser() {
     return this.user
   }
@@ -624,8 +620,9 @@ export default class TokenDetail extends Vue {
   }
 
   get validation() {
+    const balance = this.$store.getters["trunk/tokenBalance"](this.erc20Token).gte(this.order.min_price);
     return {
-      balance: this.erc20Token.balance.gte(this.order.min_price),
+      balance: balance,
     }
   }
 

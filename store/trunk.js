@@ -39,6 +39,7 @@ export default {
 
     tokenBalance(state, getters, rootState, rootGetters) {
       return (token, networkId) => {
+        networkId = networkId || rootGetters["network/selectedNetwork"].id
         const address = token.chainAddress[networkId]
         if (!address) {
           return ZeroBalance
