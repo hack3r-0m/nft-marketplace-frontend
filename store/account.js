@@ -171,6 +171,12 @@ export default {
         return true;
       }
       return false;
+    },
+    async fetchDepositAndWithdrawlsNotification(_, userId) {
+      const response = await Vue.service.user.fetchDepositAndWithdrawlsNotification(userId);
+      if (response.status === 200) {
+        return response.data.data;
+      }
     }
   },
 }

@@ -62,11 +62,8 @@
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
 import moment from 'moment'
-
 import AcceptBid from '~/components/lego/modals/bid-confirmation'
-
 import rgbToHsl from '~/helpers/color-algorithm'
-import app from '~/plugins/app'
 import { getColorFromImage } from '~/utils'
 
 @Component({
@@ -90,14 +87,14 @@ export default class ActivityDepositWithdrawRow extends Vue {
   async mounted() {
     if (this.activity.type === 'DEPOSIT') {
       this.explorerLink =
-        app.uiconfig.mainExplorer + 'tx/' + this.activity.txhash
+        Vue.appConfig.mainExplorer + 'tx/' + this.activity.txhash
     } else if (this.activity.type === 'WITHDRAW') {
       if (this.activity.status === 0 || this.activity.status === 1) {
         this.explorerLink =
-          app.uiconfig.maticExplorer + 'tx/' + this.activity.txhash
+          Vue.appConfig.maticExplorer + 'tx/' + this.activity.txhash
       } else if (this.activity.status === 2 || this.activity.status === 3) {
         this.explorerLink =
-          app.uiconfig.mainExplorer + 'tx/' + this.activity.exit_txhash
+          Vue.appConfig.mainExplorer + 'tx/' + this.activity.exit_txhash
       }
     }
   }
@@ -120,7 +117,7 @@ export default class ActivityDepositWithdrawRow extends Vue {
   }
 
   get imgUrl() {
-    return `${app.uiconfig.apis.FILE_HOST}${this.activity.categories.img_url}`
+    return `${Vue.appConfig.apis.FILE_HOST}${this.activity.categories.img_url}`
   }
 
   get timeRemaining() {

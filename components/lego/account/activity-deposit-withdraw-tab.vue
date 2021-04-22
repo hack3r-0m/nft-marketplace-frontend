@@ -10,10 +10,7 @@
         to receive the updates, so keep checking!
       </div>
     </div>
-    <div
-      v-if="notifications"
-      class="row"
-    >
+    <div v-if="notifications" class="row">
       <activity-deposit-withdraw-row
         v-for="activity in notifications"
         :key="activity.id"
@@ -47,10 +44,7 @@
 <script>
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
-import { mapGetters } from 'vuex'
-
-import getAxios from '~/plugins/axios'
-
+import { mapState } from 'vuex'
 import ActivityDepositWithdrawRow from '~/components/lego/account/activity-deposit-withdraw-row'
 import NoItem from '~/components/lego/no-item'
 
@@ -61,14 +55,16 @@ import NoItem from '~/components/lego/no-item'
     NoItem,
   },
   computed: {
-    ...mapGetters('auth', ['user']),
+    ...mapState('auth', {
+      user: (state) => state.user,
+    }),
   },
 })
 export default class ActivityDepositWithdrawTab extends Vue {
-  notifications = [];
-  isLoading = false;
-  limit = 20;
-  hasNextPage = true;
+  notifications = []
+  isLoading = false
+  limit = 20
+  hasNextPage = true
   async mounted() {
     await this.fetchNotifications()
   }
@@ -83,26 +79,23 @@ export default class ActivityDepositWithdrawTab extends Vue {
     try {
       const offset = this.notifications.length
 
-      const response = await getAxios().get(
-        `assetmigrate/?user_id=${this.user.id}&type=["DEPOSIT","WITHDRAW"]&status=[0,1,2,3]`,
+      const data = await this.$store.dispatch(
+        'account/fetchDepositAndWithdrawlsNotification',
+        this.user.id,
       )
-      if (response.status === 200 && response.data.data.assetMigrations) {
-        this.hasNextPage = response.data.data.has_next_page
+      if (data) {
+        this.hasNextPage = data.has_next_page
         if (offset === 0) {
-          this.notifications = response.data.data.assetMigrations
+          this.notifications = data.assetMigrations
         } else {
-          this.notifications = [
-            ...this.notifications,
-            ...response.data.data.assetMigrations,
-          ]
+          this.notifications = [...this.notifications, ...data.assetMigrations]
         }
-        this.isLoading = false
       } else {
-        this.isLoading = false
         this.hasNextPage = false
       }
+      this.isLoading = false
     } catch (error) {
-      this.$logger.error(error);
+      this.$logger.error(error)
       this.isLoading = false
       this.hasNextPage = false
     }
@@ -120,7 +113,7 @@ export default class ActivityDepositWithdrawTab extends Vue {
 </script>
 
 <style lang="scss" scoped>
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 
 .container {
   max-width: 940px;

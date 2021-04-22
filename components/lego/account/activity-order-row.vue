@@ -66,12 +66,8 @@
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
 import moment from 'moment'
-
-// import AcceptBid from '~/components/lego/modals/bid-confirmation'
-
 import rgbToHsl from '~/helpers/color-algorithm'
 import { getColorFromImage } from '~/utils'
-import app from '~/plugins/app'
 
 @Component({
   props: {
@@ -159,7 +155,7 @@ export default class ActivityOrderRow extends Vue {
 
   onAccept() {
     this.showAcceptBid = true
-    console.log('On accept')
+    this.$logger.debug('On accept')
   }
 
   onAcceptClose() {
