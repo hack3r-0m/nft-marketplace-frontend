@@ -64,9 +64,10 @@ export default {
     },
     categoryByToken(state) {
       return (token) => {
-        const category = state.categories.find((c) =>
-          c.getAddress(token.chainId).toLowerCase() === token.contract.toLowerCase(),
-        )
+        const category = state.categories.find((c) => {
+          const address = c.chainAddress[token.chainId];
+          return address ? address.toLowerCase() === token.contract.toLowerCase() : false;
+        })
         return category;
       }
     }
@@ -80,9 +81,14 @@ export default {
         const maticChainId = networks.matic.chainId;
         const categories = categoriesFromResponse.map((item) => {
           item.img_url = `${Vue.appConfig.apis.FILE_HOST}${item.img_url}`;
-          const addressInfo = item.categoriesaddresses.find(q => q.chain_id == maticChainId);
-          if(addressInfo){
-            item.maticAddress = addressInfo.address
+          const chainAddress = {};
+          item.categoriesaddresses.forEach(q => {
+            chainAddress[q.chain_id] = q.address;
+          })
+          item.chainAddress = chainAddress;
+          const addressInfo = chainAddress[maticChainId];
+          if (addressInfo) {
+            item.maticAddress = addressInfo
           }
           return item;
         })

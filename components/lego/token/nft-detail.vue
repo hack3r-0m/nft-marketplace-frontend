@@ -142,7 +142,7 @@
             </div>
 
             <div
-              v-if="token.token.attributes_metadata"
+              v-if="token.attributes"
               class="properties details-section--dropdown"
             >
               <div
@@ -164,7 +164,7 @@
                 class="d-flex flex-row flex-wrap ps-t-16 ps-l-16"
               >
                 <div
-                  v-for="attribute in token.token.attributes_metadata"
+                  v-for="attribute in token.attributes"
                   :key="`${attribute.trait_type}-${attribute.value}`"
                   class="col-md-3 p-0 pr-4 justify-content-between"
                 >
@@ -268,7 +268,6 @@
 <script>
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
-import app from '~/plugins/app'
 import { mapGetters, mapState } from 'vuex'
 import TokenShortInfo from '~/components/lego/token/token-short-info'
 import WishlistButton from '~/components/lego/wishlist-button'
@@ -305,7 +304,7 @@ import { getColorFromImage } from '~/utils'
     CancelConfirm,
   },
   computed: {
-    ...mapGetters('category', ['categories']),
+    ...mapGetters('category', ['categories','categoryByToken']),
     ...mapGetters('token', ['erc20Tokens']),
      ...mapState('auth', {
       user : state => state.user
@@ -384,15 +383,14 @@ export default class NftDetail extends Vue {
 
   // Get
   get category() {
-    return this.categories.filter(
+    const ct = this.categoryByToken(this.token);
+    debugger;
+    return ct;
+     this.categories.filter(
       (item) => item.id === this.token.categories_id,
     )[0]
   }
-
-  get app() {
-    return app
-  }
-
+  
   get tokenDescription() {
     return this.token.description
   }
@@ -415,7 +413,7 @@ export default class NftDetail extends Vue {
     }
     this.isLoadingDetails = true
     try {
-      const response = await this.$store.dispatch("account/fetchUserNFT")({
+      const response = await this.$store.dispatch("account/fetchUserNFT",{
         user: this.user,
         chainId: this.chainId,
       })
@@ -434,7 +432,8 @@ export default class NftDetail extends Vue {
           return
         }
 
-        currentToken.chainId = this.chainId
+        currentToken.chainId = this.chainId;
+        debugger;
         this.token = currentToken
       }
     } catch (error) {
