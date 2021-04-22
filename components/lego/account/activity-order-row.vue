@@ -20,14 +20,11 @@
         :src="imgUrl"
         class="asset-img align-self-center profile-logo"
         :alt="activity.orders.categories.img_url"
-      >
+      />
       <div
         class="d-flex message flex-column align-self-center ps-x-16 ps-l-md-0 ps-r-md-16"
       >
-        <div
-          v-if="true"
-          class="font-body-small"
-        >
+        <div v-if="true" class="font-body-small">
           <nuxt-link
             :to="{ name: 'order-id', params: { id: activity.order_id } }"
           >
@@ -38,32 +35,24 @@
           {{ remainingTimeinWords }} ago
         </div>
       </div>
-      <div
-        v-if="true && showExplorerLink"
-        class="d-flex ml-auto ms-r-16"
-      >
+      <div v-if="true && showExplorerLink" class="d-flex ml-auto ms-r-16">
         <a
           :href="explorerLink"
           target="_blank"
           rel="noopener noreferrer"
           class="btn btn-light align-self-center"
-        >View details
+        >
+          View details
         </a>
       </div>
-      <div
-        v-if="false"
-        class="d-flex ml-auto ms-r-16"
-      >
+      <div v-if="false" class="d-flex ml-auto ms-r-16">
         <button
           class="btn btn-light btn-deny align-self-center ms-r-12"
           @click="onDeny()"
         >
           Deny
         </button>
-        <button
-          class="btn btn-light align-self-center"
-          @click="onAccept()"
-        >
+        <button class="btn btn-light align-self-center" @click="onAccept()">
           Accept
         </button>
       </div>
@@ -84,7 +73,6 @@ import rgbToHsl from '~/helpers/color-algorithm'
 import { getColorFromImage } from '~/utils'
 import app from '~/plugins/app'
 
-
 @Component({
   props: {
     activity: {
@@ -97,16 +85,16 @@ import app from '~/plugins/app'
   },
 })
 export default class ActivityOrderRow extends Vue {
-  bg = '#ffffff';
+  bg = '#ffffff'
   // showAcceptBid = false;
-  showInProcess = false;
-  showTokenList = false;
-  explorerLink = '';
-  showExplorerLink = false;
+  showInProcess = false
+  showTokenList = false
+  explorerLink = ''
+  showExplorerLink = false
 
   async mounted() {
     this.explorerLink =
-      app.uiconfig.maticExplorer + 'tx/' + this.activity.orders.txhash
+      Vue.appConfig.maticExplorer + 'tx/' + this.activity.orders.txhash
     if (this.activity.type === 'SWAP') {
       this.showExplorerLink = true
     } else if (
@@ -122,7 +110,7 @@ export default class ActivityOrderRow extends Vue {
   onImageLoad() {
     try {
       const img = this.$el.querySelector('.asset-img')
-      const rgbColor = colorThief.getColor(img)
+      const rgbColor = getColorFromImage(img)
       if (rgbColor) {
         const hsl = rgbToHsl({
           r: rgbColor[0],
@@ -137,7 +125,7 @@ export default class ActivityOrderRow extends Vue {
   }
 
   get imgUrl() {
-    return `${app.uiconfig.apis.FILE_HOST}${this.activity.orders.categories.img_url}`
+    return `${Vue.appConfig.apis.FILE_HOST}${this.activity.orders.categories.img_url}`
   }
 
   get timeRemaining() {
@@ -189,9 +177,9 @@ export default class ActivityOrderRow extends Vue {
 </script>
 
 <style lang="scss" scoped>
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 a {
-  color: primary-color("600");
+  color: primary-color('600');
 }
 .unread-mark {
   margin-left: -14px;
@@ -200,7 +188,7 @@ a {
 
 .activity-wrapper {
   width: 100%;
-  background-color: light-color("600");
+  background-color: light-color('600');
   border-radius: $default-card-box-border-radius;
   .img-wrapper {
     display: flex;
@@ -224,10 +212,10 @@ a {
   white-space: nowrap;
 }
 .btn-deny {
-  color: red-color("600");
+  color: red-color('600');
 }
 .text-gray-300 {
-  color: dark-color("300");
+  color: dark-color('300');
 }
 
 @media (max-width: 768px) {

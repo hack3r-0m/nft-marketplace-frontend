@@ -154,14 +154,23 @@ export default {
         await dispatch('account/fetchFavoritesOrders')
       }
     },
-    async fetchNotification({ commit }, userId) {
-      const response = await Vue.service.user.fetchNotification(userId);
+    async fetchNotification({ commit }, payload) {
+      const response = await Vue.service.user.fetchNotification(payload);
       if (response.status === 200) {
+        const data = response.data.data;
         commit(
           'totalUnreadOrderActivity',
           response.data.data.unread_count,
         )
+        return data;
       }
+    },
+    async markNotificationAsRead(_, userId) {
+      const response = await Vue.service.user.markNotificationAsRead(userId);
+      if (response.status === 200) {
+        return true;
+      }
+      return false;
     }
   },
 }

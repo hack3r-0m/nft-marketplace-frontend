@@ -45,8 +45,13 @@ export class UserService {
         return this.httpCaller.get(url);
     }
 
-    fetchNotification(userId) {
-        const url = this.createUrl_(`notification/${userId}`);
+    fetchNotification({ userId, offset = 0, limit = 0 }) {
+        const url = this.createUrl_(`notification/${userId}?offset=${offset}&limit=${limit}`);
+        return this.httpCaller.get(url);
+    }
+
+    markNotificationAsRead(userId) {
+        const url = this.createUrl_(`notification/mark-read/${userId}`);
         return this.httpCaller.get(url);
     }
 }

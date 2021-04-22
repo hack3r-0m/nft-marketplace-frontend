@@ -102,7 +102,7 @@ export default class Index extends Vue {
           user: this.user,
           chainId: this.maticChainId,
         }),
-        this.$store.dispatch('account/fetchNotification', this.user.id),
+        this.$store.dispatch('account/fetchNotification', {userId:this.user.id}),
       ])
     } catch (error) {
       this.$logger.error(error)
