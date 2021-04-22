@@ -1,10 +1,7 @@
 <template>
   <div class="col-md-12 d-flex ps-x-0 ms-y-8">
     <div class="d-flex align-self-center bidder-wrapper ps-y-24">
-      <svg-sprite-icon
-        name="profile"
-        class="profile-logo align-self-center"
-      />
+      <svg-sprite-icon name="profile" class="profile-logo align-self-center" />
       <div
         class="d-flex message flex-column align-self-center ps-x-16 ps-l-md-0 ps-r-md-16"
       >
@@ -15,7 +12,9 @@
             href
             :title="bid.users.address"
             @click.prevent
-          >{{ shortChecksumAddress }}</a>
+          >
+            {{ shortChecksumAddress }}
+          </a>
         </div>
         <div class="font-caption text-gray-300">
           {{ remainingTimeinWords }} ago
@@ -25,7 +24,9 @@
         <div class="ps-y-12 ps-x-16">
           <span
             class="ps-y-8 ps-x-16 font-body-small font-medium price-pill text-nowrap"
-          >{{ bid.price }} {{ bid.erc20Token.symbol }}</span>
+          >
+            {{ bid.price }} {{ bid.erc20Token.symbol }}
+          </span>
         </div>
 
         <button
@@ -89,12 +90,10 @@ import moment from 'moment'
 import Web3 from 'web3'
 
 import app from '~/plugins/app'
-import getAxios from '~/plugins/axios'
 
 import BidConfirmation from '~/components/lego/modals/bid-confirmation'
 import { txShowError } from '~/helpers/transaction-utils'
-import {
-} from '~/helpers/0x-utils'
+import {} from '~/helpers/0x-utils'
 
 import { getProviderEngine } from '~/helpers/provider-engine'
 
@@ -132,12 +131,12 @@ const { Web3Wrapper } = require('@0x/web3-wrapper')
   },
 })
 export default class BidderRow extends Vue {
-  showAcceptBid = false;
-  showDenyBid = false;
-  showCancelBid = false;
-  isLoading = false;
-  denyButtonTexts = { title: 'Deny', loadingTitle: 'Denying...' };
-  cancelButtonTexts = { title: 'Cancel', loadingTitle: 'Cancelling...' };
+  showAcceptBid = false
+  showDenyBid = false
+  showCancelBid = false
+  isLoading = false
+  denyButtonTexts = { title: 'Deny', loadingTitle: 'Denying...' }
+  cancelButtonTexts = { title: 'Cancel', loadingTitle: 'Cancelling...' }
   mounted() {}
 
   // Get
@@ -242,8 +241,7 @@ export default class BidderRow extends Vue {
     if (this.order.taker_address === this.user.id) {
       try {
         // const chainId = this.networks.matic.chainId
-        const nftContract = this.order.categories.categoriesaddresses[0]
-          .address
+        const nftContract = this.order.categories.categoriesaddresses[0].address
         const nftTokenId = this.order.tokens_id
         // const erc20Address = this.order.erc20tokens.erc20tokensaddresses[0]
         //   .address
@@ -266,9 +264,7 @@ export default class BidderRow extends Vue {
           chainId: signedOrder.chainId,
         })
 
-        signedOrder.makerAssetAmount = BigNumber(
-          signedOrder.makerAssetAmount,
-        )
+        signedOrder.makerAssetAmount = BigNumber(signedOrder.makerAssetAmount)
         signedOrder.takerAssetAmount = takerAssetAmount
         signedOrder.expirationTimeSeconds = BigNumber(
           signedOrder.expirationTimeSeconds,
@@ -380,7 +376,7 @@ export default class BidderRow extends Vue {
           }
         }
       } catch (error) {
-        this.$logger.error(error);
+        this.$logger.error(error)
         txShowError(error, null, 'Something went wrong')
       }
     }
@@ -394,11 +390,11 @@ export default class BidderRow extends Vue {
         const data = {
           taker_signature: JSON.stringify(takerSign),
         }
-        const response = await getAxios().patch(
-          `orders/${this.bid.id}/execute`,
-          data,
-        )
-        if (response.status === 200) {
+        const response = await this.$store.dispatch('order/acceptBid', {
+          bidId: this.bid.id,
+          payload: data,
+        })
+        if (response) {
           this.$toast.show(
             'Accepted successfully',
             'You accepted the bid for your order',
@@ -409,7 +405,7 @@ export default class BidderRow extends Vue {
           this.$router.push({ name: 'account' })
         }
       } catch (error) {
-        this.$logger.error(error);
+        this.$logger.error(error)
       }
       this.$store.dispatch('category/fetchCategories')
     }
@@ -457,7 +453,7 @@ export default class BidderRow extends Vue {
           console.log('Approving 2')
           if (makerERC721ApprovalTxHash) {
             console.log('Approve Hash', makerERC721ApprovalTxHash)
-           this.$toast.show('Approved', 'You successfully approved', {
+            this.$toast.show('Approved', 'You successfully approved', {
               type: 'success',
             })
             return true
@@ -508,7 +504,7 @@ export default class BidderRow extends Vue {
       }
       return true
     } catch (error) {
-      throw error
+      this.$logger.error(error)
       return false
     }
   }
@@ -521,9 +517,9 @@ export default class BidderRow extends Vue {
     })
     if (this.bid.order.taker_address === this.user.id) {
       try {
-        const response = await getAxios().patch(
-          `orders/bid/${this.bid.id}/cancel`,
-        )
+        const response = await this.$store.dispatch('order/cancelBid', {
+          bidId: this.bid.id,
+        })
         if (response.status === 200) {
           this.$logger.track('deny-bid-success:bid-options')
           this.$toast.show(
@@ -536,7 +532,7 @@ export default class BidderRow extends Vue {
           this.refreshBids()
         }
       } catch (error) {
-        this.$logger.error(error);
+        this.$logger.error(error)
         txShowError(error, null, 'Something went wrong')
       }
     }
@@ -556,9 +552,7 @@ export default class BidderRow extends Vue {
           new BigNumber(this.bid.price),
           this.erc20Token.decimal,
         )
-        signedOrder.makerAssetAmount = BigNumber(
-          signedOrder.makerAssetAmount,
-        )
+        signedOrder.makerAssetAmount = BigNumber(signedOrder.makerAssetAmount)
         signedOrder.takerAssetAmount = takerAssetAmount
         signedOrder.expirationTimeSeconds = BigNumber(
           signedOrder.expirationTimeSeconds,
@@ -609,7 +603,7 @@ export default class BidderRow extends Vue {
         this.$logger.track('handle-cancel-bid-completed:bid-options')
       }
     } catch (error) {
-      this.$logger.error(error);
+      this.$logger.error(error)
     }
     this.isLoading = false
     this.onCancelClose()
@@ -621,11 +615,11 @@ export default class BidderRow extends Vue {
         const data = {
           taker_signature: JSON.stringify(takerSign),
         }
-        const response = await getAxios().patch(
-          `orders/bid/${this.bid.id}/cancel`,
-          data,
-        )
-        if (response.status === 200) {
+        const response = await this.$store.dispatch('order/cancelBid', {
+          bidId: this.bid.id,
+          data: data,
+        })
+        if (response) {
           this.$toast.show(
             'Bid cancelled successfully',
             'You cancelled your bid successfully',
@@ -636,7 +630,7 @@ export default class BidderRow extends Vue {
           this.refreshBids()
         }
       } catch (error) {
-        this.$logger.error(error);
+        this.$logger.error(error)
         txShowError(error, null, 'Something went wrong')
       }
     }
@@ -646,11 +640,11 @@ export default class BidderRow extends Vue {
 </script>
 
 <style lang="scss" scoped="true">
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 
 .bidder-wrapper {
   width: 100%;
-  border: 1px solid light-color("500");
+  border: 1px solid light-color('500');
   border-radius: $default-card-box-border-radius;
   .img-wrapper {
     display: flex;
@@ -664,7 +658,7 @@ export default class BidderRow extends Vue {
   }
 }
 .price-pill {
-  background-color: light-color("500");
+  background-color: light-color('500');
   border-radius: 18px;
 }
 .profile-logo {
@@ -678,10 +672,10 @@ export default class BidderRow extends Vue {
   white-space: nowrap;
 }
 .btn-deny {
-  color: red-color("600");
+  color: red-color('600');
 }
 .text-gray-300 {
-  color: dark-color("300");
+  color: dark-color('300');
 }
 
 @media (max-width: 768px) {

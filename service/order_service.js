@@ -20,19 +20,17 @@ export class OrderService {
         return this.httpCaller.get(url);
     }
 
-    acceptBid(bid) {
-        const url = this.createUrl_(`${bid.id}/execute`)
+    acceptBid({ bidId, payload }) {
+        const url = this.createUrl_(`${bidId}/execute`)
         return this.httpCaller.patch(
             url,
-            {
-                taker_signature: JSON.stringify(bid.takerSign),
-            }
+            payload
         );
     }
 
-    cancelBid(bidId) {
+    cancelBid({ bidId, data }) {
         const url = this.createUrl_(`bid/${bidId}/cancel`);
-        return this.httpCaller.patch(url);
+        return this.httpCaller.patch(url, data);
     }
 
     signAcceptBid(bidId) {
@@ -74,6 +72,11 @@ export class OrderService {
     executeMetaTx(payload) {
         const url = this.createUrl_("executeMetaTx");
         return this.httpCaller.post(url, payload)
+    }
+
+    buyToken(payload) {
+        const url = this.createUrl_("${this.order.id}/buy");
+        return this.httpCaller.patch(url, payload);
     }
 
 }

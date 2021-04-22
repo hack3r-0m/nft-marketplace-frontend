@@ -185,7 +185,6 @@
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
 import { mapGetters, mapActions, mapState } from 'vuex'
-import getAxios from '~/plugins/axios'
 import { fuzzysearch, fuzzySearchResult } from '~/helpers/index'
 import SellCard from '~/components/lego/sell-card'
 import CategoriesSelector from '~/components/lego/categories-selector'
@@ -371,16 +370,7 @@ export default class MaticNewTab extends Vue {
 
   async fetchNotifications() {
     try {
-      const activityResponse = await getAxios().get(
-        `users/notification/${this.user.id}`,
-      )
-
-      if (activityResponse.status === 200 && activityResponse.data.data) {
-        this.$store.commit(
-          'account/totalUnreadActivity',
-          activityResponse.data.data.unread_count,
-        )
-      }
+      await this.$store.dispatch("account/fetchNotification")
     } catch (error) {
       this.$logger.error(error);
     }

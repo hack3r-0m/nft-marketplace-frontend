@@ -979,7 +979,7 @@ export default class SellToken extends Vue {
         if (tx) {
           try {
             const response = await this.$store.dispatch(
-              `orders/executeMetaTx`,
+              `order/executeMetaTx`,
               tx,
             )
             if (response) {

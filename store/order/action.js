@@ -23,7 +23,7 @@ export const action = {
             bids, hasNextPage
         }
     },
-    async getOrderDetail(_, { orderId, account }) {
+    async getOrderDetail({ dispatch }, { orderId, account }) {
         const response = await Vue.service.order.getOrderDetail(orderId);
         let order = response.data.data;
         let isOrderValid = true;
@@ -36,15 +36,21 @@ export const action = {
 
             // if someone else is viewing, then validate the orders to check for expiry
             if (account.address !== sellerAddress) {
-                const res = await Vue.service.order.validateOrder(orderId);
-                if (res.status === 200) {
-                    isOrderValid = false;
-                }
+                const res = await dispatch("validate", orderId);
+                isOrderValid = res;
             }
         }
         return {
             order, isOrderValid
         }
+    },
+    async validate(_, orderId) {
+        const res = await Vue.service.order.validateOrder(orderId);
+        if (res.status === 200) {
+            // false means order is invalid
+            return false;
+        }
+        return true;
     },
     async cancelOrder(_, { orderId, payload }) {
         const response = await Vue.service.order.cancelOrder(orderId, payload);
@@ -69,10 +75,28 @@ export const action = {
     async executeMetaTx(_, payload) {
         const response = await Vue.service.order.executeMetaTx(payload);
         if (response.status === 200) {
-            return true;
+            return response.data
         }
-        return false;
-    }
+    },
+    async buyToken(_, payload) {
+        const response = await Vue.service.order.buyToken(payload);
+        if (response.status === 200) {
+            return response.data
+        }
+    },
+    async acceptBid(_, payload) {
+        const response = await Vue.service.order.acceptBid(payload);
+        if (response.status === 200) {
+            return response.data
+        }
+    },
+    async cancelBid(_, payload) {
+        const response = await Vue.service.order.cancelBid(payload);
+        if (response.status === 200) {
+            return response.data
+        }
+    },
+
 }
 
 export default action;

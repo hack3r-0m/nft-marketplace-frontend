@@ -84,7 +84,6 @@ import { mapGetters } from 'vuex'
 import app from '~/plugins/app'
 import Web3 from 'web3'
 
-import getAxios from '~/plugins/axios'
 import { getWalletProvider } from '~/helpers/providers'
 
 import WithdrawConfirmationModal from '~/components/lego/modals/withdraw-confirmation-modal'
@@ -309,14 +308,14 @@ export default class Withdraw extends Vue {
     )
     if (tx) {
       try {
-        const response = await getAxios().post(`orders/executeMetaTx`, tx)
-        if (response.status === 200) {
+        const response = await this.$store.dispatch(`order/executeMetaTx`, tx)
+        if (response) {
           // To send transction receipt
-          return response.data.data
+          return response.data
         }
       } catch (error) {
         this.$logger.error(error);
-        this$toast.show(
+        this.$toast.show(
           'Failed to init withdraw',
           'You need to sign the transaction to start withdraw',
           {

@@ -140,8 +140,6 @@ import Web3 from 'web3'
 
 import app from '~/plugins/app'
 import BigNumber from '~/plugins/bignumber'
-import getAxios from '~/plugins/axios'
-
 import { FormValidator } from '~/components/mixin'
 import { Textfield } from '@maticnetwork/matic-design-system'
 import { isValidAddress } from 'ethereumjs-util'
@@ -376,11 +374,11 @@ export default class SendToken extends Vue {
         if (tx) {
           try {
             this.$logger.track('service-call-execute-meta-tx:transfer-token')
-            const response = await getAxios().post(`orders/executeMetaTx`, tx)
+            const response = await this.$store.dispatch(`order/executeMetaTx`, tx)
             this.refreshNFTTokens()
-            if (response.status === 200) {
+            if (response) {
               // console.log("Transfer receipt: " + response);
-              this$toast.show(
+              this.$toast.show(
                 'Transferred',
                 'You successfully transferred the token',
                 {
@@ -422,7 +420,7 @@ export default class SendToken extends Vue {
               this.refreshNFTTokens()
             }, 10000)
 
-            this$toast.show(
+            this.$toast.show(
               'Transferred successfully',
               'You successfully transferred the token',
               {
@@ -459,7 +457,7 @@ export default class SendToken extends Vue {
               this.refreshNFTTokens()
             }, 10000)
 
-            this$toast.show(
+            this.$toast.show(
               'Transferred successfully',
               'You successfully transferred the token',
               {

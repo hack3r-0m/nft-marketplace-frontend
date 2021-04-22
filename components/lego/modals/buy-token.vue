@@ -1,9 +1,6 @@
 <template>
   <div class="section position-absolute">
-    <div
-      class="modal-backdrop"
-      :class="{ show: show && displayed }"
-    />
+    <div class="modal-backdrop" :class="{ show: show && displayed }" />
     <div
       v-bsl="show"
       class="modal transaction-prog-modal"
@@ -12,20 +9,11 @@
         'hide-modal': showApproveModal && depositModal,
       }"
     >
-      <div
-        class="modal-dialog w-sm-100 align-self-center"
-        role="document"
-      >
+      <div class="modal-dialog w-sm-100 align-self-center" role="document">
         <div class="box in-process-box">
           <div class="box-body">
-            <div
-              class="close-wrapper"
-              @click="close()"
-            >
-              <svg-sprite-icon
-                name="close-modal"
-                class="close"
-              />
+            <div class="close-wrapper" @click="close()">
+              <svg-sprite-icon name="close-modal" class="close" />
             </div>
             <div class="container-fluid ps-t-20">
               <div class="row ps-y-32">
@@ -38,8 +26,9 @@
                       target="_blank"
                       rel="noopener noreferrer"
                       class="text-gray-900"
-                    >{{ order.token.name }}
-                      {{ isErc1155 ? "( " + order.quantity + " )" : "" }}
+                    >
+                      {{ order.token.name }}
+                      {{ isErc1155 ? '( ' + order.quantity + ' )' : '' }}
                     </a>
                   </h3>
                   <img
@@ -48,7 +37,7 @@
                     alt="order.token.name"
                     @load="onImageLoad"
                     @error="imageLoadError"
-                  >
+                  />
                   <div
                     v-if="order.type === orderTypes.FIXED"
                     class="mt-auto w-100 d-flex flex-column fixed-price"
@@ -129,10 +118,7 @@
                         </div>
                       </div>
 
-                      <div
-                        v-if="order.highest_bid"
-                        class="text-right"
-                      >
+                      <div v-if="order.highest_bid" class="text-right">
                         <div class="font-body-small text-gray-300 ps-y-4">
                           Last offer
                         </div>
@@ -147,10 +133,7 @@
                         </div>
                       </div>
 
-                      <div
-                        v-else
-                        class="text-right"
-                      >
+                      <div v-else class="text-right">
                         <div class="font-body-small text-gray-300 ps-y-4">
                           Min Price
                         </div>
@@ -333,10 +316,7 @@
       :networkChangeNeeded="error === 'selectMatic'"
     />
 
-    <deposit-weth
-      v-if="depositModal"
-      :close="closeDepositModal"
-    />
+    <deposit-weth v-if="depositModal" :close="closeDepositModal" />
   </div>
 </template>
 
@@ -350,8 +330,6 @@ import app from '~/plugins/app'
 import moment from 'moment'
 import { FormValidator } from '~/components/mixin'
 import InputToken from '~/components/lego/input-token'
-import getAxios from '~/plugins/axios'
-
 import { parseBalance } from '~/helpers/token-utils'
 import { formatUSDValue } from '~/helpers/index'
 import PlaceBid from '~/components/lego/modals/place-bid'
@@ -412,18 +390,18 @@ const TEN = BigNumber(10)
   mixins: [FormValidator],
 })
 export default class BuyToken extends Vue {
-  activeTab = 0;
-  duration = 0;
-  negotiation = false;
-  isLoading = false;
-  showMore = false;
-  displayed = true;
-  error = '';
+  activeTab = 0
+  duration = 0
+  negotiation = false
+  isLoading = false
+  showMore = false
+  displayed = true
+  error = ''
 
-  showMakeOffer = false;
+  showMakeOffer = false
 
-  dirty = false;
-  errorMessage = "You don't have sufficient balance to buy this order";
+  dirty = false
+  errorMessage = "You don't have sufficient balance to buy this order"
 
   tabs = [
     {
@@ -444,18 +422,21 @@ export default class BuyToken extends Vue {
       commission: '',
       btnTitle: 'Submit to Marketplace',
     },
-  ];
+  ]
 
-  showApproveModal = false;
-  isApprovedStatus = false;
-  isSignedStatus = false;
-  approveLoading = false;
-  signLoading = false;
-  makerAmount = null;
-  depositModal = false;
+  showApproveModal = false
+  isApprovedStatus = false
+  isSignedStatus = false
+  approveLoading = false
+  signLoading = false
+  makerAmount = null
+  depositModal = false
 
   mounted() {
-    this.$logger.track('mounted:buy-token', {order: this.order.id, category: this.category})
+    this.$logger.track('mounted:buy-token', {
+      order: this.order.id,
+      category: this.category,
+    })
   }
 
   onImageLoad() {
@@ -686,8 +667,7 @@ export default class BuyToken extends Vue {
         this.$logger.track('approve-start-negotiation:buy-token')
         const yearInSec = moment().add(365, 'days').format('x')
         const chainId = this.networks.matic.chainId
-        const nftContract = this.order.categories.categoriesaddresses[0]
-          .address
+        const nftContract = this.order.categories.categoriesaddresses[0].address
         const nftTokenId = this.order.tokens_id
         const erc20Address = this.order.erc20tokens.erc20tokensaddresses[0]
           .address
@@ -743,9 +723,7 @@ export default class BuyToken extends Vue {
           chainId: signedOrder.chainId,
         })
 
-        signedOrder.makerAssetAmount = BigNumber(
-          signedOrder.makerAssetAmount,
-        )
+        signedOrder.makerAssetAmount = BigNumber(signedOrder.makerAssetAmount)
         signedOrder.takerAssetAmount = takerAssetAmount
         signedOrder.expirationTimeSeconds = BigNumber(
           signedOrder.expirationTimeSeconds,
@@ -781,8 +759,7 @@ export default class BuyToken extends Vue {
       try {
         const yearInSec = moment().add(365, 'days').format('x')
         const chainId = this.networks.matic.chainId
-        const nftContract = this.order.categories.categoriesaddresses[0]
-          .address
+        const nftContract = this.order.categories.categoriesaddresses[0].address
         const nftTokenId = this.order.tokens_id
         const erc20Address = this.order.erc20tokens.erc20tokensaddresses[0]
           .address
@@ -869,12 +846,9 @@ export default class BuyToken extends Vue {
 
           // Store bid with signature
           this.$logger.track('sign-server-start-negotiation:buy-token')
-          const response = await getAxios().patch(
-            `orders/${this.order.id}/buy`,
-            data,
-          )
+          const response = this.$store.dispatch('order/buyToken', data)
 
-          if (response.status === 200 && response.data) {
+          if (response) {
             this.refreshBids()
             this.$toast.show(
               'Offered/bided successfully',
@@ -883,9 +857,7 @@ export default class BuyToken extends Vue {
                 type: 'success',
               },
             )
-            this.$logger.track(
-              'sign-server-complete-bid-negotiation:buy-token',
-            )
+            this.$logger.track('sign-server-complete-bid-negotiation:buy-token')
 
             this.isSignedStatus = true
             this.signLoading = false
@@ -973,10 +945,11 @@ export default class BuyToken extends Vue {
             isValidSignature,
           })
           console.log('Order is already sold')
-          const res = await getAxios().post(`orders/validate`, {
-            orderId: this.order.id,
-          })
-          if (res.status === 200) {
+          const res = await this.$store.dispatch(
+            'order/validate',
+            this.order.id,
+          )
+          if (!res) {
             txShowError(
               null,
               'Order Invalid',
@@ -986,7 +959,7 @@ export default class BuyToken extends Vue {
           }
         }
       } catch (error) {
-        this.$logger.error(error);
+        this.$logger.error(error)
         this.isSignedStatus = false
         this.signLoading = false
         txShowError(error, null, 'Something went wrong')
@@ -1082,8 +1055,11 @@ export default class BuyToken extends Vue {
 
         if (tx) {
           try {
-            const response = await getAxios().post(`orders/executeMetaTx`, tx)
-            if (response.status === 200) {
+            const response = await this.$store.dispatch(
+              `order/executeMetaTx`,
+              tx,
+            )
+            if (response) {
               this.$logger.track(
                 'approving-0x-complete-non-meta-tx:buy-token',
                 { response },
@@ -1095,7 +1071,7 @@ export default class BuyToken extends Vue {
               return true
             }
           } catch (error) {
-            this.$logger.error(error);
+            this.$logger.error(error)
             txShowError(
               null,
               'Failed to approve',
@@ -1131,19 +1107,19 @@ export default class BuyToken extends Vue {
             return true
           }
         } catch (error) {
-          console.log(error);
+          console.log(error)
           if (
             error.message.includes(
-              'MetaMask is having trouble connecting to the network'
+              'MetaMask is having trouble connecting to the network',
             )
           ) {
-            txShowError(error, null, 'Please Try Again');
+            txShowError(error, null, 'Please Try Again')
           } else {
             txShowError(
               null,
               'Failed to approve',
-              'You need to approve the transaction to sale the NFT'
-            );
+              'You need to approve the transaction to sale the NFT',
+            )
           }
         }
         return false
@@ -1160,8 +1136,8 @@ export default class BuyToken extends Vue {
       //   await registerNetwork();
       //   return true;
       // } catch (error) {
-        this.error = 'selectMatic';
-        return false;
+      this.error = 'selectMatic'
+      return false
       // }
     }
     return true
@@ -1215,11 +1191,8 @@ export default class BuyToken extends Vue {
       const data = {
         taker_signature: JSON.stringify(takerSign),
       }
-      const response = await getAxios().patch(
-        `orders/${this.order.id}/buy`,
-        data,
-      )
-      if (response.status === 200) {
+      const response = await this.$store.dispatch('order/buyToken', data)
+      if (response) {
         this.$toast.show(
           'Order bought successfully',
           'You bought the order successfully',
@@ -1231,7 +1204,7 @@ export default class BuyToken extends Vue {
         this.close()
       }
     } catch (error) {
-      this.$logger.error(error);
+      this.$logger.error(error)
       txShowError(
         null,
         'Failed to buy order',
@@ -1244,7 +1217,7 @@ export default class BuyToken extends Vue {
 </script>
 
 <style lang="scss" scoped>
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 
 .asset-img {
   max-width: 300px;
@@ -1256,17 +1229,17 @@ export default class BuyToken extends Vue {
 }
 
 .text-gray-900 {
-  color: dark-color("900");
+  color: dark-color('900');
 }
 .text-gray-500 {
-  color: dark-color("500");
+  color: dark-color('500');
 }
 .text-gray-300 {
-  color: dark-color("300");
+  color: dark-color('300');
 }
 .time-pill {
-  background-color: light-color("500");
-  color: dark-color("700");
+  background-color: light-color('500');
+  color: dark-color('700');
   padding-left: 1rem;
   padding-right: 1rem;
   padding-top: 0.5rem;
@@ -1277,8 +1250,8 @@ export default class BuyToken extends Vue {
   cursor: pointer;
 
   &.active {
-    background-color: dark-color("700");
-    color: light-color("700");
+    background-color: dark-color('700');
+    color: light-color('700');
   }
 }
 
@@ -1313,15 +1286,15 @@ export default class BuyToken extends Vue {
 }
 
 .auction {
-  background-color: light-color("600");
+  background-color: light-color('600');
   margin-bottom: -32px;
   border-bottom-left-radius: $default-card-box-border-radius;
   border-bottom-right-radius: $default-card-box-border-radius;
 }
 
 .time-wrapper {
-  background-color: primary-color("600");
-  color: light-color("700");
+  background-color: primary-color('600');
+  color: light-color('700');
   border-radius: $default-card-box-border-radius;
 
   .font-caption {
@@ -1330,7 +1303,7 @@ export default class BuyToken extends Vue {
   }
 }
 .error-text {
-  color: red-color("500");
+  color: red-color('500');
 }
 
 .box {
