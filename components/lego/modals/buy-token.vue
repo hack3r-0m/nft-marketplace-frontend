@@ -328,7 +328,7 @@ import Web3 from 'web3'
 
 import app from '~/plugins/app'
 import moment from 'moment'
-import { FormValidator } from '~/components/mixin'
+import FormValidator from '~/components/mixins/common/form-validator'
 import InputToken from '~/components/lego/input-token'
 import { parseBalance } from '~/helpers/token-utils'
 import { formatUSDValue } from '~/helpers/index'
@@ -338,7 +338,7 @@ import DepositWeth from '~/components/lego/modals/deposit-weth'
 import { registerNetwork } from '~/helpers/metamask-utils'
 
 import { getProviderEngine } from '~/helpers/provider-engine'
-import { txShowError } from '~/helpers/transaction-utils'
+import Toast from '~/components/mixins/common/toast'
 
 const { getTypedData } = require('~/plugins/meta-tx')
 
@@ -387,7 +387,7 @@ const TEN = BigNumber(10)
     ...mapGetters('auth', ['user']),
   },
   methods: {},
-  mixins: [FormValidator],
+  mixins: [FormValidator, Toast],
 })
 export default class BuyToken extends Vue {
   activeTab = 0
@@ -618,7 +618,7 @@ export default class BuyToken extends Vue {
       } catch (error) {
         console.error(error)
         this.approveLoading = false
-        txShowError(error, null, 'Something went wrong')
+        this.txShowError(error, null, 'Something went wrong')
       }
     } else if (this.order.type === this.orderTypes.FIXED) {
       try {
@@ -652,7 +652,7 @@ export default class BuyToken extends Vue {
       } catch (error) {
         console.error(error)
         this.approveLoading = false
-        txShowError(error, null, 'Something went wrong')
+        this.txShowError(error, null, 'Something went wrong')
       }
     }
   }
@@ -705,7 +705,7 @@ export default class BuyToken extends Vue {
       } catch (error) {
         console.error(error)
         this.approveLoading = false
-        txShowError(error, null, 'Something went wrong')
+        this.txShowError(error, null, 'Something went wrong')
       }
     } else if (this.order.type === this.orderTypes.FIXED) {
       try {
@@ -747,7 +747,7 @@ export default class BuyToken extends Vue {
       } catch (error) {
         console.error(error)
         this.approveLoading = false
-        txShowError(error, null, 'Something went wrong')
+        this.txShowError(error, null, 'Something went wrong')
       }
     }
   }
@@ -868,7 +868,7 @@ export default class BuyToken extends Vue {
         console.log(error)
         this.isSignedStatus = false
         this.signLoading = false
-        txShowError(error, null, 'Something went wrong')
+        this.txShowError(error, null, 'Something went wrong')
       }
     } else if (this.order.type === this.orderTypes.FIXED) {
       try {
@@ -950,7 +950,7 @@ export default class BuyToken extends Vue {
             this.order.id,
           )
           if (!res) {
-            txShowError(
+            this.txShowError(
               null,
               'Order Invalid',
               'This order is no longer valid or has been sold out. Please try to buy some other NFT.',
@@ -962,7 +962,7 @@ export default class BuyToken extends Vue {
         this.$logger.error(error)
         this.isSignedStatus = false
         this.signLoading = false
-        txShowError(error, null, 'Something went wrong')
+        this.txShowError(error, null, 'Something went wrong')
       }
     }
   }
@@ -1072,7 +1072,7 @@ export default class BuyToken extends Vue {
             }
           } catch (error) {
             this.$logger.error(error)
-            txShowError(
+            this.txShowError(
               null,
               'Failed to approve',
               'You need to approve the transaction to sale the NFT',
@@ -1113,9 +1113,9 @@ export default class BuyToken extends Vue {
               'MetaMask is having trouble connecting to the network',
             )
           ) {
-            txShowError(error, null, 'Please Try Again')
+            this.txShowError(error, null, 'Please Try Again')
           } else {
-            txShowError(
+            this.txShowError(
               null,
               'Failed to approve',
               'You need to approve the transaction to sale the NFT',
@@ -1205,7 +1205,7 @@ export default class BuyToken extends Vue {
       }
     } catch (error) {
       this.$logger.error(error)
-      txShowError(
+      this.txShowError(
         null,
         'Failed to buy order',
         'Something went wrong while buying order',

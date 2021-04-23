@@ -452,7 +452,7 @@ import BidderRow from '~/components/lego/bidder-row'
 import BuyToken from '~/components/lego/modals/buy-token'
 import CancelConfirm from '~/components/lego/modals/cancel-confirm'
 import DepositWeth from '~/components/lego/modals/deposit-weth'
-import { txShowError } from '~/helpers/transaction-utils'
+import Toast from '~/components/mixins/common/toast'
 import rgbToHsl from '~/helpers/color-algorithm'
 import { getProviderEngine } from '~/helpers/provider-engine'
 import { getColorFromImage } from '~/utils'
@@ -494,7 +494,7 @@ import { ORDER_TYPES } from '~/constants'
     }),
   },
   middleware: [],
-  mixins: [],
+  mixins: [Toast],
   data() {
     return {
       depositModal: false,
@@ -645,7 +645,7 @@ export default class TokenDetail extends Vue {
         },
       )
       if (!isOrderValid) {
-        txShowError(
+        this.txShowError(
           'Order Invalid',
           'Order Invalid',
           'This order is no longer valid or has been sold out. Please try to buy some other NFT.',
@@ -777,7 +777,7 @@ export default class TokenDetail extends Vue {
       }
     } catch (error) {
       this.$logger.error(error)
-      txShowError(error, null, 'Something went wrong')
+      this.txShowError(error, null, 'Something went wrong')
     }
   }
 
