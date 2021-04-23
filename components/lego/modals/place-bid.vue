@@ -148,7 +148,7 @@ import { mapGetters } from 'vuex'
 import rgbToHsl from '~/helpers/color-algorithm'
 import { getColorFromImage } from '~/utils'
 
-import { FormValidator } from '~/components/mixin'
+import FormValidator from '~/components/mixins/common/form-validator'
 import InputToken from '~/components/lego/input-token'
 import BigNumber from '~/plugins/bignumber'
 

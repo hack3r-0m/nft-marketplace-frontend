@@ -92,7 +92,7 @@ import Web3 from 'web3'
 import app from '~/plugins/app'
 
 import BidConfirmation from '~/components/lego/modals/bid-confirmation'
-import { txShowError } from '~/helpers/transaction-utils'
+import Toast from '~/components/mixins/common/toast'
 import {} from '~/helpers/0x-utils'
 
 import { getProviderEngine } from '~/helpers/provider-engine'
@@ -124,6 +124,7 @@ const { Web3Wrapper } = require('@0x/web3-wrapper')
     },
   },
   components: { BidConfirmation },
+  mixins: [Toast],
   computed: {
     ...mapGetters('account', ['account']),
     ...mapGetters('auth', ['user']),
@@ -287,7 +288,7 @@ export default class BidderRow extends Vue {
           const isOwnerOfToken =
             owner.toLowerCase() === this.account.address.toLowerCase()
           if (!isOwnerOfToken) {
-            txShowError(
+            this.txShowError(
               null,
               'You are no owner of this token',
               'You are no longer owner of this token, refresh to update the data',
@@ -377,7 +378,7 @@ export default class BidderRow extends Vue {
         }
       } catch (error) {
         this.$logger.error(error)
-        txShowError(error, null, 'Something went wrong')
+        this.txShowError(error, null, 'Something went wrong')
       }
     }
     this.isLoading = false
@@ -458,7 +459,7 @@ export default class BidderRow extends Vue {
             })
             return true
           }
-          txShowError(
+          this.txShowError(
             error,
             'Failed to approve',
             'You need to approve the transaction to sale the NFT',
@@ -495,7 +496,7 @@ export default class BidderRow extends Vue {
             })
             return true
           }
-          txShowError(
+          this.txShowError(
             error,
             'Failed to approve',
             'You need to approve the transaction to sale the NFT',
@@ -533,7 +534,7 @@ export default class BidderRow extends Vue {
         }
       } catch (error) {
         this.$logger.error(error)
-        txShowError(error, null, 'Something went wrong')
+        this.txShowError(error, null, 'Something went wrong')
       }
     }
   }
@@ -631,7 +632,7 @@ export default class BidderRow extends Vue {
         }
       } catch (error) {
         this.$logger.error(error)
-        txShowError(error, null, 'Something went wrong')
+        this.txShowError(error, null, 'Something went wrong')
       }
     }
     this.$store.dispatch('category/fetchCategories')

@@ -140,13 +140,13 @@ import Web3 from 'web3'
 
 import app from '~/plugins/app'
 import BigNumber from '~/plugins/bignumber'
-import { FormValidator } from '~/components/mixin'
+import FormValidator from '~/components/mixins/common/form-validator'
 import { Textfield } from '@maticnetwork/matic-design-system'
 import { isValidAddress } from 'ethereumjs-util'
 
 import { getProviderEngine } from '~/helpers/provider-engine'
 import { registerNetwork } from '~/helpers/metamask-utils'
-import { txShowError } from '~/helpers/transaction-utils'
+import Toast from '~/components/mixins/common/toast'
 
 const { getTypedData } = require('~/plugins/meta-tx')
 
@@ -179,7 +179,7 @@ const ZERO = BigNumber(0)
     ...mapGetters('category', ['categories']),
   },
   methods: {},
-  mixins: [FormValidator],
+  mixins: [FormValidator, Toast],
 })
 export default class SendToken extends Vue {
   isLoading = false;
@@ -277,7 +277,7 @@ export default class SendToken extends Vue {
         })
 
         if (!isOwnerOfToken) {
-          txShowError(
+          this.txShowError(
             null,
             'You are no owner of this token',
             'You are no longer owner of this token, refresh to update the data',
@@ -391,7 +391,7 @@ export default class SendToken extends Vue {
             }
           } catch (error) {
             this.$logger.error(error);
-            txShowError(null, 'Failed to Transfer', 'Failed to transfer asset')
+            this.txShowError(null, 'Failed to Transfer', 'Failed to transfer asset')
           }
         }
       } else {
@@ -431,7 +431,7 @@ export default class SendToken extends Vue {
             this.$logger.track('success-non-meta-tx-ERC721:transfer-token')
             return true
           }
-          txShowError(error, 'Failed to transfer', 'Failed to transfer token')
+          this.txShowError(error, 'Failed to transfer', 'Failed to transfer token')
         } else {
           const web3 = new Web3(window.ethereum)
           const erc1155TokenCont = new web3.eth.Contract(
@@ -468,7 +468,7 @@ export default class SendToken extends Vue {
             this.$logger.track('success-non-meta-tx-ERC1155:transfer-token')
             return true
           }
-          txShowError(error, 'Failed to transfer', 'Failed to transfer token')
+          this.txShowError(error, 'Failed to transfer', 'Failed to transfer token')
         }
       }
     } catch (error) {
@@ -478,9 +478,9 @@ export default class SendToken extends Vue {
           "MetaMask is having trouble connecting to the network"
         )
       ) {
-        txShowError(error, null, "Please Try Again");
+        this.txShowError(error, null, "Please Try Again");
       } else {
-        txShowError(error, null, "Something went wrong");
+        this.txShowError(error, null, "Something went wrong");
       }
     }
     this.isLoading = false

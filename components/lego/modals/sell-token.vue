@@ -302,12 +302,12 @@ import Vue from 'vue'
 import Component from 'nuxt-class-component'
 import { mapGetters, mapState } from 'vuex'
 import { formatUSDValue } from '~/helpers/index'
-import { txShowError } from '~/helpers/transaction-utils'
+import Toast from '~/components/mixins/common/toast'
 import Web3 from 'web3'
 import moment from 'moment'
 import BigNumber from '~/plugins/bignumber'
 
-import { FormValidator } from '~/components/mixin'
+import FormValidator from '~/components/mixins/common/form-validator'
 import InputToken from '~/components/lego/input-token'
 import { parseBalance } from '~/helpers/token-utils'
 import ApproveProcess from '~/components/lego/modals/approve-process'
@@ -369,7 +369,7 @@ const TEN = BigNumber(10)
     ...mapGetters('category', ['categories']),
   },
   methods: {},
-  mixins: [FormValidator],
+  mixins: [FormValidator, Toast],
 })
 export default class SellToken extends Vue {
   activeTab = 0
@@ -554,7 +554,7 @@ export default class SellToken extends Vue {
     } catch (error) {
       console.log(error)
       this.approveLoading = false
-      txShowError(error, null, 'Something went wrong')
+      this.txShowError(error, null, 'Something went wrong')
     }
   }
 
@@ -636,7 +636,7 @@ export default class SellToken extends Vue {
     } catch (error) {
       console.log(error)
       this.approveLoading = false
-      txShowError(error, null, 'Something went wrong')
+      this.txShowError(error, null, 'Something went wrong')
     }
   }
 
@@ -746,7 +746,7 @@ export default class SellToken extends Vue {
     } catch (error) {
       console.log(error)
       this.signLoading = false
-      txShowError(error, null, 'Something went wrong')
+      this.txShowError(error, null, 'Something went wrong')
     }
   }
 
@@ -808,7 +808,7 @@ export default class SellToken extends Vue {
       this.approveStatus()
     } catch (error) {
       this.$logger.error(error)
-      txShowError(error, null, 'Something went wrong')
+      this.txShowError(error, null, 'Something went wrong')
     }
     this.isLoading = false
   }
@@ -892,7 +892,7 @@ export default class SellToken extends Vue {
                 'MetaMask is having trouble connecting to the network',
               )
             ) {
-              txShowError(error, null, 'Please Try Again')
+              this.txShowError(error, null, 'Please Try Again')
             } else {
               this.$toast.show(
                 'Failed to approve',

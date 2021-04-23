@@ -148,7 +148,7 @@ import {
 import app from '~/plugins/app'
 // import { getWalletConnectProvider } from "~/helpers/walletconnect-utils";
 
-import { NextNavigation } from '~/components/mixin'
+import NextNavigation from '~/components/mixins/login/next-navigation'
 import { VueWatch } from '~/components/decorator'
 // import WalletConnectModal from "~/components/lego/walletconnect-modal";
 import ConnectingMetamask from '~/components/lego/connecting-metamask'
