@@ -346,16 +346,14 @@ export default class BidderRow extends Vue {
         ) {
           console.log('Fillable')
           this.$logger.track('accept-bid-fill-order:bid-options')
-          const dataVal = await getAxios().get(
-            `orders/exchangedata/encodedbid?bidId=${this.bid.id}&functionName=fillOrder`,
-          )
+          const dataVal = await this.$store.dispatch('order/fillBid', this.bid.id)
           this.$logger.track('accept-bid-fill-order-complete:bid-options')
           const zrx = {
             salt: generatePseudoRandomSalt(),
             expirationTimeSeconds: signedOrder.expirationTimeSeconds,
             gasPrice: app.uiconfig.TX_DEFAULTS.gasPrice,
             signerAddress: takerAddress,
-            data: dataVal.data.data,
+            data: dataVal.data,
             domain: {
               name: '0x Protocol',
               version: '3.0.0',
@@ -567,16 +565,14 @@ export default class BidderRow extends Vue {
           chainId: chainId,
         })
         this.$logger.track('cancel-bid-api-cancel-order:bid-options')
-        const dataVal = await getAxios().get(
-          `orders/exchangedata/encodedbid?bidId=${this.bid.id}&functionName=cancelOrder`,
-        )
+        const dataVal = await this.$store.dispatch('order/encodeForCancelBidOrder', this.bid.id)
         this.$logger.track('cancel-bid-api-cancel-order-completed:bid-options')
         const zrx = {
           salt: generatePseudoRandomSalt(),
           expirationTimeSeconds: signedOrder.expirationTimeSeconds,
           gasPrice: app.uiconfig.TX_DEFAULTS.gasPrice,
           signerAddress: signedOrder.makerAddress,
-          data: dataVal.data.data,
+          data: dataVal.data,
           domain: {
             name: '0x Protocol',
             version: '3.0.0',

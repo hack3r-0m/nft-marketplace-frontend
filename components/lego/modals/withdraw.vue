@@ -378,16 +378,11 @@ export default class Withdraw extends Vue {
   }
 
   async handleBurnTransaction(txHash) {
-    console.log('Burn txhash', txHash)
+    this.$logger.debug('Burn txhash', txHash)
     this.withdrawTransaction.block_number = txHash.blockNumber.toString()
-    const response = await getAxios().post(
-      'assetmigrate',
-      this.withdrawTransaction,
-    )
+    const response = await this.$store.dispatch('migrate/burnTransaction', this.withdrawTransaction)
     this.refreshBalance()
-    if (response.status === 200) {
-      this.withdrawTransaction = response.data.data
-    }
+    this.withdrawTransaction = response.data
   }
 
   onCloseConfirmWithdraw() {

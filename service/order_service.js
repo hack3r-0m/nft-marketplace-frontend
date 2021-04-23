@@ -15,11 +15,6 @@ export class OrderService {
         return this.httpCaller.get(url);
     }
 
-    signAcceptBid(bidId) {
-        const url = this.createUrl_(`exchangedata/encodedbid?bidId=${bidId}&functionName=fillOrder`);
-        return this.httpCaller.get(url);
-    }
-
     acceptBid({ bidId, payload }) {
         const url = this.createUrl_(`${bidId}/execute`)
         return this.httpCaller.patch(
@@ -28,13 +23,23 @@ export class OrderService {
         );
     }
 
+    fillBid( bidId ) {
+      const url = this.createUrl_(`exchangedata/encodedbid?bidId=${bidId}&functionName=fillOrder`);
+      return this.httpCaller.get(url)
+    }
+
     cancelBid({ bidId, data }) {
         const url = this.createUrl_(`bid/${bidId}/cancel`);
         return this.httpCaller.patch(url, data);
     }
 
-    signAcceptBid(bidId) {
+    encodeForCancelBidOrder(bidId) {
         const url = this.createUrl_(`exchangedata/encodedbid?bidId=${bidId}&functionName=cancelOrder`);
+        return this.httpCaller.get(url);
+    }
+
+    encodeForBuyToken(orderId) {
+        const url = this.createUrl_(`exchangedata/encoded?orderId=${orderId}&functionName=fillOrder`);
         return this.httpCaller.get(url);
     }
 

@@ -96,7 +96,30 @@ export const action = {
             return response.data
         }
     },
-
+    async fillBid(_, payload) {
+      const response = await Vue.service.order.fillBid(payload);
+      if (response.status === 200) {
+          return response.data
+      }
+    },
+    async encodeForCancelBidOrder(_, payload) {
+      const response = await Vue.service.order.encodeForCancelBidOrder(payload);
+      if (response.status === 200) {
+          return response.data
+      }
+    },
+    async encodeForBuyToken(_, payload) {
+      const response = await Vue.service.order.encodeForBuyToken(payload);
+      if (response.status === 200) {
+          return response.data
+      }
+    },
+    async encodeForCancelBidOrder(_, payload) {
+      const response = await Vue.service.order.encodeForCancelBidOrder(payload);
+      if (response.status === 200) {
+          return response.data
+      }
+    },
 }
 
 export default action;

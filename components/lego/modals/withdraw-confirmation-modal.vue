@@ -384,7 +384,9 @@ export default class WithdrawConfirmationModal extends Vue {
     if (this.isCheckpointed) {
       try {
         this.dagger.off(DAGGER_EVENT, this.handleCheckpointCreation)
-      } catch (error) {}
+      } catch (error) {
+        this.$logger.error(error)
+      }
     } else {
       this.ROOT_CONTRACT = this.networks.main.contracts.RootChainProxy
       this.DAGGER_EVENT = `latest:log/${this.ROOT_CONTRACT}/filter/${this.FUNCTION}/#`
@@ -469,10 +471,8 @@ export default class WithdrawConfirmationModal extends Vue {
         return
       }
       if (this.transaction.status === 0) {
-        const { data } = await getAxios().get(
-          `${this.networks.main.watcherUrl}/header/included/${this.transaction.block_number}`,
-        )
-        if (data && data.status === 'success') {
+        const { status } = await this.$store.dispatch('migrate/checkForTransactionInclusion', { watcherUrl: this.networks.main.watcherUrl, blockNumber: this.transaction.block_number })
+        if (status === 'success') {
           // const nextStatus = this.STATUS.CHECKPOINTED
           this.handleCheckpointInclusion()
         }
@@ -518,7 +518,7 @@ export default class WithdrawConfirmationModal extends Vue {
       const exited = await maticPoS.isBatchERC721ExitProcessed(burnHash)
       if (exited) {
         console.log('exited before')
-        await this.handleExitedTokens()
+        await this.handleExit('TX EXITED EXTERNALLY')
         this.isLoading = false
         this.cancel()
         return
@@ -565,52 +565,21 @@ export default class WithdrawConfirmationModal extends Vue {
       const data = {
         status: 1,
       }
-      const response = await getAxios().put(
-        `assetmigrate/${this.transaction.id}`,
-        data,
-      )
-      if (response.status === 200) {
-        this.isCheckpointed = true
-      }
+      this.isCheckpointed = await this.$store.dispatch('migrate/updateTransactionStatusToCheckpointed', { transactionId: this.transaction.id, payload: data})
     } catch (error) {
       this.$logger.error(error);
     }
   }
 
   async handleExit(txHash) {
-    console.log('Withdraw exit', txHash)
+    this.$logger.debug('Withdraw exit', txHash)
     try {
       const data = {
-        exit_txhash: this.transactionHash,
+        exit_txhash: txHash,
         status: 2,
       }
-      const response = await getAxios().put(
-        `assetmigrate/${this.transaction.id}`,
-        data,
-      )
-      if (response.status === 200) {
-        this.isExited = true
-        this.refreshBalance()
-      }
-    } catch (error) {
-      this.$logger.error(error);
-    }
-  }
-
-  async handleExitedTokens() {
-    try {
-      const data = {
-        exit_txhash: 'TX EXITED EXTERNALLY',
-        status: 2,
-      }
-      const response = await getAxios().put(
-        `assetmigrate/${this.transaction.id}`,
-        data,
-      )
-      if (response.status === 200) {
-        this.isExited = true
-        this.refreshBalance()
-      }
+      this.isExited = await this.$store.dispatch('migrate/updateTransactionStatusToExited', { transactionId: this.transaction.id, payload: data})
+      this.refreshBalance()
     } catch (error) {
       this.$logger.error(error);
     }

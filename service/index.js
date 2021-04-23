@@ -4,6 +4,7 @@ import { TokenService } from "./token_service";
 import { UserService } from "./user_service";
 import { initalizeAxios } from "~/helpers/axios";
 import { CategoryService } from "./category_service";
+import { MigrateService } from "./migrate_service";
 
 export default function initService() {
     // initialize axios
@@ -16,6 +17,7 @@ export default function initService() {
         user: new UserService(axiosInstance),
         token: new TokenService(axiosInstance),
         category: new CategoryService(axiosInstance),
+        category: new MigrateService(axiosInstance),
     };
 
     Vue.service = service;

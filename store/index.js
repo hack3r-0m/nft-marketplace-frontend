@@ -9,6 +9,7 @@ import category from './category'
 import network from './network'
 import trunk from './trunk'
 import order from './order'
+import migrate from './migrate'
 export let STORE;
 
 const createStore = () => {
@@ -28,7 +29,8 @@ const createStore = () => {
       network,
       trunk,
       page,
-      order
+      order,
+      migrate
     },
   });
   return STORE;

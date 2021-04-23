@@ -393,7 +393,7 @@ export default class DepositConfirmationModal extends Vue {
         category_id: category_id,
         type: 'DEPOSIT',
       }
-      const res = await getAxios().post('assetmigrate', data)
+      await this.$store.dispatch('migrate/transferFromEthereumToMatic', data)
     } catch (error) {
       this.$logger.error(error);
     }

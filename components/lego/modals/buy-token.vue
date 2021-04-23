@@ -909,16 +909,14 @@ export default class BuyToken extends Vue {
           isValidSignature
         ) {
           this.$logger.track('sign-server-fixed-fill-order:buy-token')
-          const dataVal = await getAxios().get(
-            `orders/exchangedata/encoded?orderId=${this.order.id}&functionName=fillOrder`,
-          )
+          const dataVal = await this.$store.dispatch('order/encodeForBuyToken', this.order.id)
           this.$logger.track('sign-server-complete-fill-order:buy-token')
           const zrx = {
             salt: generatePseudoRandomSalt(),
             expirationTimeSeconds: signedOrder.expirationTimeSeconds,
             gasPrice: app.uiconfig.TX_DEFAULTS.gasPrice,
             signerAddress: takerAddress,
-            data: dataVal.data.data,
+            data: dataVal.data,
             domain: {
               name: '0x Protocol',
               version: '3.0.0',
