@@ -24,18 +24,22 @@ export default {
           console.log(event, JSON.parse(JSON.stringify(payload)));
         }
         else if (shouldTrack) {
-        // if (shouldTrack) {
+          // if (shouldTrack) {
           mixpanel.track(event, JSON.parse(JSON.stringify(payload)))
         }
       },
       error(err) {
-        console.error('error occured', err)
+        if (process.env.NODE_ENV !== "production") {
+          console.error('error occured', err)
+        }
         if (process.env.NODE_ENV === 'production') {
           // send error to entry
         }
       },
       debug(...args) {
-        console.log(...args)
+        if (process.env.NODE_ENV !== "production") {
+          console.log(...args)
+        }
       },
     }
     Vue.logger = logger
