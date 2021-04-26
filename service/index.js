@@ -17,7 +17,7 @@ export default function initService() {
         user: new UserService(axiosInstance),
         token: new TokenService(axiosInstance),
         category: new CategoryService(axiosInstance),
-        category: new MigrateService(axiosInstance),
+        migrate: new MigrateService(axiosInstance),
     };
 
     Vue.service = service;
