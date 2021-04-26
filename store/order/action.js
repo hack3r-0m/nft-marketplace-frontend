@@ -33,6 +33,7 @@ export const action = {
         }
     },
     async getOrderDetail({ dispatch, commit }, { orderId, account }) {
+        account = account || {};
         const response = await Vue.service.order.getOrderDetail(orderId);
         let order = response.data.data;
         let isOrderValid = true;
@@ -43,7 +44,7 @@ export const action = {
             const sellerAddress = order.seller_users.address
 
             // if someone else is viewing, then validate the orders to check for expiry
-            if (account && account.address !== sellerAddress) {
+            if (account.address !== sellerAddress) {
                 const res = await dispatch("validate", orderId);
                 isOrderValid = res;
             }

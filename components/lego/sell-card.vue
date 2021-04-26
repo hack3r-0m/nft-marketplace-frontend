@@ -118,7 +118,7 @@
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
 import app from '~/plugins/app'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 
 import rgbToHsl from '~/helpers/color-algorithm'
 import { formatUSDValue } from '~/helpers'
@@ -153,8 +153,12 @@ import OrderTypeTag from '~/components/lego/token/order-type-tag'
   computed: {
     ...mapGetters('category', ['categories', 'categoryById']),
     ...mapGetters('token', ['erc20Tokens']),
-    ...mapGetters('network', ['networks']),
-    ...mapGetters('auth', ['user']),
+    ...mapState('auth', {
+      user: (state) => state.user,
+    }),
+    ...mapState('network', {
+      networks: (state) => state.networks,
+    }),
   },
   middleware: [],
   mixins: [],
@@ -164,7 +168,9 @@ export default class SellCard extends Vue {
   isVideoFormat = true
   isFallbackToCategoryImage = false
   // Initial
-  mounted() {}
+  mounted() {
+
+  }
 
   onImageLoad() {
     try {

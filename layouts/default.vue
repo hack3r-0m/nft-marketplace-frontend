@@ -15,7 +15,6 @@ import NavbarSection from '~/components/navbar'
 import Toast from '~/components/toast'
 import { mapState, mapActions, mapGetters } from 'vuex'
 import MetaNetwork from '@maticnetwork/meta/network'
-import AccountModel from '~/components/model/account'
 import {
   registerAccountChange,
   registerNetworkChange,
@@ -71,9 +70,11 @@ export default {
       fetchERC20Tokens: 'fetchERC20Tokens',
     }),
     async initNetworks() {
+      const matic = Vue.appConfig.matic
+      this.$logger.debug('config', matic)
       const metaNetwork = new MetaNetwork(
-        Vue.appConfig.matic.deployment.network,
-        Vue.appConfig.matic.deployment.version,
+        matic.deployment.network,
+        matic.deployment.version,
       )
       // store networks
       await this.setNetworks({

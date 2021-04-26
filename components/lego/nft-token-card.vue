@@ -35,24 +35,24 @@
       <div class="img-wrapper d-flex ps-t-12 justify-content-center">
         <video v-if="isVideoFormat" autoplay muted loop width="100%">
           <source
-            :src="token.img_url"
+            :src="token.image_url"
             type="video/webm"
             @error="handleNotVideo"
           />
           <source
-            :src="token.img_url"
+            :src="token.image_url"
             type="video/ogg"
             @error="handleNotVideo"
           />
           <source
-            :src="token.img_url"
+            :src="token.image_url"
             type="video/mp4"
             @error="handleNotVideo"
           />
         </video>
         <img
           v-else
-          :src="token.img_url"
+          :src="token.image_url"
           class="asset-img align-self-center ps-x-12"
           :alt="token.name"
           @load="onImageLoad"
@@ -74,16 +74,13 @@
       <MoreOptions :options="moreOptions" />
     </div>
 
-    <div
-      v-if="token.category"
-      class="category-pill d-flex mx-auto ms-t-20 ms-b-16"
-    >
+    <div v-if="category" class="category-pill d-flex mx-auto ms-t-20 ms-b-16">
       <img
-        :src="token.category.img_url"
+        :src="category.img_url"
         class="icon ms-2 ms-l-4 ms-r-4 align-self-center"
       />
       <div class="font-caps font-medium caps align-self-center ps-r-6">
-        {{ token.category.name }}
+        {{ category.name }}
       </div>
     </div>
     <h3
@@ -193,11 +190,15 @@ import rgbToHsl from '~/helpers/color-algorithm'
   },
   components: { MoreOptions },
   computed: {
-    ...mapGetters('category', ['categories']),
+    ...mapGetters('category', ['categories', 'categoryByToken']),
     ...mapState('network', {
       networks: (state) => state.networks,
     }),
     ...mapGetters('account', ['userOrders']),
+    category() {
+      const category = this.categoryByToken(this.token)
+      return category
+    },
   },
   middleware: [],
   mixins: [],
@@ -280,11 +281,6 @@ export default class NFTTokenCard extends Vue {
     this.isVideoFormat = false
   }
 
-  // Get
-  get category() {
-    return this.token.category
-  }
-
   get isMainToken() {
     if (this.token.chainId) {
       return this.token.chainId === this.networks.main.chainId
@@ -293,7 +289,7 @@ export default class NFTTokenCard extends Vue {
   }
 
   get isOpenseaCompatible() {
-    return this.token.category.isOpenseaCompatible
+    return this.category.isOpenseaCompatible
   }
 
   get showCheckbox() {
