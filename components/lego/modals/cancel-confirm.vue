@@ -40,7 +40,7 @@
                 <div class="col-md-12 ps-y-32">
                   <img
                     class="asset-img mx-auto"
-                    :src="order.token.img_url"
+                    :src="order.token.image_url"
                     :alt="order.token.name"
                     @load="onImageLoad"
                     @error="imageLoadError"

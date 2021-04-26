@@ -71,9 +71,14 @@ export const action = {
         const config = response.data.data;
         if (response.status === 200 && config) {
             if (config.isAuthenticated) {
-                await dispatch("getUser")
+                // await dispatch("getUser")
+                dispatch("initUser", {
+                    loginStrategy: LocalStorage.get(LOCAL_STORAGE.loginStrategy),
+                    authToken: LocalStorage.get(LOCAL_STORAGE.authToken),
+                    user: config,
+                })
+                return true;
             }
-            return true;
         }
         return false;
     },
