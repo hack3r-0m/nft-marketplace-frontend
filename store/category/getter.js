@@ -2,6 +2,11 @@ export const getter = {
     categories(state) {
         return state.categories
     },
+    categoryById(state) {
+        return (id) => {
+            return state.categories.find((item) => item.id === id)
+        }
+    },
     allCategory(state) {
         const category = state.allCategory
         category.count =

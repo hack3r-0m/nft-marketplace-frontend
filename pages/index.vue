@@ -219,7 +219,7 @@ export default class Index extends Vue {
       return
     }
     this.hasNextPage = true
-    this.orderFullList.length = 0
+    this.orderFullList = []
     this.$store.commit('page/setIsCategoryFetching', true)
     await this.fetchOrders({ filtering: true })
     this.$store.commit('page/setIsCategoryFetching', false)
@@ -289,18 +289,13 @@ export default class Index extends Vue {
         sort: this.activeSort ? this.activeSort : this.sortItems[0].filter,
       }
 
-      response = await Vue.service.order.getOrders(payload)
-
-      if (response && response.status === 200 && response.data.data.order) {
-        this.hasNextPage = response.data.data.has_next_page
-        const data = response.data.data.order.map(function (order) {
-          return new OrderModel(order)
-        })
-        if (options && options.filtering) {
-          this.orderFullList = data
-        } else {
-          this.orderFullList = [...this.orderFullList, ...data]
-        }
+      const data = await this.$store.dispatch('order/getOrders', payload)
+      const orders = data.order
+      this.hasNextPage = data.has_next_page
+      if (options && options.filtering) {
+        this.orderFullList = orders
+      } else {
+        this.orderFullList = [...this.orderFullList, ...orders]
       }
     } catch (error) {
       console.log(error)

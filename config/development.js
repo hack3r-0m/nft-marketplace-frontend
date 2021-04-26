@@ -4,8 +4,8 @@ module.exports = {
     MAIN_RPC: "https://goerli.infura.io/v3/70645f042c3a409599c60f96f6dd9fbc",
     MATIC_RPC: "https://rpc-mumbai.matic.today",
     apis: {
-        MARKETPLACE_API_HOST: "https://staging-nft-marketplace.api.matic.today/api/v1",
-        FILE_HOST: "https://staging-nft-marketplace.api.matic.today/",
+        MARKETPLACE_API_HOST: "https://marketplace.api.matic.network/api/v1",
+        FILE_HOST: "https://marketplace.api.matic.network/",
     },
     DISPLAY_SALE_TAG_TIME: 2,
     MATIC_WIDGET_KEY: "kiLV4NOqXgk346wibvG4",

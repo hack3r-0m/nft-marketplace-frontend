@@ -3,6 +3,16 @@ import OrderModel from '~/components/model/order'
 import BidModel from '~/components/model/bid'
 
 export const action = {
+    async getOrders(_, payload) {
+        const response = await Vue.service.order.getOrders(payload)
+        if (response && response.status === 200) {
+            const data = response.data.data;
+            data.order.map(order => {
+                order.token = order.tokens;
+            })
+            return data;
+        }
+    },
     async getBidInfo(_, { order, erc20Token }) {
         let response
         response = await Vue.service.order.getBidInfo(order.id)
@@ -97,28 +107,28 @@ export const action = {
         }
     },
     async fillBid(_, payload) {
-      const response = await Vue.service.order.fillBid(payload);
-      if (response.status === 200) {
-          return response.data
-      }
+        const response = await Vue.service.order.fillBid(payload);
+        if (response.status === 200) {
+            return response.data
+        }
     },
     async encodeForCancelBidOrder(_, payload) {
-      const response = await Vue.service.order.encodeForCancelBidOrder(payload);
-      if (response.status === 200) {
-          return response.data
-      }
+        const response = await Vue.service.order.encodeForCancelBidOrder(payload);
+        if (response.status === 200) {
+            return response.data
+        }
     },
     async encodeForBuyToken(_, payload) {
-      const response = await Vue.service.order.encodeForBuyToken(payload);
-      if (response.status === 200) {
-          return response.data
-      }
+        const response = await Vue.service.order.encodeForBuyToken(payload);
+        if (response.status === 200) {
+            return response.data
+        }
     },
     async encodeForCancelBidOrder(_, payload) {
-      const response = await Vue.service.order.encodeForCancelBidOrder(payload);
-      if (response.status === 200) {
-          return response.data
-      }
+        const response = await Vue.service.order.encodeForCancelBidOrder(payload);
+        if (response.status === 200) {
+            return response.data
+        }
     },
 }
 
