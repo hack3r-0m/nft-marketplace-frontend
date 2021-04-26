@@ -29,17 +29,17 @@
               height="500px"
             >
               <source
-                :src="token.img_url"
+                :src="token.image_url"
                 type="video/webm"
                 @error="handleNotVideo"
               />
               <source
-                :src="token.img_url"
+                :src="token.image_url"
                 type="video/ogg"
                 @error="handleNotVideo"
               />
               <source
-                :src="token.img_url"
+                :src="token.image_url"
                 type="video/mp4"
                 @error="handleNotVideo"
               />
@@ -47,7 +47,7 @@
             <img
               v-else
               class="asset-img align-self-center"
-              :src="token.img_url"
+              :src="token.image_url"
               alt="Kitty"
               @load="onImageLoad"
               @error="imageLoadError"
@@ -304,10 +304,10 @@ import { getColorFromImage } from '~/utils'
     CancelConfirm,
   },
   computed: {
-    ...mapGetters('category', ['categories','categoryByToken']),
+    ...mapGetters('category', ['categories', 'categoryByToken']),
     ...mapGetters('token', ['erc20Tokens']),
-     ...mapState('auth', {
-      user : state => state.user
+    ...mapState('auth', {
+      user: (state) => state.user,
     }),
     ...mapGetters('network', ['networks']),
   },
@@ -383,10 +383,10 @@ export default class NftDetail extends Vue {
 
   // Get
   get category() {
-    const ct = this.categoryByToken(this.token);
-    return ct;
+    const ct = this.categoryByToken(this.token)
+    return ct
   }
-  
+
   get tokenDescription() {
     return this.token.description
   }
@@ -409,7 +409,7 @@ export default class NftDetail extends Vue {
     }
     this.isLoadingDetails = true
     try {
-      const response = await this.$store.dispatch("account/fetchUserNFT",{
+      const response = await this.$store.dispatch('account/fetchUserNFT', {
         user: this.user,
         chainId: this.chainId,
       })
@@ -428,7 +428,8 @@ export default class NftDetail extends Vue {
           return
         }
 
-        currentToken.chainId = this.chainId;
+        currentToken.chainId = this.chainId
+        currentToken.attributes = JSON.parse(currentToken.attributes)
         this.token = currentToken
       }
     } catch (error) {
