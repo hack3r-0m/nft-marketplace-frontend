@@ -511,9 +511,9 @@ export default class SellToken extends Vue {
   async approveStatus() {
     this.approveLoading = true
     try {
-      const nftContract = this.nftToken.category.getAddress(
-        this.networks.matic.chainId,
-      )
+      const nftContract = this.$store.getters[
+        'category/contractAddressByToken'
+      ](this.nftToken, this.networks.matic.chainId)
       const makerAddress = this.account.address
       const chainId = this.networks.matic.chainId
       const contractWrappers = new ContractWrappers(getProviderEngine(), {
@@ -552,7 +552,7 @@ export default class SellToken extends Vue {
       this.isApprovedStatus = isApprovedForAll
       this.approveLoading = false
     } catch (error) {
-      console.log(error)
+      this.$logger.error(error)
       this.approveLoading = false
       this.txShowError(error, null, 'Something went wrong')
     }
@@ -569,9 +569,9 @@ export default class SellToken extends Vue {
         ? this.expiry_date_time.format('x')
         : 0
       const orderType = this.orderType
-      const nftContract = this.nftToken.category.getAddress(
-        this.networks.matic.chainId,
-      )
+      const nftContract = this.$store.getters[
+        'category/contractAddressByToken'
+      ](this.nftToken, this.networks.matic.chainId);
       // const nftTokenId = this.nftToken.token_id;
       const erc20Address = this.selectedERC20Token.address
       const makerAddress = this.account.address
@@ -649,9 +649,9 @@ export default class SellToken extends Vue {
         ? this.expiry_date_time.format('x')
         : 0
       const orderType = this.orderType
-      const nftContract = this.nftToken.category.getAddress(
-        this.networks.matic.chainId,
-      )
+      const nftContract = this.$store.getters[
+        'category/contractAddressByToken'
+      ](this.nftToken, this.networks.matic.chainId)
       // const nftTokenId = this.nftToken.token_id;
       const erc20Address = this.selectedERC20Token.address
       const makerAddress = this.account.address
@@ -744,7 +744,7 @@ export default class SellToken extends Vue {
       await this.handleSellSign(orderTemplate, signedOrder)
       this.$logger.track('sign-success:sell-token')
     } catch (error) {
-      console.log(error)
+      this.$$logger.error(error)
       this.signLoading = false
       this.txShowError(error, null, 'Something went wrong')
     }
