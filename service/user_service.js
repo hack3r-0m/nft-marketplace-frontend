@@ -59,4 +59,8 @@ export class UserService {
         const url = `assetmigrate/?user_id=${userId}&type=["DEPOSIT","WITHDRAW"]&status=[0,1,2,3]`;
         return this.httpCaller.get(url);
     }
+
+    getConfig(){
+        return this.httpCaller.get(`config`);
+    }
 }

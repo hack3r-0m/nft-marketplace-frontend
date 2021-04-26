@@ -1,5 +1,7 @@
 import Vue from "vue";
 import AccountModel from '~/components/model/account'
+import { LOCAL_STORAGE } from "~/constants";
+import { LocalStorage } from "~/utils";
 
 export const action = {
     reset({ commit }) {
@@ -9,6 +11,7 @@ export const action = {
     logout({ dispatch }) {
         dispatch('reset');
         dispatch('trunk/resetBalances', {}, { root: true })
+        LocalStorage.remove(LOCAL_STORAGE.authToken);
         Vue.logger.stopTrack();
     },
 
@@ -22,11 +25,14 @@ export const action = {
         const response = await Vue.service.user.login(payload);
         const user = response.data.data;
         if (response.status === 200 && user) {
+            const authToken = response.data.auth_token;
             dispatch("initUser", {
                 loginStrategy: payload.loginStrategy,
-                authToken: response.data.auth_token,
+                authToken: authToken,
                 user: user,
             })
+            LocalStorage.set(LOCAL_STORAGE.authToken, authToken);
+            LocalStorage.set(LOCAL_STORAGE.loginStrategy, payload.loginStrategy);
         }
         return null
     },
@@ -47,23 +53,27 @@ export const action = {
         await dispatch('account/fetchFavoritesOrders', null, { root: true });
         Vue.logger.initTrack({ address: getters['address'] })
     },
-
+    async getUser({ dispatch }) {
+        const response = await Vue.service.user.getDetails();
+        const user = response.data.data;
+        if (response.status === 200 && user) {
+            dispatch("initUser", {
+                loginStrategy: LocalStorage.get(LOCAL_STORAGE.loginStrategy),
+                authToken: LocalStorage.get(LOCAL_STORAGE.authToken),
+                user: user,
+            })
+            return true;
+        }
+        return false;
+    },
     async getConfig({ dispatch }) {
-        try {
-            const response = await Vue.service.user.getDetails();
-            const user = response.data.data;
-            if (response.status === 200 && user) {
-                dispatch("initUser", {
-                    loginStrategy: payload.loginStrategy,
-                    authToken: response.data.auth_token,
-                    user: user,
-                })
-                return true;
+        const response = await Vue.service.user.getConfig();
+        const config = response.data.data;
+        if (response.status === 200 && config) {
+            if (config.isAuthenticated) {
+                await dispatch("getUser")
             }
-        } catch (err) {
-            if (err.response && err.response.status === 401) {
-                dispatch('logout');
-            }
+            return true;
         }
         return false;
     },

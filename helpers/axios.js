@@ -1,7 +1,9 @@
 import * as axios from "axios"
+import { LOCAL_STORAGE } from "~/constants";
+import { LocalStorage } from "~/utils";
 
 export function initalizeAxios(options = {}) {
-    const { STORE } = require("~/store");
+     
     const axiosInstance = axios.create(options)
 
 
@@ -9,7 +11,7 @@ export function initalizeAxios(options = {}) {
     axiosInstance.interceptors.request.use(
         async config => {
             if (!config.headers.Authorization) {
-                config.headers.Authorization = STORE.state["auth/token"]
+                config.headers.Authorization = LocalStorage.get(LOCAL_STORAGE.authToken);
             }
             return config
         },

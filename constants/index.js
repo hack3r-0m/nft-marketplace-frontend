@@ -1,4 +1,5 @@
 export * from "./vuex_store";
+export * from "./local_storage";
 import Vue from 'vue'
 
 export const LOGIN_STRATEGY = {
