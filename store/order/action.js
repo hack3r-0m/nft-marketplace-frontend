@@ -43,7 +43,7 @@ export const action = {
             const sellerAddress = order.seller_users.address
 
             // if someone else is viewing, then validate the orders to check for expiry
-            if (account.address !== sellerAddress) {
+            if (account && account.address !== sellerAddress) {
                 const res = await dispatch("validate", orderId);
                 isOrderValid = res;
             }
