@@ -154,6 +154,9 @@ import NotificationModal from '~/components/lego/notification-modal'
       'activeSort',
     ]),
     ...mapState('page', ['isCategoryFetching']),
+    ...mapState('order', {
+      orderFullList: (state) => state.orders,
+    }),
     ...mapGetters('category', ['categories', 'allCategory']),
     ...mapGetters('token', ['erc20Tokens']),
   },
@@ -194,7 +197,6 @@ export default class Index extends Vue {
     },
   ]
 
-  orderFullList = []
   hasNextPage = true
   displayTokens = 0
   isLoadingTokens = false
@@ -219,7 +221,6 @@ export default class Index extends Vue {
       return
     }
     this.hasNextPage = true
-    this.orderFullList = []
     this.$store.commit('page/setIsCategoryFetching', true)
     await this.fetchOrders({ filtering: true })
     this.$store.commit('page/setIsCategoryFetching', false)
@@ -274,7 +275,6 @@ export default class Index extends Vue {
     }
     this.isLoadingTokens = true
     try {
-      let response
       let offset = this.orderFullList.length
 
       if (options && options.filtering) {
@@ -290,15 +290,9 @@ export default class Index extends Vue {
       }
 
       const data = await this.$store.dispatch('order/getOrders', payload)
-      const orders = data.order
       this.hasNextPage = data.has_next_page
-      if (options && options.filtering) {
-        this.orderFullList = orders
-      } else {
-        this.orderFullList = [...this.orderFullList, ...orders]
-      }
     } catch (error) {
-      console.log(error)
+      this.$logger.error(error)
     }
     this.isLoadingTokens = false
   }

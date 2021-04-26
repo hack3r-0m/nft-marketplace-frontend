@@ -445,7 +445,7 @@
 <script>
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
-import { mapGetters,mapState } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import TokenShortInfo from '~/components/lego/token/token-short-info'
 import WishlistButton from '~/components/lego/wishlist-button'
 import BidderRow from '~/components/lego/bidder-row'
@@ -486,8 +486,11 @@ import { ORDER_TYPES } from '~/constants'
     ...mapGetters('category', ['categories']),
     ...mapGetters('token', ['erc20Tokens']),
     ...mapGetters('account', ['account', 'favouriteOrders']),
-     ...mapState('auth', {
-      user : state => state.user
+    ...mapState('auth', {
+      user: (state) => state.user,
+    }),
+    ...mapGetters('order', {
+      orderById: 'orderById',
     }),
     ...mapState('network', {
       networks: (state) => state.networks,
@@ -620,7 +623,9 @@ export default class TokenDetail extends Vue {
   }
 
   get validation() {
-    const balance = this.$store.getters["trunk/tokenBalance"](this.erc20Token).gte(this.order.min_price);
+    const balance = this.$store.getters['trunk/tokenBalance'](
+      this.erc20Token,
+    ).gte(this.order.min_price)
     return {
       balance: balance,
     }
@@ -652,7 +657,7 @@ export default class TokenDetail extends Vue {
         )
         return this.$router.push({ name: 'index' })
       }
-      this.order = order
+      this.order = this.orderById(this.orderId);
       if (order && order.type !== ORDER_TYPES.fixed) {
         await this.fetchBidders()
       }
@@ -718,7 +723,10 @@ export default class TokenDetail extends Vue {
           chainId: chainId,
         })
 
-        const dataVal = await  this.$store.dispatch("order/getExcodedDataForCancelOrder", this.order.id);
+        const dataVal = await this.$store.dispatch(
+          'order/getExcodedDataForCancelOrder',
+          this.order.id,
+        )
 
         const zrx = {
           salt: generatePseudoRandomSalt(),

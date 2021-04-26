@@ -1,14 +1,13 @@
 import Vue from "vue";
-import OrderModel from '~/components/model/order'
 import BidModel from '~/components/model/bid'
 
 export const action = {
-    async getOrders(_, payload) {
+    async getOrders({ commit }, payload) {
         const response = await Vue.service.order.getOrders(payload)
         if (response && response.status === 200) {
             const data = response.data.data;
             data.order.map(order => {
-                order.token = order.tokens;
+                commit('ADD_ORDER', order);
             })
             return data;
         }
@@ -33,13 +32,12 @@ export const action = {
             bids, hasNextPage
         }
     },
-    async getOrderDetail({ dispatch }, { orderId, account }) {
+    async getOrderDetail({ dispatch, commit }, { orderId, account }) {
         const response = await Vue.service.order.getOrderDetail(orderId);
         let order = response.data.data;
         let isOrderValid = true;
         if (order) {
-            order.token = order.tokens;
-            order.erc20TokenId = order.erc20tokens.id
+            commit('ADD_ORDER', order);
         }
         if (response.status === 202 && order) {
             const sellerAddress = order.seller_users.address
