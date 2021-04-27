@@ -1,5 +1,5 @@
 import Vue from "vue";
-import OrderModel from '~/components/model/order';
+import { Order } from '~/models';
 
 export const action = {
     async fetchActiveOrders({ rootState, commit }) {
@@ -8,7 +8,7 @@ export const action = {
         if (response.status === 200 && response.data.data.length > 0) {
             const orders = []
             response.data.data.forEach((order) =>
-                orders.push(new OrderModel(order)),
+                orders.push(new Order(order)),
             )
             commit('userOrders', orders)
         }
@@ -22,7 +22,7 @@ export const action = {
                 fav.orders.image = fav.image
                 fav.orders.name = fav.name
                 fav.orders.description = fav.description
-                fav.order = new OrderModel(fav.orders)
+                fav.order = new Order(fav.orders)
                 orders.push(fav)
             })
             commit('favouriteOrders', orders)

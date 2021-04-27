@@ -6,6 +6,7 @@ export const action = {
         const response = await Vue.service.order.getOrders(payload)
         if (response && response.status === 200) {
             const data = response.data.data;
+            commit("RESET_ORDERS");
             data.order.map(order => {
                 commit('ADD_ORDER', order);
             })
@@ -38,6 +39,7 @@ export const action = {
         let order = response.data.data;
         let isOrderValid = true;
         if (order) {
+            commit('REMOVE_ORDER', order);
             commit('ADD_ORDER', order);
         }
         if (response.status === 202 && order) {

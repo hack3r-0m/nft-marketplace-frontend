@@ -52,13 +52,9 @@ export default {
   async mounted() {
     // set and Initialise networks
     await Promise.all([
-      this.initNetworks(),
-      // Initialize Categories
-      this.fetchCategories(),
-      // TODO: initialize Authentication
       this.getConfig(),
-      // Initialize tokens
-      this.fetchERC20Tokens(),
+      this.initNetworks(),
+      this.fetchCategories(),
     ])
     this.isLoaded = true
   },
@@ -74,9 +70,7 @@ export default {
     ...mapActions('category', {
       fetchCategories: 'fetchCategories',
     }),
-    ...mapActions('token', {
-      fetchERC20Tokens: 'fetchERC20Tokens',
-    }),
+
     async initNetworks() {
       const matic = Vue.appConfig.matic
       this.$logger.debug('config', matic)

@@ -129,7 +129,6 @@ import SellCard from '~/components/lego/sell-card'
 import CategoriesSelector from '~/components/lego/categories-selector'
 import SearchBox from '~/components/lego/search-box'
 import SortDropdown from '~/components/lego/sort-dropdown'
-import OrderModel from '~/components/model/order'
 import NoItem from '~/components/lego/no-item'
 
 import CategorySidebar from '~/components/lego/account/category-sidebar'

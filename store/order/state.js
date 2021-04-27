@@ -1,6 +1,6 @@
 export const initialState = () => {
     return {
-        orders: {}
+        orders: []
     }
 }
 
