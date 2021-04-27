@@ -223,7 +223,7 @@ export default class Login extends Vue {
 
     this.error = null
     if (!isMetamask()) {
-      alert('Metamask not found')
+      alert('Metamask not found - it might be disabled or not installed. Please enable or install and continue.')
       this.metamaskLoading = false
       return
     }

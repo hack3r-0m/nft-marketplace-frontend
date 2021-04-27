@@ -14,7 +14,7 @@
             :src="allCategory.img_url"
             :alt="allCategory.name"
             class="icon-all align-self-center"
-          >
+          />
           <div class="font-body-medium align-self-center text-nowrap ms-l-12">
             {{ allCategory.name }}
           </div>
@@ -47,7 +47,7 @@
             :src="category.img_url"
             :alt="category.name"
             class="icon align-self-center ms-r-12"
-          >
+          />
           <div class="font-body-medium align-self-center">
             {{ category.name }}
           </div>
@@ -58,7 +58,7 @@
             <div
               v-if="
                 isCategoryLoading(category) ||
-                  (isLoading && !!allCategory.count && isTab)
+                (isLoading && !!allCategory.count && isTab)
               "
               class="count ps-l-12 font-body-medium ml-auto align-self-center"
             >
@@ -76,7 +76,7 @@
                 {{ category.mainCount || 0 }}
               </span>
               <span v-if="SHOW_COUNT.MATIC === countFor">
-                {{ category.maticCount || 0 }}
+                {{ category | maticCount }}
               </span>
             </div>
           </div>
@@ -115,12 +115,20 @@ const SHOW_COUNT = { ORDER: 0, MATIC: 1, MAIN: 2 }
   computed: {
     ...mapGetters('page', ['selectedCategory']),
     ...mapState('page', ['isCategoryFetching']),
-    ...mapGetters('category', ['categories', 'allCategory']),
+    ...mapGetters('category', ['categories']),
+    ...mapState('category', {
+      allCategory: (state) => state.allCategory,
+    }),
+  },
+  filters: {
+    maticCount(ct) {
+      return Object.keys(ct.maticTokens).length
+    },
   },
 })
 export default class CategoriesSelector extends Vue {
-  showCategory = false;
-  SHOW_COUNT = SHOW_COUNT;
+  showCategory = false
+  SHOW_COUNT = SHOW_COUNT
   async mounted() {}
 
   // Actions
@@ -143,29 +151,15 @@ export default class CategoriesSelector extends Vue {
       !this.isLoading &&
       this.isTab
     ) {
-      return (
-        this.categories.reduce((total, category) => {
-          if (category.maticCount) {
-            total = total + parseInt(category.maticCount)
-          }
-          return total
-        }, 0) || 0
-      )
+      return this.allCategory.maticCount
     } else if (
       this.SHOW_COUNT.MAIN === this.countFor &&
       !this.isLoading &&
       this.isTab
     ) {
-      return (
-        this.categories.reduce((total, category) => {
-          if (category.mainCount) {
-            total = total + parseInt(category.mainCount)
-          }
-          return total
-        }, 0) || 0
-      )
+      return this.allCategory.mainCount
     } else if (!this.isTab) {
-      return this.allCategory.count || 0
+      return this.allCategory.count
     }
     return 0
   }
@@ -179,23 +173,19 @@ export default class CategoriesSelector extends Vue {
   }
 
   isCategoryLoading(category) {
-    return (
-      this.isCategoryFetching && category?.id === this.selectedCategory?.id
-    )
+    return this.isCategoryFetching && category?.id === this.selectedCategory?.id
   }
 
   disabledCategoryClick(category) {
-    return (
-      this.isCategoryFetching && category?.id !== this.selectedCategory?.id
-    )
+    return this.isCategoryFetching && category?.id !== this.selectedCategory?.id
   }
 }
 </script>
 
 <style lang="scss" scoped="true">
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 .category {
-  background-color: light-color("700");
+  background-color: light-color('700');
   border-radius: $border-radius-xl;
   box-sizing: border-box;
 
@@ -209,7 +199,7 @@ export default class CategoriesSelector extends Vue {
     height: 32px;
   }
   .count {
-    color: dark-color("300") !important;
+    color: dark-color('300') !important;
   }
 }
 
@@ -217,13 +207,13 @@ export default class CategoriesSelector extends Vue {
   .categories {
     width: 100%;
     border-radius: $border-radius-xl;
-    background-color: light-color("700");
+    background-color: light-color('700');
     .category {
       border: none;
       width: 100%;
       &:hover,
       &.active {
-        background: light-color("600");
+        background: light-color('600');
       }
 
       &.disable-category {
@@ -241,7 +231,7 @@ export default class CategoriesSelector extends Vue {
     width: 4px;
     height: 4px;
     border-radius: 50%;
-    background: dark-color("300");
+    background: dark-color('300');
     animation: wave 1.3s linear infinite;
 
     &:nth-child(2) {

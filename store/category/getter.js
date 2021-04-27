@@ -8,25 +8,7 @@ export const getter = {
         }
     },
     allCategory(state) {
-        const category = state.allCategory
-        category.count =
-            state.categories.reduce(
-                (total, item) => total + (parseInt(item.count) || 0),
-                0,
-            ) || '0'
-        category.maticCount =
-            state.categories.reduce(
-                (total, item) => total + (parseInt(item.maticCount) || 0),
-                0,
-            ) || '0'
-
-        category.mainCount =
-            state.categories.reduce(
-                (total, item) => total + (parseInt(item.mainCount) || 0),
-                0,
-            ) || '0'
-
-        return category
+        return state.allCategory;
     },
     categoryByToken(state) {
         return (token) => {

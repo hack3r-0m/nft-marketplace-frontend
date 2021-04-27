@@ -14,14 +14,18 @@ export const action = {
                     chainAddress[q.chain_id] = q.address;
                 })
                 item.chainAddress = chainAddress;
+                item.count = item.orders;
                 const addressInfo = chainAddress[maticChainId];
                 if (addressInfo) {
                     item.maticAddress = addressInfo
                 }
+                item.maticTokens = {}
+                item.mainTokens = {}
                 return item;
             })
 
             commit('categories', categories)
+            commit('SET_ALL_CATEGORY');
         }
     },
 };

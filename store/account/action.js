@@ -56,7 +56,7 @@ export const action = {
         }
         return tokens;
     },
-    async fetchMaticNFT({ commit, dispatch }, payload) {
+    async fetchMaticNFT({ commit, dispatch, rootGetters }, payload) {
         const tokens = []
         const response = await dispatch('fetchUserNFT', payload);
 
@@ -65,6 +65,13 @@ export const action = {
             response.data.forEach((token, i) => {
                 token.id = i + 1;
                 token.chainId = payload.chainId
+                const category = rootGetters["category/categoryByToken"](token);
+                if (category) {
+                    category.maticTokens[token.id] = true;
+                    commit("category/UPDATE_CATEGORY", category, {
+                        root: true
+                    });
+                }
                 tokens.push(token)
                 if (token.contract in balances) {
                     balances[token.contract]++
@@ -74,6 +81,9 @@ export const action = {
             })
             commit('totalMaticNft', response.count)
             commit('category/addUsersMaticCount', balances, { root: true });
+            commit('category/SET_ALL_CATEGORY',null,{
+                root:true
+            });
         }
         return tokens;
     },
