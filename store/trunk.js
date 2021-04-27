@@ -46,6 +46,7 @@ export default {
         }
         const balance = state.tokenBalance[`${networkId}:${address.toLowerCase()}`];
         if (balance) {
+          debugger;
           return parseBalance(balance, token.decimal)
         }
         return balance;

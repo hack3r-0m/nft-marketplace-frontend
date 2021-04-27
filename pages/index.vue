@@ -204,10 +204,6 @@ export default class Index extends Vue {
   showModal = false
 
   mounted() {
-    // this.updateCategories();
-    // this.fetchOrders();
-    this.$store.dispatch('token/reloadBalances')
-
     if (!localStorage.getItem('WalletSwapFeature')) {
       this.onNotificationOpen()
     }

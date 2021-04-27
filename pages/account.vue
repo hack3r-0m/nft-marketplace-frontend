@@ -74,7 +74,6 @@ export default class Index extends Vue {
   showNotification = false
 
   async mounted() {
-    this.fetchTotalTokens()
 
     if (!localStorage.getItem('WalletSwapFeature')) {
       this.onNotificationOpen()
