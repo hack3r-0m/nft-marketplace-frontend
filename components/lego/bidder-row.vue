@@ -83,18 +83,14 @@
 <script>
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import BidModel from '~/components/model/bid'
 import { toChecksumAddress } from 'ethereumjs-util'
 import moment from 'moment'
 import Web3 from 'web3'
-
-import app from '~/plugins/app'
-
 import BidConfirmation from '~/components/lego/modals/bid-confirmation'
 import Toast from '~/components/mixins/common/toast'
 import {} from '~/helpers/0x-utils'
-
 import { getProviderEngine } from '~/helpers/provider-engine'
 
 // 0X
@@ -106,6 +102,7 @@ const {
 const { generatePseudoRandomSalt, signatureUtils } = require('@0x/order-utils')
 const { BigNumber } = require('@0x/utils')
 const { Web3Wrapper } = require('@0x/web3-wrapper')
+import { ORDER_TYPES } from '~/constants'
 
 @Component({
   props: {
@@ -127,8 +124,13 @@ const { Web3Wrapper } = require('@0x/web3-wrapper')
   mixins: [Toast],
   computed: {
     ...mapGetters('account', ['account']),
-    ...mapGetters('auth', ['user']),
-    ...mapGetters('network', ['networks', 'networkMeta']),
+    ...mapGetters('network', ['networkMeta']),
+     ...mapState('auth', {
+      user: (state) => state.user,
+    }),
+    ...mapState('network', {
+      networks: (state) => state.networks,
+    }),
   },
 })
 export default class BidderRow extends Vue {
@@ -166,7 +168,7 @@ export default class BidderRow extends Vue {
   }
 
   get showAction() {
-    return this.order.type === app.orderTypes.AUCTION
+    return this.order.type === ORDER_TYPES.auction
   }
 
   get isErc1155() {
@@ -346,12 +348,15 @@ export default class BidderRow extends Vue {
         ) {
           console.log('Fillable')
           this.$logger.track('accept-bid-fill-order:bid-options')
-          const dataVal = await this.$store.dispatch('order/fillBid', this.bid.id)
+          const dataVal = await this.$store.dispatch(
+            'order/fillBid',
+            this.bid.id,
+          )
           this.$logger.track('accept-bid-fill-order-complete:bid-options')
           const zrx = {
             salt: generatePseudoRandomSalt(),
             expirationTimeSeconds: signedOrder.expirationTimeSeconds,
-            gasPrice: app.uiconfig.TX_DEFAULTS.gasPrice,
+            gasPrice: Vue.appConfig.TX_DEFAULTS.gasPrice,
             signerAddress: takerAddress,
             data: dataVal.data,
             domain: {
@@ -545,7 +550,7 @@ export default class BidderRow extends Vue {
       erc20Token: this.bid.erc20Token,
     })
     try {
-      if (this.order.type === app.orderTypes.NEGOTIATION) {
+      if (this.order.type === ORDER_TYPES.negotiation) {
         const signedOrder = JSON.parse(this.bid.signature)
         const takerAssetAmount = Web3Wrapper.toBaseUnitAmount(
           new BigNumber(this.bid.price),
@@ -565,12 +570,15 @@ export default class BidderRow extends Vue {
           chainId: chainId,
         })
         this.$logger.track('cancel-bid-api-cancel-order:bid-options')
-        const dataVal = await this.$store.dispatch('order/encodeForCancelBidOrder', this.bid.id)
+        const dataVal = await this.$store.dispatch(
+          'order/encodeForCancelBidOrder',
+          this.bid.id,
+        )
         this.$logger.track('cancel-bid-api-cancel-order-completed:bid-options')
         const zrx = {
           salt: generatePseudoRandomSalt(),
           expirationTimeSeconds: signedOrder.expirationTimeSeconds,
-          gasPrice: app.uiconfig.TX_DEFAULTS.gasPrice,
+          gasPrice: Vue.appConfig.TX_DEFAULTS.gasPrice,
           signerAddress: signedOrder.makerAddress,
           data: dataVal.data,
           domain: {

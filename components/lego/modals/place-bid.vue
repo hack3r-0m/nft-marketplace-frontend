@@ -183,9 +183,12 @@ import { parseUSDBalance } from '~/helpers/token-utils'
     ...mapGetters('network', ['networks']),
     ...mapGetters('account', ['account']),
     ...mapGetters('auth', ['user']),
-    ...mapGetters('trunk', ['tokenBalance']),
+    ...mapGetters('trunk', ['tokenBalance', 'tokenFullBalance']),
     currentTokenBalance() {
       return this.tokenBalance(this.defaultSelectedToken)
+    },
+    currentTokenFullBalance() {
+      return this.tokenFullBalance(this.defaultSelectedToken)
     },
   },
   filters: {
@@ -253,8 +256,7 @@ export default class PlaceBid extends Vue {
     } else if (!this.inputAmount || !this.inputAmount.gt(ZERO)) {
       return (this.validationMessage = 'Enter a valid amount')
     }
-    const balance = this.currentTokenBalance
-    debugger
+    const balance = this.currentTokenFullBalance
     if (!balance.gte(this.inputAmount || ZERO)) {
       this.noEnoughBalance = true
       return (this.validationMessage = "You don't have sufficient balance")

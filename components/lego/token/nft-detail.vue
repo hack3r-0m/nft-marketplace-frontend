@@ -309,7 +309,9 @@ import { getColorFromImage } from '~/utils'
     ...mapState('auth', {
       user: (state) => state.user,
     }),
-    ...mapGetters('network', ['networks']),
+     ...mapState('network', {
+      networks: (state) => state.networks,
+    }),
   },
   middleware: [],
   mixins: [],

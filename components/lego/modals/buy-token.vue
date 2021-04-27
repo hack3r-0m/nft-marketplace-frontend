@@ -323,7 +323,7 @@
 <script>
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import Web3 from 'web3'
 
 import moment from 'moment'
@@ -382,9 +382,13 @@ const TEN = BigNumber(10)
   components: { InputToken, PlaceBid, ApproveProcess, DepositWeth },
   computed: {
     ...mapGetters('token', ['erc20Tokens', 'selectedERC20Token']),
-    ...mapGetters('network', ['networks']),
     ...mapGetters('account', ['account']),
-    ...mapGetters('auth', ['user']),
+    ...mapState('auth', {
+      user: (state) => state.user,
+    }),
+    ...mapState('network', {
+      networks: (state) => state.networks,
+    }),
   },
   methods: {},
   mixins: [FormValidator, Toast],
@@ -516,7 +520,7 @@ export default class BuyToken extends Vue {
   }
 
   get priceInUSD() {
-    const equivalentUSD = this.convertPriceToUSD(this.order.price);
+    const equivalentUSD = this.convertPriceToUSD(this.order.price)
     return isNaN(equivalentUSD) ? '$0' : formatUSDValue(equivalentUSD)
   }
 
@@ -580,7 +584,7 @@ export default class BuyToken extends Vue {
   async checkApprovestatus() {
     this.approveLoading = true
 
-    if (this.order.type === this.orderTypes.NEGOTIATION) {
+    if (this.order.type === this.orderTypes.negotiation) {
       try {
         const yearInSec = moment().add(365, 'days').format('x')
         const chainId = this.networks.matic.chainId
@@ -619,7 +623,7 @@ export default class BuyToken extends Vue {
         this.approveLoading = false
         this.txShowError(error, null, 'Something went wrong')
       }
-    } else if (this.order.type === this.orderTypes.FIXED) {
+    } else if (this.order.type === this.orderTypes.fixed) {
       try {
         const takerAddress = this.account.address
         const erc20Address = this.erc20Token.address
@@ -661,7 +665,7 @@ export default class BuyToken extends Vue {
     this.error = ''
     this.$logger.track('approve-start:buy-token')
 
-    if (this.order.type === this.orderTypes.NEGOTIATION) {
+    if (this.order.type === this.orderTypes.negotiation) {
       try {
         this.$logger.track('approve-start-negotiation:buy-token')
         const yearInSec = moment().add(365, 'days').format('x')
@@ -706,7 +710,7 @@ export default class BuyToken extends Vue {
         this.approveLoading = false
         this.txShowError(error, null, 'Something went wrong')
       }
-    } else if (this.order.type === this.orderTypes.FIXED) {
+    } else if (this.order.type === this.orderTypes.fixed) {
       try {
         this.$logger.track('approve-start-fixed:buy-token')
         const chainId = this.networks.matic.chainId
@@ -754,7 +758,7 @@ export default class BuyToken extends Vue {
   async signClickedFunc() {
     this.signLoading = true
     this.$logger.track('sign-start:buy-token')
-    if (this.order.type === this.orderTypes.NEGOTIATION) {
+    if (this.order.type === this.orderTypes.negotiation) {
       try {
         const yearInSec = moment().add(365, 'days').format('x')
         const chainId = this.networks.matic.chainId
@@ -845,7 +849,11 @@ export default class BuyToken extends Vue {
 
           // Store bid with signature
           this.$logger.track('sign-server-start-negotiation:buy-token')
-          const response = this.$store.dispatch('order/buyToken', data)
+          this.$logger.debug('buy token', data)
+          const response = await this.$store.dispatch('order/buyToken', {
+            payload:data,
+            orderId: this.order.id
+          })
 
           if (response) {
             this.refreshBids()
@@ -864,12 +872,12 @@ export default class BuyToken extends Vue {
           }
         }
       } catch (error) {
-        console.log(error)
+        this.$logger.error(error)
         this.isSignedStatus = false
         this.signLoading = false
         this.txShowError(error, null, 'Something went wrong')
       }
-    } else if (this.order.type === this.orderTypes.FIXED) {
+    } else if (this.order.type === this.orderTypes.fixed) {
       try {
         const chainId = this.networks.matic.chainId
         const takerAddress = this.account.address
@@ -992,7 +1000,7 @@ export default class BuyToken extends Vue {
   }
 
   async buyFixedOrder() {
-    if (this.order.type !== ORDER_TYPES.FIXED) {
+    if (this.order.type !== this.orderTypes.fixed) {
       this.isLoading = false
       return
     }

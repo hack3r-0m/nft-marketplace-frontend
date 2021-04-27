@@ -39,16 +39,21 @@ export default {
 
     tokenBalance(state, getters, rootState, rootGetters) {
       return (token, networkId) => {
+        const balance = getters["tokenFullBalance"](token, networkId);
+        if (balance) {
+          return parseBalance(balance, token.decimal)
+        }
+        return balance;
+      }
+    },
+    tokenFullBalance(state, getters, rootState, rootGetters) {
+      return (token, networkId) => {
         networkId = networkId || rootGetters["network/selectedNetwork"].id
         const address = token.chainAddress[networkId]
         if (!address) {
           return ZeroBalance
         }
         const balance = state.tokenBalance[`${networkId}:${address.toLowerCase()}`];
-        if (balance) {
-          debugger;
-          return parseBalance(balance, token.decimal)
-        }
         return balance;
       }
     },

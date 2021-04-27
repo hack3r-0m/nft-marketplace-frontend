@@ -79,8 +79,8 @@ export class OrderService {
         return this.httpCaller.post(url, payload)
     }
 
-    buyToken(payload) {
-        const url = this.createUrl_("${this.order.id}/buy");
+    buyToken({payload,orderId}) {
+        const url = this.createUrl_(`${orderId}/buy`);
         return this.httpCaller.patch(url, payload);
     }
 

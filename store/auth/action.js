@@ -48,7 +48,7 @@ export const action = {
                 root: true
             }
         )
-        await dispatch('token/reloadBalances', null, { root: true });
+        await dispatch("token/fetchERC20Tokens", null, { root: true });
         await dispatch('account/fetchActiveOrders', null, { root: true });
         await dispatch('account/fetchFavoritesOrders', null, { root: true });
         Vue.logger.initTrack({ address: getters['address'] })
@@ -71,7 +71,6 @@ export const action = {
         const config = response.data.data;
         if (response.status === 200 && config) {
             if (config.isAuthenticated) {
-                // await dispatch("getUser")
                 dispatch("initUser", {
                     loginStrategy: LocalStorage.get(LOCAL_STORAGE.loginStrategy),
                     authToken: LocalStorage.get(LOCAL_STORAGE.authToken),

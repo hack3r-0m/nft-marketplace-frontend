@@ -489,12 +489,13 @@ import { ORDER_TYPES } from '~/constants'
     ...mapState('auth', {
       user: (state) => state.user,
     }),
+     ...mapState('network', {
+      networks: (state) => state.networks,
+    }),
     ...mapGetters('order', {
       orderById: 'orderById',
     }),
-    ...mapState('network', {
-      networks: (state) => state.networks,
-    }),
+   
   },
   middleware: [],
   mixins: [Toast],
