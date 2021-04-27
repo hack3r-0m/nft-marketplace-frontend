@@ -2,7 +2,7 @@
   <div class="container-fluid p-0">
     <navbar-section v-if="shouldShowNavBar" />
     <div class="content-container">
-      <div class="nuxt-section">
+      <div v-if="isLoaded" class="nuxt-section">
         <nuxt />
       </div>
     </div>
@@ -28,6 +28,11 @@ export default {
     NavbarSection,
     Toast,
   },
+  data() {
+    return {
+      isLoaded: false,
+    }
+  },
   computed: {
     ...mapState('network', {
       ethereumNetworks: (state) => state.networks,
@@ -46,13 +51,16 @@ export default {
 
   async mounted() {
     // set and Initialise networks
-    this.initNetworks()
-    // Initialize Categories
-    this.fetchCategories()
-    // TODO: initialize Authentication
-    await this.getConfig()
-    // Initialize tokens
-    this.fetchERC20Tokens()
+    await Promise.all([
+      this.initNetworks(),
+      // Initialize Categories
+      this.fetchCategories(),
+      // TODO: initialize Authentication
+      this.getConfig(),
+      // Initialize tokens
+      this.fetchERC20Tokens(),
+    ])
+    this.isLoaded = true
   },
 
   methods: {

@@ -44,11 +44,11 @@ export default {
         if (!address) {
           return ZeroBalance
         }
-        const value = (
-          state.tokenBalance[`${networkId}:${address.toLowerCase()}`] ||
-          ZeroBalance
-        )
-        return parseBalance(value, token.decimal)
+        const balance = state.tokenBalance[`${networkId}:${address.toLowerCase()}`];
+        if (balance) {
+          return parseBalance(balance, token.decimal)
+        }
+        return balance;
       }
     },
 
@@ -74,7 +74,7 @@ export default {
     },
 
     async loadTokenBalance(
-      { state, commit, rootGetters, getters },
+      { dispatch, commit, rootGetters, getters },
       { address, token, refresh = false, network },
     ) {
       if (!network) {
@@ -86,27 +86,30 @@ export default {
         commit('resetCache', { which: 'tokenBalance' })
         commit('resetCache', { which: 'contractObject' })
       }
-
       let result = getters["tokenBalance"](token, network.id)
+
       if (result) {
         return result
       }
-
       result = ZeroBalance
       const accountAddress =
         address || rootGetters['account/account'].address
-
+      const networkId = network.id;
       // Fetch balance
       let r = null
       // if (token.isEther && !network.isMatic || token.isMatic && network.isMatic) {
+      address = address || rootGetters["token/address"](token, networkId);
       if (token.isEther && !network.isMatic) {
         r = await getAccountBalancePromise(network, accountAddress)
       } else {
-        const c = await token.getContract(network)
+        const c = await dispatch("fetchERC20ContractObject", {
+          address, network
+        })
         r = await c.methods.balanceOf(accountAddress).call()
       }
 
       result = new BigNumber(r)
+      const cacheId = `${networkId}:${address.toLowerCase()}`;
       commit('setCache', {
         which: 'tokenBalance',
         id: cacheId,
@@ -117,7 +120,7 @@ export default {
     },
 
     async fetchERC20ContractObject(
-      { state, commit, rootGetters },
+      { state, commit, rootGetters, rootState },
       { address, network },
     ) {
       const cacheId = `${network.id}:${address.toLowerCase()}`
@@ -126,7 +129,7 @@ export default {
         return result
       }
 
-      const networkMeta = rootGetters['network/networkMeta']
+      const networkMeta = rootState.network.networkMeta;
       const web3 = network.web3
       result = new web3.eth.Contract(
         networkMeta.abi('ChildERC20'),

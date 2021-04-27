@@ -22,6 +22,8 @@ export default {
           addresses[address.chain_id] = address.address
         })
         token.chainAddress = addresses;
+        token.isEther = token.id === Vue.appConfig.ethDBID
+        token.isMatic = token.id === Vue.appConfig.maticDBID;
       })
       state.erc20Tokens = tokens
     },
@@ -74,27 +76,32 @@ export default {
     async fetchBalances({ rootState, state, dispatch }, payload = { refresh: false }) {
       const tokens = state.erc20Tokens
       const networks = rootState['network']['networks']
-
-      for (let i = 0; i < tokens.length; i++) {
-        await dispatch(
+      const promises = tokens.map(token => {
+        const mainTokenBalanceResult = dispatch(
           'trunk/loadTokenBalance',
           {
-            token: tokens[i],
+            token: token,
             refresh: payload.refresh,
             network: networks.main,
           },
           { root: true },
-        )
-        await dispatch(
+        );
+        const maticTokenBalanceResult = dispatch(
           'trunk/loadTokenBalance',
           {
-            token: tokens[i],
+            token: token,
             refresh: payload.refresh,
             network: networks.matic,
           },
           { root: true },
         )
-      }
+        return Promise.all([
+          maticTokenBalanceResult,
+          mainTokenBalanceResult
+        ])
+      });
+      await Promise.all(promises);
+
     },
 
     async reloadBalances({ dispatch }) {
