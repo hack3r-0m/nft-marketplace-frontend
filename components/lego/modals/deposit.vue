@@ -5,16 +5,13 @@
       class="modal receive-modal-wrapper"
       :class="{ show: show && !hidden }"
     >
-      <div
-        class="modal-dialog w-sm-100 align-self-center"
-        role="document"
-      >
+      <div class="modal-dialog w-sm-100 align-self-center" role="document">
         <div class="box deposit-box">
           <div class="box-header justify-content-center">
             <div
               class="font-heading-medium font-semibold text-center align-self-center w-100"
             >
-              {{ $t("deposit.title") }}
+              {{ $t('deposit.title') }}
             </div>
             <span
               class="left-arrow align-self-center float-right cursor-pointer"
@@ -36,10 +33,7 @@
                 :onSelectionChange="onSelectionChange"
               />
 
-              <div
-                v-if="error"
-                class="row ps-x-32 ps-b-8"
-              >
+              <div v-if="error" class="row ps-x-32 ps-b-8">
                 <div
                   class="font-body-small text-danger text-center mx-auto"
                   v-html="error"
@@ -75,10 +69,7 @@
       :cancel="onCloseConfirmDeposit"
       :refreshBalance="refreshBalance"
     />
-    <div
-      class="modal-backdrop"
-      :class="{ show: show }"
-    />
+    <div class="modal-backdrop" :class="{ show: show }" />
   </div>
 </template>
 
@@ -127,21 +118,24 @@ const MaticPOSClient = require('@maticnetwork/maticjs').MaticPOSClient
   methods: {},
   computed: {
     ...mapGetters('account', ['account']),
-    ...mapGetters('network', ['networks', 'networkMeta']),
+    ...mapGetters('network', ['networkMeta']),
     ...mapGetters('page', ['selectedCategory']),
-     ...mapState('auth', {
+    ...mapState('auth', {
       loginStrategy: (state) => state.loginStrategy,
+    }),
+    ...mapState('network', {
+      networks: (state) => state.networks,
     }),
   },
 })
 export default class Deposit extends Vue {
-  error = null;
-  isLoading = false;
-  selectingTokens = false;
-  hidden = false;
-  selectedTokens = [];
-  showDepositConfirmation = false;
-  lastCategory = {};
+  error = null
+  isLoading = false
+  selectingTokens = false
+  hidden = false
+  selectedTokens = []
+  showDepositConfirmation = false
+  lastCategory = {}
 
   async mounted() {
     this.selectedTokens = this.preSelectedTokens
@@ -179,12 +173,12 @@ export default class Deposit extends Vue {
     const maticProvider = getWalletProvider({
       networks: this.networks,
       primaryProvider: 'child',
-      loginStrategy: this.loginStrategy
+      loginStrategy: this.loginStrategy,
     })
     const parentProvider = getWalletProvider({
       networks: this.networks,
       primaryProvider: 'main',
-      loginStrategy: this.loginStrategy
+      loginStrategy: this.loginStrategy,
     })
 
     return new MaticPOSClient({
@@ -252,7 +246,7 @@ export default class Deposit extends Vue {
 </script>
 
 <style lang="scss" scoped>
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 
 .deposit-box {
   width: 446px;
@@ -260,7 +254,7 @@ export default class Deposit extends Vue {
 
 .account-info {
   height: 44px;
-  background-color: light-color("400");
+  background-color: light-color('400');
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
   padding: 10px;
@@ -291,10 +285,10 @@ export default class Deposit extends Vue {
   border-radius: 13px;
 
   &.ethereum-pill {
-    background-color: supportive-color("100");
+    background-color: supportive-color('100');
   }
   &.matic-pill {
-    background-color: primary-color("200");
+    background-color: primary-color('200');
   }
 }
 
@@ -302,9 +296,9 @@ export default class Deposit extends Vue {
   height: 56px;
   border-radius: 8px;
   padding: 0 6px;
-  border: 1px solid light-color("500");
+  border: 1px solid light-color('500');
   display: flex;
-  background-color: light-color("700");
+  background-color: light-color('700');
   .form-control {
     height: 44px;
     border-width: 0px;
@@ -319,7 +313,7 @@ export default class Deposit extends Vue {
   }
   &:hover {
     .contact-person-box.active {
-      background: light-color("500");
+      background: light-color('500');
     }
     .contact-person {
       display: none;
@@ -351,7 +345,7 @@ export default class Deposit extends Vue {
   }
   .switch.active,
   .switch:hover {
-    background-color: light-color("500");
+    background-color: light-color('500');
   }
 }
 
@@ -362,10 +356,10 @@ export default class Deposit extends Vue {
 }
 
 .text-currency {
-  color: dark-color("600");
+  color: dark-color('600');
 }
 .text-gray-300 {
-  color: dark-color("300");
+  color: dark-color('300');
 }
 .xl-currency {
   font-weight: 300;

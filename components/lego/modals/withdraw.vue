@@ -116,10 +116,13 @@ const { getTypedData } = require('~/plugins/meta-tx')
   methods: {},
   computed: {
     ...mapGetters('account', ['account']),
-    ...mapGetters('network', ['networks', 'networkMeta']),
+    ...mapGetters('network', ['networkMeta']),
     ...mapGetters('page', ['selectedCategory']),
-     ...mapState('auth', {
+    ...mapState('auth', {
       loginStrategy: (state) => state.loginStrategy,
+    }),
+    ...mapState('network', {
+      networks: (state) => state.networks,
     }),
   },
 })
