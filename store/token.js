@@ -50,7 +50,14 @@ export default {
         return a.plus(v)
       }, ZERO)
       return tokensBalance
-    }
+    },
+    address(state, getters, rootState, rootGetters) {
+      return (token, networkId) => {
+        networkId = networkId || rootGetters["network/selectedNetwork"].id
+        const address = token.chainAddress[networkId]
+        return address;
+      }
+    },
   },
 
   actions: {

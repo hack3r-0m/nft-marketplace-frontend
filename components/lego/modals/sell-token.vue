@@ -571,7 +571,7 @@ export default class SellToken extends Vue {
       const orderType = this.orderType
       const nftContract = this.$store.getters[
         'category/contractAddressByToken'
-      ](this.nftToken, this.networks.matic.chainId);
+      ](this.nftToken, this.networks.matic.chainId)
       // const nftTokenId = this.nftToken.token_id;
       const erc20Address = this.selectedERC20Token.address
       const makerAddress = this.account.address
@@ -653,7 +653,9 @@ export default class SellToken extends Vue {
         'category/contractAddressByToken'
       ](this.nftToken, this.networks.matic.chainId)
       // const nftTokenId = this.nftToken.token_id;
-      const erc20Address = this.selectedERC20Token.address
+      const erc20Address = this.$store.getters['token/address'](
+        this.selectedERC20Token,
+      )
       const makerAddress = this.account.address
       const chainId = this.networks.matic.chainId
       const decimalnftTokenId = this.nftToken.token_id
@@ -707,22 +709,22 @@ export default class SellToken extends Vue {
       if (orderType === ORDER_TYPES.auction) {
         expirationTimeSeconds = new BigNumber(expiry_date_time)
       }
-
+      const appConfig = Vue.appConfig
       const orderTemplate = {
         chainId: chainId,
         exchangeAddress,
         makerAddress: makerAddress,
-        takerAddress: app.uiconfig.NULL_ADDRESS,
-        senderAddress: app.uiconfig.NULL_ADDRESS,
-        feeRecipientAddress: app.uiconfig.NULL_ADDRESS,
+        takerAddress: appConfig.NULL_ADDRESS,
+        senderAddress: appConfig.NULL_ADDRESS,
+        feeRecipientAddress: appConfig.NULL_ADDRESS,
         expirationTimeSeconds: expirationTimeSeconds,
         salt: generatePseudoRandomSalt(),
         makerAssetAmount,
         takerAssetAmount,
         makerAssetData,
         takerAssetData,
-        makerFeeAssetData: app.uiconfig.NULL_BYTES,
-        takerFeeAssetData: app.uiconfig.NULL_BYTES,
+        makerFeeAssetData: appConfig.NULL_BYTES,
+        takerFeeAssetData: appConfig.NULL_BYTES,
         makerFee: ZERO,
         takerFee: ZERO,
       }
@@ -744,7 +746,7 @@ export default class SellToken extends Vue {
       await this.handleSellSign(orderTemplate, signedOrder)
       this.$logger.track('sign-success:sell-token')
     } catch (error) {
-      this.$$logger.error(error)
+      this.$logger.error(error)
       this.signLoading = false
       this.txShowError(error, null, 'Something went wrong')
     }
@@ -1059,10 +1061,12 @@ export default class SellToken extends Vue {
       type: data.orderType,
       chain_id: `${this.networks.matic.chainId}`,
     }
-
+    const category = this.$store.getters['category/categoryByToken'](
+      this.nftToken,
+    )
     if (formData.type === ORDER_TYPES.fixed) {
       formData.maker_address = this.user.id
-      formData.maker_token = this.nftToken.categories_id
+      formData.maker_token = category.id
       formData.maker_token_id = this.nftToken.token_id
       formData.taker_token = this.selectedERC20Token.id
       formData.signature = JSON.stringify(signedOrder)
@@ -1089,7 +1093,7 @@ export default class SellToken extends Vue {
       }
     } else if (formData.type === ORDER_TYPES.negotiation) {
       formData.taker_address = this.user.id
-      formData.taker_token = this.nftToken.categories_id
+      formData.taker_token = category.id
       formData.taker_token_id = this.nftToken.token_id
       formData.maker_token = this.selectedERC20Token.id
       formData.token_type = this.nftToken.type
@@ -1129,7 +1133,7 @@ export default class SellToken extends Vue {
       }
     } else if (formData.type === ORDER_TYPES.auction) {
       formData.taker_address = this.user.id
-      formData.taker_token = this.nftToken.categories_id
+      formData.taker_token = category.id
       formData.taker_token_id = this.nftToken.token_id
       formData.expiry_date = data.expiry_date_time
       formData.maker_token = this.selectedERC20Token.id
