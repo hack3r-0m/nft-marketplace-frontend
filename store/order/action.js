@@ -1,5 +1,5 @@
 import Vue from "vue";
-import BidModel from '~/components/model/bid'
+import { Bid as BidModel } from '~/models'
 
 export const action = {
     async getOrders({ commit }, payload) {

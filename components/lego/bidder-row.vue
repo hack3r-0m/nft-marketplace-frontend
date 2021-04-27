@@ -84,7 +84,7 @@
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
 import { mapGetters, mapState } from 'vuex'
-import BidModel from '~/components/model/bid'
+import { Bid as BidModel } from '~/models'
 import { toChecksumAddress } from 'ethereumjs-util'
 import moment from 'moment'
 import Web3 from 'web3'
@@ -125,7 +125,7 @@ import { ORDER_TYPES } from '~/constants'
   computed: {
     ...mapGetters('account', ['account']),
     ...mapGetters('network', ['networkMeta']),
-     ...mapState('auth', {
+    ...mapState('auth', {
       user: (state) => state.user,
     }),
     ...mapState('network', {

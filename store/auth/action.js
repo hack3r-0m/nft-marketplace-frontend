@@ -1,5 +1,5 @@
 import Vue from "vue";
-import AccountModel from '~/components/model/account'
+import { Account } from '~/models'
 import { LOCAL_STORAGE } from "~/constants";
 import { LocalStorage } from "~/utils";
 
