@@ -623,9 +623,8 @@ export default class TokenDetail extends Vue {
   }
 
   get validation() {
-    const balance = this.$store.getters['trunk/tokenBalance'](
-      this.erc20Token,
-    ).gte(this.order.min_price)
+    let balance = this.$store.getters['trunk/tokenBalance'](this.erc20Token)
+    balance = balance ? balance.gte(this.order.min_price) : {}
     return {
       balance: balance,
     }
@@ -657,7 +656,7 @@ export default class TokenDetail extends Vue {
         )
         return this.$router.push({ name: 'index' })
       }
-      this.order = this.orderById(this.orderId);
+      this.order = this.orderById(this.orderId)
       if (order && order.type !== ORDER_TYPES.fixed) {
         await this.fetchBidders()
       }

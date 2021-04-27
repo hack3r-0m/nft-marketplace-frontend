@@ -33,13 +33,13 @@
                   </h3>
                   <img
                     class="asset-img mx-auto ps-b-20"
-                    :src="order.token.img_url"
+                    :src="order.token.image_url"
                     alt="order.token.name"
                     @load="onImageLoad"
                     @error="imageLoadError"
                   />
                   <div
-                    v-if="order.type === orderTypes.FIXED"
+                    v-if="order.type === orderTypes.fixed"
                     class="mt-auto w-100 d-flex flex-column fixed-price"
                   >
                     <div
@@ -89,7 +89,7 @@
                     />
                   </div>
                   <div
-                    v-if="order.type === orderTypes.NEGOTIATION"
+                    v-if="order.type === orderTypes.negotiation"
                     class="mt-auto w-100 d-flex flex-column fixed-price-negotiation"
                   >
                     <div
@@ -185,7 +185,7 @@
                   </div>
                 </div>
                 <div
-                  v-if="order.type === orderTypes.AUCTION"
+                  v-if="order.type === orderTypes.auction"
                   class="mt-auto w-100 d-flex flex-column auction ps-x-16 ps-x-sm-32 ps-x-lg-40 ps-y-40"
                 >
                   <div
@@ -326,7 +326,6 @@ import Component from 'nuxt-class-component'
 import { mapGetters } from 'vuex'
 import Web3 from 'web3'
 
-import app from '~/plugins/app'
 import moment from 'moment'
 import FormValidator from '~/components/mixins/common/form-validator'
 import InputToken from '~/components/lego/input-token'
@@ -351,6 +350,7 @@ const {
 const { generatePseudoRandomSalt, signatureUtils } = require('@0x/order-utils')
 const { BigNumber } = require('@0x/utils')
 const { Web3Wrapper } = require('@0x/web3-wrapper')
+import { ORDER_TYPES } from '~/constants'
 
 const ZERO = BigNumber(0)
 const TEN = BigNumber(10)
@@ -486,7 +486,7 @@ export default class BuyToken extends Vue {
   // get
   get erc20Token() {
     return this.erc20Tokens.filter(
-      (token) => token.id === this.order.erc20tokens_id,
+      (token) => token.id === this.order.erc20TokenId,
     )[0]
   }
 
@@ -512,13 +512,12 @@ export default class BuyToken extends Vue {
   }
 
   get orderTypes() {
-    return app.orderTypes
+    return ORDER_TYPES
   }
 
   get priceInUSD() {
-    return this.order.usd_price
-      ? formatUSDValue(parseFloat(this.order.usd_price))
-      : '$0'
+    const equivalentUSD = this.convertPriceToUSD(this.order.price);
+    return isNaN(equivalentUSD) ? '$0' : formatUSDValue(equivalentUSD)
   }
 
   get minPriceInUSD() {
@@ -532,14 +531,14 @@ export default class BuyToken extends Vue {
   }
 
   get isBid() {
-    if (this.order.type === app.orderTypes.AUCTION) {
+    if (this.order.type === ORDER_TYPES.AUCTION) {
       return true
     }
     return false
   }
 
   get timeRemaining() {
-    if (this.order.type !== app.orderTypes.AUCTION) {
+    if (this.order.type !== ORDER_TYPES.AUCTION) {
       return {}
     }
 
@@ -810,22 +809,22 @@ export default class BuyToken extends Vue {
             )
             .callAsync()
         }
-
+        const appConfig = Vue.appConfig
         const orderTemplate = {
           chainId: chainId,
           exchangeAddress,
           makerAddress: makerAddress,
-          takerAddress: app.uiconfig.NULL_ADDRESS,
-          senderAddress: app.uiconfig.NULL_ADDRESS,
-          feeRecipientAddress: app.uiconfig.NULL_ADDRESS,
+          takerAddress: appConfig.NULL_ADDRESS,
+          senderAddress: appConfig.NULL_ADDRESS,
+          feeRecipientAddress: appConfig.NULL_ADDRESS,
           expirationTimeSeconds: expirationTimeSeconds,
           salt: generatePseudoRandomSalt(),
           makerAssetAmount,
           takerAssetAmount,
           makerAssetData,
           takerAssetData,
-          makerFeeAssetData: app.uiconfig.NULL_BYTES,
-          takerFeeAssetData: app.uiconfig.NULL_BYTES,
+          makerFeeAssetData: appConfig.NULL_BYTES,
+          takerFeeAssetData: appConfig.NULL_BYTES,
           makerFee: ZERO,
           takerFee: ZERO,
         }
@@ -909,12 +908,15 @@ export default class BuyToken extends Vue {
           isValidSignature
         ) {
           this.$logger.track('sign-server-fixed-fill-order:buy-token')
-          const dataVal = await this.$store.dispatch('order/encodeForBuyToken', this.order.id)
+          const dataVal = await this.$store.dispatch(
+            'order/encodeForBuyToken',
+            this.order.id,
+          )
           this.$logger.track('sign-server-complete-fill-order:buy-token')
           const zrx = {
             salt: generatePseudoRandomSalt(),
             expirationTimeSeconds: signedOrder.expirationTimeSeconds,
-            gasPrice: app.uiconfig.TX_DEFAULTS.gasPrice,
+            gasPrice: Vue.appConfig.TX_DEFAULTS.gasPrice,
             signerAddress: takerAddress,
             data: dataVal.data,
             domain: {
@@ -990,7 +992,7 @@ export default class BuyToken extends Vue {
   }
 
   async buyFixedOrder() {
-    if (this.order.type !== app.orderTypes.FIXED) {
+    if (this.order.type !== ORDER_TYPES.FIXED) {
       this.isLoading = false
       return
     }
@@ -1166,7 +1168,7 @@ export default class BuyToken extends Vue {
     const dataToSign = getTypedData({
       name: this.order.erc20tokens.name,
       version: '1',
-      salt: app.uiconfig.SALT,
+      salt: Vue.appConfig.SALT,
       verifyingContract: matic.utils.toChecksumAddress(
         this.order.erc20tokens.erc20tokensaddresses[0].address,
       ),

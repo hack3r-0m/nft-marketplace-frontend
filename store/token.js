@@ -24,6 +24,7 @@ export default {
         token.chainAddress = addresses;
         token.isEther = token.id === Vue.appConfig.ethDBID
         token.isMatic = token.id === Vue.appConfig.maticDBID;
+        token.usd = token.market_price;
       })
       state.erc20Tokens = tokens
     },
@@ -60,6 +61,14 @@ export default {
         return address;
       }
     },
+    tokenById(state, getters) {
+      return (id) => {
+        const erc20Token = state.erc20Tokens.find(
+          (token) => token.id === id
+        )
+        return erc20Token;
+      }
+    }
   },
 
   actions: {
