@@ -2,11 +2,13 @@ import Vue from "vue";
 import { Bid as BidModel } from '~/models'
 
 export const action = {
-    async getOrders({ commit }, payload) {
+    async getOrders({ commit, state }, payload) {
         const response = await Vue.service.order.getOrders(payload)
         if (response && response.status === 200) {
             const data = response.data.data;
-            commit("RESET_ORDERS");
+            if (payload.offset != state.orders.length) {
+                commit("RESET_ORDERS");
+            }
             data.order.map(order => {
                 commit('ADD_ORDER', order);
             })

@@ -41,7 +41,7 @@ export const action = {
         commit('setLoginStrategy', loginStrategy)
         commit('setToken', authToken)
         commit('setUser', user);
-        commit('account/account', new AccountModel({
+        commit('account/account', new Account({
             address: user.address
         }),
             {

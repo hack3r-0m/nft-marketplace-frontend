@@ -3,7 +3,7 @@ import { toChecksumAddress } from 'ethereumjs-util'
 import { Base } from "./base";
 import { LOGIN_STRATEGY } from '~/constants'
 
-export default class Account extends Base {
+export class Account extends Base {
     // getters
     get name() {
         return (
