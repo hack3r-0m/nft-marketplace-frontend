@@ -85,7 +85,7 @@
 <script>
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import { getWalletProvider } from '~/helpers/providers'
 import DepositConfirmationModal from '~/components/lego/modals/deposit-confirmation-modal'
 import TokenVerticleList from '~/components/lego/modals/token-verticle-list'
@@ -129,6 +129,9 @@ const MaticPOSClient = require('@maticnetwork/maticjs').MaticPOSClient
     ...mapGetters('account', ['account']),
     ...mapGetters('network', ['networks', 'networkMeta']),
     ...mapGetters('page', ['selectedCategory']),
+     ...mapState('auth', {
+      loginStrategy: (state) => state.loginStrategy,
+    }),
   },
 })
 export default class Deposit extends Vue {
@@ -176,10 +179,12 @@ export default class Deposit extends Vue {
     const maticProvider = getWalletProvider({
       networks: this.networks,
       primaryProvider: 'child',
+      loginStrategy: this.loginStrategy
     })
     const parentProvider = getWalletProvider({
       networks: this.networks,
       primaryProvider: 'main',
+      loginStrategy: this.loginStrategy
     })
 
     return new MaticPOSClient({

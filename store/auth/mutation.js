@@ -12,7 +12,7 @@ export const mutation = {
         state.token = value
     },
     setLoginStrategy(state, value) {
-        state.token = value
+        state.loginStrategy = value
     },
     reset(state) {
         Object.assign(state, initialState())

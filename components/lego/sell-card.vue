@@ -204,7 +204,7 @@ export default class SellCard extends Vue {
 
   get erc20Token() {
     return this.erc20Tokens.find(
-      (token) => token.id === this.order.erc20tokens_id,
+      (token) => token.id === this.order.erc20TokenId,
     )
   }
 

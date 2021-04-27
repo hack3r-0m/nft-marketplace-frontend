@@ -22,6 +22,7 @@ import {
 } from '~/helpers'
 import Vue from 'vue'
 import Web3 from 'web3'
+import { IS_METAMASK_ENABLED } from '~/constants'
 
 export default {
   components: {
@@ -33,13 +34,21 @@ export default {
       isLoaded: false,
     }
   },
+  watch: {
+    loginStrategy: function (value) {
+      this.onLoginStrategyChange(value)
+    },
+  },
   computed: {
     ...mapState('network', {
       ethereumNetworks: (state) => state.networks,
-      loggedInUser: (state) => state.user,
     }),
     ...mapGetters('auth', {
       isMetaMaskConnected: 'isMetaMaskConnected',
+    }),
+    ...mapState('auth', {
+      loginStrategy: (state) => state.loginStrategy,
+      loggedInUser: (state) => state.user,
     }),
     shouldShowNavBar() {
       return this.$route.name != 'login'
@@ -72,63 +81,70 @@ export default {
     }),
 
     async initNetworks() {
-      const matic = Vue.appConfig.matic
-      this.$logger.debug('config', matic)
-      const metaNetwork = new MetaNetwork(
-        matic.deployment.network,
-        matic.deployment.version,
-      )
+      const metaNetwork = this.getMetaNetwork()
       // store networks
       await this.setNetworks({
         metaNetwork,
         uiConfig: Vue.appConfig,
       })
       // set network depending upon the login strategy
-      if (this.isMetaMaskConnected) {
-        const metamaskNetworkChangeHandler = async (chainId) => {
-          if (!chainId) {
-            chainId = window.ethereum.chainId
-          }
+      await this.onLoginStrategyChange(metaNetwork)
+    },
+    getMetaNetwork() {
+      const matic = Vue.appConfig.matic
+      this.$logger.debug('config', matic)
+      return new MetaNetwork(matic.deployment.network, matic.deployment.version)
+    },
+    async onNetworkChange(chainId) {
+      const metaNetwork = this.getMetaNetwork()
+      await this.setProviders({
+        main: getWalletProvider({
+          networks: this.ethereumNetworks,
+          primaryProvider: 'main',
+          loginStrategy: this.loginStrategy,
+        }),
+        matic: getWalletProvider({
+          networks: this.ethereumNetworks,
+          primaryProvider: 'matic',
+          loginStrategy: this.loginStrategy,
+        }),
+      })
 
-          const main = metaNetwork.Main
-          const matic = metaNetwork.Matic
+      if (!chainId) {
+        chainId = window.ethereum.chainId
+      }
 
-          if (
-            chainId &&
-            chainId !== '0x' + main.ChainId.toString(16) &&
-            chainId !== '0x' + matic.ChainId.toString(16)
-          ) {
-            this.logout()
-          }
+      const main = metaNetwork.Main
+      const matic = metaNetwork.Matic
 
-          await this.setProviders({
-            main: getWalletProvider({
-              networks: this.ethereumNetworks,
-              primaryProvider: 'main',
-            }),
-            matic: getWalletProvider({
-              networks: this.ethereumNetworks,
-              primaryProvider: 'matic',
-            }),
-          })
-        }
+      if (
+        chainId &&
+        chainId !== '0x' + main.ChainId.toString(16) &&
+        chainId !== '0x' + matic.ChainId.toString(16)
+      ) {
+        this.logout()
+      }
+    },
+    async onAccountChange(selectedAddress) {
+      const user = this.loggedInUser
 
-        registerNetworkChange(metamaskNetworkChangeHandler)
-        await metamaskNetworkChangeHandler()
-
-        registerAccountChange(async (selectedAddress) => {
-          const user = this.loggedInUser
-
-          if (!user || !user.address) {
-            await this.logout(false)
-          } else if (
-            !selectedAddress ||
-            !selectedAddress[0] ||
-            user.address.toLowerCase() !== selectedAddress[0].toLowerCase()
-          ) {
-            await this.logout()
-          }
-        })
+      if (!user || !user.address) {
+        await this.logout(false)
+      } else if (
+        !selectedAddress ||
+        !selectedAddress[0] ||
+        user.address.toLowerCase() !== selectedAddress[0].toLowerCase()
+      ) {
+        await this.logout()
+      }
+    },
+    async onLoginStrategyChange() {
+      if (IS_METAMASK_ENABLED && this.isMetaMaskConnected) {
+        if (this.isMetaMaskEventSubscribed) return
+        this.onNetworkChange()
+        registerNetworkChange(this.onNetworkChange)
+        registerAccountChange(this.onAccountChange)
+        this.isMetaMaskEventSubscribed = true
       } else {
         await this.setProviders({
           main: new Web3.providers.HttpProvider(this.ethereumNetworks.main.rpc),

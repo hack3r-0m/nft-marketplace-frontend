@@ -286,7 +286,7 @@
 <script>
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import app from '~/plugins/app'
 import Dagger from '@maticnetwork/dagger'
 import Decoder from 'eth-decoder'
@@ -345,6 +345,9 @@ const STATUS = {
   computed: {
     ...mapGetters('account', ['account']),
     ...mapGetters('network', ['networks', 'networkMeta']),
+     ...mapState('auth', {
+      loginStrategy: (state) => state.loginStrategy,
+    }),
   },
 })
 export default class WithdrawConfirmationModal extends Vue {
@@ -486,10 +489,12 @@ export default class WithdrawConfirmationModal extends Vue {
     const maticProvider = getWalletProvider({
       networks: this.networks,
       primaryProvider: 'matic',
+      loginStrategy: this.loginStrategy
     })
     const parentProvider = getWalletProvider({
       networks: this.networks,
       primaryProvider: 'main',
+      loginStrategy: this.loginStrategy
     })
     return new MaticPOSClient({
       network: app.uiconfig.matic.deployment.network,

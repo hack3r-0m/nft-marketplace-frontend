@@ -1,10 +1,9 @@
-import app from '~/plugins/app'
-
 import MetamaskProvider from '@maticnetwork/metamask-provider'
 import WalletConnectProvider from '@maticnetwork/walletconnect-provider'
 import Portis from '@portis/web3'
+import { LOGIN_STRATEGY } from "~/constants";
 
-export function getWalletProvider({ networks, primaryProvider }) {
+export function getWalletProvider({ networks, primaryProvider, loginStrategy }) {
   let network = null
 
   if (primaryProvider === 'main') {
@@ -16,15 +15,15 @@ export function getWalletProvider({ networks, primaryProvider }) {
   }
 
   let provider = null
-  switch (configStore.get('loginStrategy')) {
-    case app.strategies.METAMASK:
+  switch (loginStrategy) {
+    case LOGIN_STRATEGY.metaMask:
       window.ethereum.enable()
       provider = new MetamaskProvider(window.ethereum, {
         url: network.rpc,
       })
       break
 
-    case app.strategies.PORTIS:
+    case LOGIN_STRATEGY.walletConnect:
       provider = new Portis(app.uiconfig.portis.dappId, {
         nodeUrl: network.rpc,
         chainId: network.chainId,

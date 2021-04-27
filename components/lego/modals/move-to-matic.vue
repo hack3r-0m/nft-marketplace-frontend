@@ -1,17 +1,8 @@
 <template>
   <div class="section position-absolute">
-    <div
-      class="modal-backdrop"
-      :class="{ show: show }"
-    />
-    <div
-      class="modal add-token-modal-wrapper"
-      :class="{ show: show }"
-    >
-      <div
-        class="modal-dialog w-sm-100 align-self-center"
-        role="document"
-      >
+    <div class="modal-backdrop" :class="{ show: show }" />
+    <div class="modal add-token-modal-wrapper" :class="{ show: show }">
+      <div class="modal-dialog w-sm-100 align-self-center" role="document">
         <div class="box accept-box">
           <div
             class="box-body"
@@ -22,19 +13,10 @@
                 ' 0%, rgba(236, 235, 223, 0) 80%)',
             }"
           >
-            <div
-              class="close-wrapper"
-              @click="close()"
-            >
-              <svg-sprite-icon
-                name="close-modal"
-                class="close"
-              />
+            <div class="close-wrapper" @click="close()">
+              <svg-sprite-icon name="close-modal" class="close" />
             </div>
-            <div
-              v-if="token"
-              class="container-fluid text-center"
-            >
+            <div v-if="token" class="container-fluid text-center">
               <div class="row">
                 <div class="col-md-12 ps-y-32">
                   <img
@@ -42,7 +24,7 @@
                     :src="token.img_url"
                     alt="kitty"
                     @load="onImageLoad"
-                  >
+                  />
                 </div>
                 <div class="col-md-12 ps-t-8 ps-b-40">
                   <div class="font-heading-large title font-semibold">
@@ -74,7 +56,7 @@
 <script>
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import app from '~/plugins/app'
 
 import rgbToHsl from '~/helpers/color-algorithm'
@@ -107,12 +89,15 @@ const MaticPOSClient = require('@maticnetwork/maticjs').MaticPOSClient
     ...mapGetters('account', ['account']),
     ...mapGetters('auth', ['user']),
     ...mapGetters('network', ['networks', 'networkMeta']),
+     ...mapState('auth', {
+      loginStrategy: (state) => state.loginStrategy,
+    }),
   },
 })
 export default class MoveToMatic extends Vue {
-  bg = '#f3f4f7';
-  isLoading = false;
-  loadingText = 'Depositing...';
+  bg = '#f3f4f7'
+  isLoading = false
+  loadingText = 'Depositing...'
 
   mounted() {}
 
@@ -138,11 +123,13 @@ export default class MoveToMatic extends Vue {
     const parentProvider = getWalletProvider({
       networks: this.networks,
       primaryProvider: 'main',
+      loginStrategy: this.loginStrategy,
     })
 
     const maticProvider = getWalletProvider({
       networks: this.networks,
       primaryProvider: 'matic',
+      loginStrategy: this.loginStrategy,
     })
 
     return await new MaticPOSClient({
@@ -187,7 +174,7 @@ export default class MoveToMatic extends Vue {
       const txHash = await maticPOS.approveERC721ForDeposit(contract, tokenId)
       if (txHash) {
         console.log('Approved : ', txHash)
-       this.$toast.show(
+        this.$toast.show(
           'Token approved successfully',
           'Your successfully token approved for deposit.',
           { type: 'success' },
@@ -246,17 +233,17 @@ export default class MoveToMatic extends Vue {
 </script>
 
 <style lang="scss" scoped>
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 
 .asset-img {
   max-width: 112px;
   max-height: 160px;
 }
 .last-offer {
-  color: dark-color("500");
+  color: dark-color('500');
 }
 .short-descr {
-  color: dark-color("300");
+  color: dark-color('300');
 }
 
 .box {
