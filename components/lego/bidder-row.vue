@@ -528,7 +528,7 @@ export default class BidderRow extends Vue {
         const response = await this.$store.dispatch('order/cancelBid', {
           bidId: this.bid.id,
         })
-        if (response.status === 200) {
+        if (response.message === "success") {
           this.$logger.track('deny-bid-success:bid-options')
           this.$toast.show(
             'Bid declined successfully',

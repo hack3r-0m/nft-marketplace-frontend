@@ -577,8 +577,10 @@ export default class BuyToken extends Vue {
 
   // action
   get validation() {
+    let balance = this.$store.getters['trunk/tokenBalance'](this.erc20Token)
+    balance = balance ? balance.gte(this.order.min_price) : {}
     return {
-      balance: this.erc20Token.balance.gte(this.order.price),
+      balance: balance,
     }
   }
 
@@ -589,8 +591,7 @@ export default class BuyToken extends Vue {
       try {
         const yearInSec = moment().add(365, 'days').format('x')
         const chainId = this.networks.matic.chainId
-        const erc20Address = this.order.erc20tokens.erc20tokensaddresses[0]
-          .address
+        const erc20Address = this.erc20Token.erc20tokensaddresses[0].address
 
         const makerAddress = this.account.address
         const contractWrappers = new ContractWrappers(getProviderEngine(), {
@@ -627,7 +628,7 @@ export default class BuyToken extends Vue {
     } else if (this.order.type === this.orderTypes.fixed) {
       try {
         const takerAddress = this.account.address
-        const erc20Address = this.erc20Token.address
+        const erc20Address = this.erc20Token.erc20tokensaddresses[0].address
         const takerAssetAmount = Web3Wrapper.toBaseUnitAmount(
           new BigNumber(this.order.price),
           this.erc20Token.decimal,
@@ -673,9 +674,8 @@ export default class BuyToken extends Vue {
         const chainId = this.networks.matic.chainId
         const nftContract = this.order.categories.categoriesaddresses[0].address
         const nftTokenId = this.order.tokens_id
-        const erc20Address = this.order.erc20tokens.erc20tokensaddresses[0]
-          .address
-        const isMetaTx = this.order.erc20tokens.isMetaTx
+        const erc20Address = this.erc20Token.erc20tokensaddresses[0].address
+        const isMetaTx = this.erc20Token.isMetaTx
         const makerAddress = this.account.address
         // const takerAddress = this.account.address;
         const makerAssetAmount = this.makerAmount.toString(10)
@@ -716,7 +716,7 @@ export default class BuyToken extends Vue {
         this.$logger.track('approve-start-fixed:buy-token')
         const chainId = this.networks.matic.chainId
         const takerAddress = this.account.address
-        const erc20Address = this.erc20Token.address
+        const erc20Address = this.erc20Token.erc20tokensaddresses[0].address
         const isMetaTx = this.erc20Token.isMetaTx
         const takerAssetAmount = Web3Wrapper.toBaseUnitAmount(
           new BigNumber(this.order.price),
@@ -765,8 +765,7 @@ export default class BuyToken extends Vue {
         const chainId = this.networks.matic.chainId
         const nftContract = this.order.categories.categoriesaddresses[0].address
         const nftTokenId = this.order.tokens_id
-        const erc20Address = this.order.erc20tokens.erc20tokensaddresses[0]
-          .address
+        const erc20Address = this.erc20Token.erc20tokensaddresses[0].address
 
         const makerAddress = this.account.address
         // const takerAddress = this.account.address;
@@ -844,7 +843,7 @@ export default class BuyToken extends Vue {
           const data = {}
           data.bid = parseBalance(
             makerAssetAmount,
-            this.order.erc20tokens.decimal,
+            this.erc20Token.decimal,
           ).toString(10)
           data.signature = JSON.stringify(signedOrder)
 
@@ -852,7 +851,7 @@ export default class BuyToken extends Vue {
           this.$logger.track('sign-server-start-negotiation:buy-token')
           this.$logger.debug('buy token', data)
           const response = await this.$store.dispatch('order/buyToken', {
-            payload:data,
+            payload: data,
             orderId: this.order.id
           })
 
@@ -882,7 +881,7 @@ export default class BuyToken extends Vue {
       try {
         const chainId = this.networks.matic.chainId
         const takerAddress = this.account.address
-        const erc20Address = this.erc20Token.address
+        const erc20Address = this.erc20Token.erc20tokensaddresses[0].address
         const takerAssetAmount = Web3Wrapper.toBaseUnitAmount(
           new BigNumber(this.order.price),
           this.erc20Token.decimal,
@@ -1058,7 +1057,7 @@ export default class BuyToken extends Vue {
           fnSig: data,
           from: this.account.address,
           contractAddress: matic.utils.toChecksumAddress(
-            this.order.erc20tokens.erc20tokensaddresses[0].address,
+            this.erc20Token.erc20tokensaddresses[0].address
           ),
         }
 
@@ -1167,16 +1166,17 @@ export default class BuyToken extends Vue {
       },
       [address],
     )
+    const erc20Address = this.erc20Token.erc20tokensaddresses[0].address
     const _nonce = await matic.eth.call({
       to: matic.utils.toChecksumAddress(
-        this.order.erc20tokens.erc20tokensaddresses[0].address,
+        erc20Address
       ),
       data,
     })
 
     const erc20ContractInstance = new matic.eth.Contract(
       this.networkMeta.abi('ChildERC20', 'pos'),
-      this.order.erc20tokens.erc20tokensaddresses[0].address
+      erc20Address
     )
     const name = await erc20ContractInstance.methods.name().call();
 
@@ -1185,7 +1185,7 @@ export default class BuyToken extends Vue {
       version: '1',
       salt: Vue.appConfig.SALT,
       verifyingContract: matic.utils.toChecksumAddress(
-        this.order.erc20tokens.erc20tokensaddresses[0].address,
+        erc20Address
       ),
       nonce: parseInt(_nonce),
       from: address,
@@ -1206,7 +1206,12 @@ export default class BuyToken extends Vue {
       const data = {
         taker_signature: JSON.stringify(takerSign),
       }
-      const response = await this.$store.dispatch('order/buyToken', data)
+      const response = await this.$store.dispatch('order/buyToken', 
+        {
+          payload: data, 
+          orderId: this.order.id
+        }
+      )
       if (response) {
         this.$toast.show(
           'Order bought successfully',
