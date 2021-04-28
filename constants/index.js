@@ -13,6 +13,9 @@ export const ORDER_TYPES = {
     negotiation: 'NEGOTIATION',
     auction: 'AUCTION',
 };
+
+export const IMAGE_EXTENSIONS = ['gif', 'png', 'svg', 'jpg', 'jpeg'];
+
 export const IS_METAMASK_ENABLED = window.ethereum != null;
 
 export const APP_BUS = new Vue();

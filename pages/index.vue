@@ -60,7 +60,7 @@
             <search-box
               class="search-box ms-r-0 ms-r-sm-6"
               placeholder="Search NFT..."
-              :change="(val) => (searchInput = val)"
+              :change="handleSearchInput"
             />
             <sort-dropdown
               class="dropdown-filter ms-l-0 ms-l-sm-6"
@@ -76,12 +76,12 @@
           <no-item
             v-if="orderFullList.length <= 0 && !isLoadingTokens"
             class="ps-b-120"
-            :message="exmptyMsg"
+            :message="emptyMsg"
           />
           <no-item
             v-else-if="searchedTokens.length === 0 && !isLoadingTokens"
             class="ps-b-120"
-            :message="this.$t('searchNotFound')"
+            :message="$t('searchNotFound')"
           />
 
           <sell-card
@@ -121,7 +121,6 @@
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
 import { mapGetters, mapState } from 'vuex'
-import app from '~/plugins/app'
 import { fuzzysearch } from '~/helpers'
 import { VueWatch, VueDebounce } from '~/components/decorator'
 
@@ -157,7 +156,6 @@ import NotificationModal from '~/components/lego/notification-modal'
       orderFullList: (state) => state.orders,
     }),
     ...mapGetters('category', ['categories', 'allCategory']),
-    ...mapGetters('token', ['erc20Tokens']),
   },
   middleware: [],
   mixins: [],
@@ -166,7 +164,7 @@ export default class Index extends Vue {
   limit = Vue.appConfig.defaultPageSize
   searchInput = null
   fuzzysearch = fuzzysearch
-  exmptyMsg = {
+  emptyMsg = {
     title: 'Oops! No item found.',
     description: 'We didn’t found any item that is on sale.',
     img: true,
@@ -198,14 +196,16 @@ export default class Index extends Vue {
 
   hasNextPage = true
   displayTokens = 0
-  isLoadingTokens = false
+  isLoadingTokens = true
 
   showModal = false
 
   mounted() {
-    if (!localStorage.getItem('WalletSwapFeature')) {
-      this.onNotificationOpen()
-    }
+    this.$store.dispatch('page/clearFilters')
+    this.$store.dispatch('token/reloadBalances')
+    // if (!localStorage.getItem('WalletSwapFeature')) {
+    //   this.onNotificationOpen()
+    // }
   }
 
   // Wathers
@@ -243,29 +243,24 @@ export default class Index extends Vue {
     this.showModal = false
   }
 
+  handleSearchInput(val) {
+    const formattedString = val.trim()
+    this.$store.commit('page/setSearchString', formattedString)
+  }
+
   // Get
   get displayedTokens() {
     return this.orderFullList || []
   }
 
   get searchedTokens() {
-    if (this.searchInput !== null && this.orderFullList.length > 0) {
-      return this.orderFullList.filter((order) => {
-        if (
-          fuzzysearch(this.searchInput, order.name) ||
-          fuzzysearch(this.searchInput, order.tokens_id)
-        ) {
-          return order
-        }
-      })
-    } else {
-      return this.orderFullList
-    }
+    return this.orderFullList
   }
 
   async fetchOrders(options = {}) {
+
     // Do not remove data while fetching
-    if (this.isLoadingTokens || !this.hasNextPage) {
+    if (!this.hasNextPage) {
       return
     }
     this.isLoadingTokens = true
@@ -282,6 +277,7 @@ export default class Index extends Vue {
         limit: this.limit,
         category: this.selectedCategoryId,
         sort: this.activeSort ? this.activeSort : this.sortItems[0].filter,
+        searchString: (this.selectedFilters.searchString && this.selectedFilters.searchString.length > 0) ? this.selectedFilters.searchString : ''
       }
 
       const data = await this.$store.dispatch('order/getOrders', payload)

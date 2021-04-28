@@ -88,12 +88,12 @@ const MaticPOSClient = require('@maticnetwork/maticjs').MaticPOSClient
   computed: {
     ...mapGetters('account', ['account']),
     ...mapGetters('auth', ['user']),
-    ...mapGetters('network', ['networkMeta']),
     ...mapState('auth', {
       loginStrategy: (state) => state.loginStrategy,
     }),
     ...mapState('network', {
       networks: (state) => state.networks,
+      networkMeta: (state) => state.networkMeta,
     }),
   },
 })

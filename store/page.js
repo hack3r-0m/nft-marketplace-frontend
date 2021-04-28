@@ -21,6 +21,9 @@ export default {
     selectedSort(state, sortBy) {
       Vue.set(state.selectedFilters, 'selectedSort', sortBy || null)
     },
+    setSearchString(state, searchString) {
+      Vue.set(state.selectedFilters, 'searchString', searchString || null)
+    },
     setIsCategoryFetching(state, isCategoryFetching) {
       state.isCategoryFetching = isCategoryFetching
     },
@@ -40,8 +43,19 @@ export default {
     selectedSort(state) {
       return state.selectedFilters.selectedSort
     },
+    searchString(state) {
+      return state.selectedFilters.searchString
+    },
     selectedFilters(state) {
       return state.selectedFilters
+    },
+  },
+  
+  actions: {
+    clearFilters({ commit }) {
+      commit('selectedCategory')
+      commit('selectedSort')
+      commit('setSearchString')
     },
   },
 }

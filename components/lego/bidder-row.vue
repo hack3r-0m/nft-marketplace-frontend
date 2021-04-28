@@ -124,12 +124,12 @@ import { ORDER_TYPES } from '~/constants'
   mixins: [Toast],
   computed: {
     ...mapGetters('account', ['account']),
-    ...mapGetters('network', ['networkMeta']),
     ...mapState('auth', {
       user: (state) => state.user,
     }),
     ...mapState('network', {
       networks: (state) => state.networks,
+      networkMeta: (state) => state.networkMeta,
     }),
   },
 })
@@ -316,6 +316,7 @@ export default class BidderRow extends Vue {
         )
         if (!isApproved) {
           this.$logger.track('accept-bid-not-approved:bid-options')
+          this.isLoading = false
           return
         }
 
@@ -437,6 +438,11 @@ export default class BidderRow extends Vue {
       }
       console.log('Approving 1', isApprovedForAll)
       if (!isApprovedForAll) {
+        if (!(await this.metamaskValidation())) {
+          this.approveLoading = false
+          return false
+        }
+
         if (this.isErc721) {
           console.log('Approving 2', {
             isApprovedForAll,
@@ -444,7 +450,7 @@ export default class BidderRow extends Vue {
             erc721Proxy: contractWrappers.contractAddresses.erc721Proxy,
             makerAddress: makerAddress,
           })
-          const makerERC721ApprovalTxHash = await erc721TokenCont
+          const makerERC721ApprovalTxHash = await tokenContract
             .setApprovalForAll(
               contractWrappers.contractAddresses.erc721Proxy,
               true,
@@ -452,7 +458,6 @@ export default class BidderRow extends Vue {
             .sendTransactionAsync({
               from: makerAddress,
               gas: 100000,
-              gasPrice: 1000000000,
             })
           console.log('Approving 2')
           if (makerERC721ApprovalTxHash) {
@@ -481,7 +486,7 @@ export default class BidderRow extends Vue {
             makerAddress: makerAddress,
           })
 
-          const makerERC1155ApprovalTxHash = await cont
+          const makerERC1155ApprovalTxHash = await contract
             .setApprovalForAll(
               contractWrappers.contractAddresses.erc1155Proxy,
               true,
@@ -489,7 +494,6 @@ export default class BidderRow extends Vue {
             .send({
               from: makerAddress,
               gas: 100000,
-              gasPrice: 1000000000,
             })
           console.log('Approving 2')
           if (makerERC1155ApprovalTxHash) {
@@ -640,6 +644,16 @@ export default class BidderRow extends Vue {
       }
     }
     this.$store.dispatch('category/fetchCategories')
+  }
+
+  async metamaskValidation() {
+    const web3obj = new Web3(window.ethereum)
+    const chainId = await web3obj.eth.getChainId()
+    if (chainId !== this.networks.matic.chainId) {
+        this.error = 'selectMatic';
+        return false;
+    }
+    return true
   }
 }
 </script>

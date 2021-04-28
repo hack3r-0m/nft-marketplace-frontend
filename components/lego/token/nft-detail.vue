@@ -4,7 +4,7 @@
       v-if="token.token_id && !isLoadingDetails"
       class="container-fluid ps-y-16"
     >
-      <div class="row ps-y-16 ps-x-md-16">
+      <div class="row ps-y-16 ps-x-md-16 justify-content-between">
         <div class="col-md-7 d-flex">
           <token-short-info
             v-if="token.name"
@@ -13,6 +13,9 @@
             :category="category"
           />
         </div>
+        <a :href="openseaUrl" v-tooltip.left="'View on OpenSea'" rel="noopener noreferrer" target="_blank" class="align-self-center ps-x-16 ps-x-md-0">
+          <img src="~/static/icons/opensea.svg" class="opensea-icon ps-r-16" alt="OS">
+        </a>
       </div>
       <div class="row ps-y-16 ps-x-md-16 justify-content-center">
         <div class="col-md-8 h-100">
@@ -20,23 +23,30 @@
             class="feature-image d-flex d-lg-flex justify-content-center mb-4"
             :style="{ background: bg }"
           >
+            <img
+              v-if="checkImageFormat(token.image_url) || isNotVideoFormat"
+              class="asset-img align-self-center"
+              :src="token.image_url"
+              alt="Token Image"
+              @load="onImageLoad"
+              @error="imageLoadError"
+            >
             <video
-              v-if="isVideoFormat"
+              v-else
               controls
               autoplay
               muted
               loop
               height="500px"
+              :poster="token.image_url"
             >
               <source
                 :src="token.image_url"
                 type="video/webm"
-                @error="handleNotVideo"
               />
               <source
                 :src="token.image_url"
                 type="video/ogg"
-                @error="handleNotVideo"
               />
               <source
                 :src="token.image_url"
@@ -44,14 +54,6 @@
                 @error="handleNotVideo"
               />
             </video>
-            <img
-              v-else
-              class="asset-img align-self-center"
-              :src="token.image_url"
-              alt="Kitty"
-              @load="onImageLoad"
-              @error="imageLoadError"
-            />
           </div>
           <div class="details-section">
             <div
@@ -164,8 +166,8 @@
                 class="d-flex flex-row flex-wrap ps-t-16 ps-l-16"
               >
                 <div
-                  v-for="attribute in token.attributes"
-                  :key="`${attribute.trait_type}-${attribute.value}`"
+                  v-for="(attribute, index) in token.attributes"
+                  :key="`${attribute.trait_type}-${attribute.value}-${index}`"
                   class="col-md-3 p-0 pr-4 justify-content-between"
                 >
                   <div
@@ -279,6 +281,7 @@ import CancelConfirm from '~/components/lego/modals/cancel-confirm'
 import rgbToHsl from '~/helpers/color-algorithm'
 import { getProviderEngine } from '~/helpers/provider-engine'
 import { getColorFromImage } from '~/utils'
+import { IMAGE_EXTENSIONS } from '~/constants'
 
 @Component({
   props: {
@@ -324,9 +327,9 @@ export default class NftDetail extends Vue {
 
   isLoadingDetails = false
   isLoading = false
-  isVideoFormat = true
   showSellModal = false
   showSendModal = false
+  isNotVideoFormat = false;
 
   token = {}
 
@@ -359,8 +362,32 @@ export default class NftDetail extends Vue {
     event.target.style.width = '100px'
   }
 
+  get openseaUrl() {
+    return `https://opensea.io/assets/matic/${this.category.address}/${this.token.token_id}`
+  }
+
+  checkImageFormat(imgUrl) {
+    if(imgUrl){
+      let imgExt = imgUrl.substr((imgUrl.lastIndexOf('.') + 1))
+      if (IMAGE_EXTENSIONS.includes(imgExt)) {
+        return true
+      }
+    }
+    return false
+  }
   handleNotVideo() {
-    this.isVideoFormat = false
+    const image = new Image()
+    image.src = this.token.img_url
+    image.onload = () => { this.isNotVideoFormat = true }
+    image.onerror = () => {
+      const image = document.createElement('img')
+      image.src = this.category.img_url;
+      document.querySelector('.feature-image').appendChild(image)
+      image.style.width = '200px'
+      image.style.height = '200px'
+      image.classList.add("asset-img", "align-self-center")
+      document.getElementsByTagName("VIDEO")[0].style.display = "none"
+    }
   }
 
   onCloseSellModal() {
@@ -431,7 +458,7 @@ export default class NftDetail extends Vue {
         }
 
         currentToken.chainId = this.chainId
-        currentToken.attributes = JSON.parse(currentToken.attributes)
+        currentToken.attributes = currentToken.attributes? JSON.parse(currentToken.attributes) : ''
         this.token = currentToken
       }
     } catch (error) {
@@ -456,6 +483,12 @@ export default class NftDetail extends Vue {
     max-height: 380px;
   }
 }
+
+.opensea-icon {
+  height: 64px;
+  width: 64px;
+}
+
 .feature-info {
   &.mobile {
     min-height: auto;

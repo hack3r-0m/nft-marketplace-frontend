@@ -10,14 +10,14 @@
       class="profile-info-wrapper align-self-center d-flex flex-column ps-16"
     >
       <h1 class="font-heading-medium font-semibold ms-b-8">
-        {{ token.name }} {{ isErc1155 ? `( ${order.quantity} )` : '' }}
+        {{ token.name }} {{ isErc1155 ? `( ${token.amount} )` : '' }}
       </h1>
       <div class="font-body-small owner-info">
         Owned by
         <a href @click.prevent>{{ shortAddress }}</a>
         in
         <a
-          :href="token.external_link"
+          :href="token.external_url || token.external_link"
           target="_blank"
           rel="noopener noreferrer"
         >

@@ -9,9 +9,10 @@ export class OrderService {
         return this.endPoint_ + url;
     }
 
-    getOrders({ offset, limit, category, sort }) {
+    getOrders({ offset, limit, category, sort, searchString }) {
+        const searchStringValue = searchString !== '' ? `&searchString=${searchString}` : ``;
         const categoryArray = category ? `[${category}]` : `[]`;
-        const url = this.createUrl_(`?offset=${offset}&limit=${limit}&categoryArray=${categoryArray}&sort=${sort}`);
+        const url = this.createUrl_(`?offset=${offset}&limit=${limit}&categoryArray=${categoryArray}&sort=${sort}${searchStringValue}`);
         return this.httpCaller.get(url);
     }
 

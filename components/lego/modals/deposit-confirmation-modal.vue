@@ -267,13 +267,13 @@ const STATUS = {
   methods: {},
   computed: {
     ...mapGetters('account', ['account']),
-    ...mapGetters('network', ['networkMeta']),
     ...mapGetters('page', ['selectedCategory']),
     ...mapState('auth', {
       loginStrategy: (state) => state.loginStrategy,
     }),
     ...mapState('network', {
       networks: (state) => state.networks,
+      networkMeta: (state) => state.networkMeta,
     }),
   },
 })
