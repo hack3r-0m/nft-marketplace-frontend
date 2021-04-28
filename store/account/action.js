@@ -2,6 +2,9 @@ import Vue from "vue";
 import { Order } from '~/models';
 
 export const action = {
+    reset({ commit }) {
+        commit('RESET');
+    },
     async fetchActiveOrders({ rootState, commit }) {
         const user = rootState.auth.user;
         const response = await Vue.service.user.fetchActiveOrders(user.id);
@@ -81,8 +84,8 @@ export const action = {
             })
             commit('totalMaticNft', response.count)
             commit('category/addUsersMaticCount', balances, { root: true });
-            commit('category/SET_ALL_CATEGORY',null,{
-                root:true
+            commit('category/SET_ALL_CATEGORY', null, {
+                root: true
             });
         }
         return tokens;

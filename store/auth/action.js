@@ -70,16 +70,16 @@ export const action = {
         const response = await Vue.service.user.getConfig();
         const config = response.data.data;
         if (response.status === 200 && config) {
-            await dispatch("token/fetchERC20Tokens", null, { root: true });
             if (config.isAuthenticated) {
                 await dispatch("initUser", {
                     loginStrategy: LocalStorage.get(LOCAL_STORAGE.loginStrategy),
                     authToken: LocalStorage.get(LOCAL_STORAGE.authToken),
                     user: config,
                 })
-                return true;
+                // return true;
             }
+            await dispatch("token/fetchERC20Tokens", config.isAuthenticated, { root: true });
         }
-        return false;
+        // return false;
     },
 }

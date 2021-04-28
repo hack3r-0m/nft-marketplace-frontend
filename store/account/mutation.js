@@ -1,3 +1,4 @@
+import { initialState } from "./state";
 export const mutation = {
     account(state, account) {
         state.account = account
@@ -20,5 +21,8 @@ export const mutation = {
     pendingWithdrawals(state, transactions) {
         state.pendingWithdrawals = transactions
     },
+    RESET(state) {
+        Object.assign(state, initialState())
+    }
 };
 export default mutation;

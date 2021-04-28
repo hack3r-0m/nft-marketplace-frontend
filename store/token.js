@@ -72,14 +72,14 @@ export default {
   },
 
   actions: {
-    async fetchERC20Tokens({ commit, dispatch, rootGetters }) {
+    async fetchERC20Tokens({ commit, dispatch, rootGetters }, isAuthenticated) {
       const response = await Vue.service.token.fetchERC20Tokens()
       if (response.status === 200 && response.data.data.erc20Tokens) {
         const erc20Tokens = response.data.data.erc20Tokens
         const tokens = []
         // erc20Tokens.forEach((token) => tokens.push(new TokenModel(token)))
         commit('erc20Tokens', erc20Tokens)
-        if (rootGetters["auth/authenticated"]) {
+        if (isAuthenticated || rootGetters["auth/authenticated"]) {
           await dispatch('reloadBalances');
         }
       }
