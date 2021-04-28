@@ -135,7 +135,7 @@
 <script>
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import Web3 from 'web3'
 
 import app from '~/plugins/app'
@@ -174,8 +174,13 @@ const ZERO = BigNumber(0)
   computed: {
     ...mapGetters('token', ['selectedERC20Token']),
     ...mapGetters('account', ['account']),
-    ...mapGetters('auth', ['user']),
-    ...mapGetters('network', ['networks', 'networkMeta']),
+    ...mapState('auth', {
+      user: (state) => state.user,
+    }),
+    ...mapState('network', {
+      networks: (state) => state.networks,
+      networkMeta: (state) => state.networkMeta,
+    }),
     ...mapGetters('category', ['categories']),
   },
   methods: {},
@@ -251,9 +256,9 @@ export default class SendToken extends Vue {
     this.error = ''
 
     try {
-      const nftContract = this.nftToken.category.getAddress(
-        this.networks.matic.chainId,
-      )
+      const nftContract = this.$store.getters[
+        'category/contractAddressByToken'
+      ](this.nftToken, this.networks.matic.chainId)
       const decimalnftTokenId = this.nftToken.token_id
       let quantity = null
       let erc721TokenCont = null
@@ -568,7 +573,7 @@ export default class SendToken extends Vue {
   get category() {
     return this.categories.find(
       (category) =>
-        category.address.toLowerCase() === this.nftToken.contract.toLowerCase(),
+        category.maticAddress.toLowerCase() === this.nftToken.contract.toLowerCase(),
     )
   }
 }

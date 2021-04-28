@@ -388,7 +388,7 @@ const TEN = BigNumber(10)
     }),
     ...mapState('network', {
       networks: (state) => state.networks,
-      networkMeta: (state) => state.networkMeta
+      networkMeta: (state) => state.networkMeta,
     }),
   },
   methods: {},

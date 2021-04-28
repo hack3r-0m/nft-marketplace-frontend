@@ -124,12 +124,12 @@ import { ORDER_TYPES } from '~/constants'
   mixins: [Toast],
   computed: {
     ...mapGetters('account', ['account']),
-    ...mapGetters('network', ['networkMeta']),
     ...mapState('auth', {
       user: (state) => state.user,
     }),
     ...mapState('network', {
       networks: (state) => state.networks,
+      networkMeta: (state) => state.networkMeta,
     }),
   },
 })

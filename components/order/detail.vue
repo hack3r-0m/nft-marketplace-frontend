@@ -59,7 +59,6 @@
               <source
                 :src="token.image_url"
                 type="video/ogg"
-                @error="handleNotVideo"
               />
               <source
                 :src="token.image_url"
@@ -466,8 +465,7 @@ const { generatePseudoRandomSalt, signatureUtils } = require('@0x/order-utils')
 const { BigNumber } = require('@0x/utils')
 const { Web3Wrapper } = require('@0x/web3-wrapper')
 import { ORDER_TYPES } from '~/constants'
-
-const imageExtensions = ['gif', 'png', 'svg', 'jpg', 'jpeg']
+import { IMAGE_EXTENSIONS } from '~/constants'
 
 @Component({
   props: {
@@ -548,9 +546,11 @@ export default class TokenDetail extends Vue {
   }
 
   checkImageFormat(imgUrl) {
-    let imgExt = imgUrl.substr((imgUrl.lastIndexOf('.') + 1))
-    if (imageExtensions.includes(imgExt)) {
-      return true
+    if(imgUrl){
+      let imgExt = imgUrl.substr((imgUrl.lastIndexOf('.') + 1))
+      if (IMAGE_EXTENSIONS.includes(imgExt)) {
+        return true
+      }
     }
     return false
   }

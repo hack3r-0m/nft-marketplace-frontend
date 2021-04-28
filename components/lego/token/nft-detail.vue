@@ -281,8 +281,7 @@ import CancelConfirm from '~/components/lego/modals/cancel-confirm'
 import rgbToHsl from '~/helpers/color-algorithm'
 import { getProviderEngine } from '~/helpers/provider-engine'
 import { getColorFromImage } from '~/utils'
-
-const imageExtensions = ['gif', 'png', 'svg', 'jpg', 'jpeg']
+import { IMAGE_EXTENSIONS } from '~/constants'
 
 @Component({
   props: {
@@ -368,9 +367,11 @@ export default class NftDetail extends Vue {
   }
 
   checkImageFormat(imgUrl) {
-    let imgExt = imgUrl.substr((imgUrl.lastIndexOf('.') + 1))
-    if (imageExtensions.includes(imgExt)) {
-      return true
+    if(imgUrl){
+      let imgExt = imgUrl.substr((imgUrl.lastIndexOf('.') + 1))
+      if (IMAGE_EXTENSIONS.includes(imgExt)) {
+        return true
+      }
     }
     return false
   }
@@ -457,7 +458,7 @@ export default class NftDetail extends Vue {
         }
 
         currentToken.chainId = this.chainId
-        currentToken.attributes = JSON.parse(currentToken.attributes)
+        currentToken.attributes = currentToken.attributes? JSON.parse(currentToken.attributes) : ''
         this.token = currentToken
       }
     } catch (error) {

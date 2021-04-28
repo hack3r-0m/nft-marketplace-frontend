@@ -362,9 +362,9 @@ const TEN = BigNumber(10)
     ...mapState('auth', {
       user: (state) => state.user,
     }),
-    ...mapGetters('network', ['networkMeta']),
     ...mapState('network', {
       networks: (state) => state.networks,
+      networkMeta: (state) => state.networkMeta,
     }),
     ...mapGetters('category', ['categories']),
   },
