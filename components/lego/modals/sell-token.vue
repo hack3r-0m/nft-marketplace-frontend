@@ -964,15 +964,13 @@ export default class SellToken extends Vue {
         )
 
         const { sig } = await this.executeMetaTx(data)
-
+        const maticNftContract = this.$store.getters['category/contractAddressByToken'](this.nftToken, this.networks.matic.chainId)
         const tx = {
           intent: sig,
           fnSig: data,
           from: this.account.address,
           contractAddress: matic.utils.toChecksumAddress(
-            this.category.categoriesaddresses.find(
-              (category) => category.chain_id === this.networks.matic.chainId,
-            ).address,
+            maticNftContract
           ),
         }
 
@@ -1022,11 +1020,10 @@ export default class SellToken extends Vue {
       },
       [address],
     )
+    const maticNftContract = this.$store.getters['category/contractAddressByToken'](this.nftToken, this.networks.matic.chainId)
     const _nonce = await matic.eth.call({
       to: matic.utils.toChecksumAddress(
-        this.category.categoriesaddresses.find(
-          (category) => category.chain_id === this.networks.matic.chainId,
-        ).address,
+        maticNftContract
       ),
       data,
     })
@@ -1035,9 +1032,7 @@ export default class SellToken extends Vue {
       version: '1',
       salt: app.uiconfig.SALT,
       verifyingContract: matic.utils.toChecksumAddress(
-        this.category.categoriesaddresses.find(
-          (category) => category.chain_id === this.networks.matic.chainId,
-        ).address,
+        maticNftContract
       ),
       nonce: parseInt(_nonce),
       from: address,

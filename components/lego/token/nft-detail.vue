@@ -166,8 +166,8 @@
                 class="d-flex flex-row flex-wrap ps-t-16 ps-l-16"
               >
                 <div
-                  v-for="attribute in token.attributes"
-                  :key="`${attribute.trait_type}-${attribute.value}`"
+                  v-for="(attribute, index) in token.attributes"
+                  :key="`${attribute.trait_type}-${attribute.value}-${index}`"
                   class="col-md-3 p-0 pr-4 justify-content-between"
                 >
                   <div
