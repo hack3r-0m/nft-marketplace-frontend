@@ -24,9 +24,9 @@
             :style="{ background: bg }"
           >
             <img
-              v-if="checkImageFormat(token.img_url) || isNotVideoFormat"
+              v-if="checkImageFormat(token.image_url) || isNotVideoFormat"
               class="asset-img align-self-center"
-              :src="token.img_url"
+              :src="token.image_url"
               alt="Token Image"
               @load="onImageLoad"
               @error="imageLoadError"
@@ -38,7 +38,7 @@
               muted
               loop
               height="500px"
-              :poster="token.img_url"
+              :poster="token.image_url"
             >
               <source
                 :src="token.image_url"

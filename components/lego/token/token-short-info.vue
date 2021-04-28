@@ -10,7 +10,7 @@
       class="profile-info-wrapper align-self-center d-flex flex-column ps-16"
     >
       <h1 class="font-heading-medium font-semibold ms-b-8">
-        {{ token.name }} {{ isErc1155 ? `( ${order.quantity} )` : '' }}
+        {{ token.name }} {{ isErc1155 ? `( ${token.amount} )` : '' }}
       </h1>
       <div class="font-body-small owner-info">
         Owned by
@@ -49,10 +49,6 @@ import Component from 'nuxt-class-component'
   mixins: [],
 })
 export default class TokenShortInfo extends Vue {
-
-  mounted() {
-    console.log(this.token)
-  }
   
   get shortAddress() {
     const address = this.token.owner
