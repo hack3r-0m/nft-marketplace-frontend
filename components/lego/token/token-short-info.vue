@@ -17,7 +17,7 @@
         <a href @click.prevent>{{ shortAddress }}</a>
         in
         <a
-          :href="token.external_link"
+          :href="token.external_url || token.external_link"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -49,6 +49,10 @@ import Component from 'nuxt-class-component'
   mixins: [],
 })
 export default class TokenShortInfo extends Vue {
+
+  mounted() {
+    console.log(this.token)
+  }
   
   get shortAddress() {
     const address = this.token.owner

@@ -15,5 +15,5 @@ module.exports = {
     MATIC_WIDGET_KEY: "kiLV4NOqXgk346wibvG4",
     maticExplorer: "https://mumbai-explorer.matic.today/",
     mainExplorer: "https://goerli.etherscan.io/",
-    SALT: "0x000000000000000"
+    SALT: "0x0000000000000000000000000000000000000000000000000000000000013881"
 }

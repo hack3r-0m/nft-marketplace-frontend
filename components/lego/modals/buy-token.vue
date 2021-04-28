@@ -62,7 +62,7 @@
                     </div>
                     <div
                       v-if="erc20Token"
-                      class="font-heading-large font-semibold"
+                      class="font-heading-large font-semibold word-break-all"
                     >
                       {{ order.price }} {{ erc20Token.symbol }}
                     </div>
@@ -100,13 +100,13 @@
                     </div>
 
                     <div class="d-flex justify-content-between">
-                      <div>
+                      <div class="ms-r-6">
                         <div class="font-body-small text-gray-300 ps-y-4">
                           Listed for
                         </div>
                         <div
                           v-if="erc20Token"
-                          class="font-heading-large font-semibold"
+                          class="font-heading-large font-semibold word-break-all"
                         >
                           {{ order.price }} {{ erc20Token.symbol }}
                         </div>
@@ -118,11 +118,11 @@
                         </div>
                       </div>
 
-                      <div v-if="order.highest_bid" class="text-right">
+                      <div v-if="order.highest_bid" class="text-right ms-l-6">
                         <div class="font-body-small text-gray-300 ps-y-4">
                           Last offer
                         </div>
-                        <div class="font-heading-large font-semibold">
+                        <div class="font-heading-large font-semibold word-break-all">
                           {{ order.highest_bid }} {{ erc20Token.symbol }}
                         </div>
                         <div
@@ -388,6 +388,7 @@ const TEN = BigNumber(10)
     }),
     ...mapState('network', {
       networks: (state) => state.networks,
+      networkMeta: (state) => state.networkMeta
     }),
   },
   methods: {},
@@ -1091,7 +1092,7 @@ export default class BuyToken extends Vue {
       } else {
         if (!(await this.metamaskValidation())) {
           this.approveLoading = false
-          return
+          return false
         }
         try {
           const amount = new BigNumber(
@@ -1102,7 +1103,6 @@ export default class BuyToken extends Vue {
             .sendTransactionAsync({
               from: this.account.address,
               gas: 100000,
-              gasPrice: 1000000000,
             })
           if (erc20Approve) {
             console.log('Approved')
@@ -1173,8 +1173,15 @@ export default class BuyToken extends Vue {
       ),
       data,
     })
+
+    const erc20ContractInstance = new matic.eth.Contract(
+      this.networkMeta.abi('ChildERC20', 'pos'),
+      this.order.erc20tokens.erc20tokensaddresses[0].address
+    )
+    const name = await erc20ContractInstance.methods.name().call();
+
     const dataToSign = getTypedData({
-      name: this.order.erc20tokens.name,
+      name: name,
       version: '1',
       salt: Vue.appConfig.SALT,
       verifyingContract: matic.utils.toChecksumAddress(
@@ -1234,6 +1241,10 @@ export default class BuyToken extends Vue {
 
 .hide-modal {
   opacity: 0;
+}
+
+.word-break-all {
+  word-break: break-all;
 }
 
 .text-gray-900 {

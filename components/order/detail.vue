@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-if="order.id && !isLoadingDetails" class="container-fluid ps-y-16">
-      <div class="row ps-y-16 ps-x-md-16">
+      <div class="row ps-y-16 ps-x-md-16 justify-content-between">
         <div class="col-md-7 d-flex">
           <token-short-info
             v-if="category"
@@ -25,6 +25,9 @@
             <span>Share</span>
           </a>
         </div>
+        <a :href="openseaUrl" v-tooltip.left="'View on OpenSea'" rel="noopener noreferrer" target="_blank" class="align-self-center ps-x-16 ps-x-md-0">
+          <img src="~/static/icons/opensea.svg" class="opensea-icon ps-r-16" alt="OS">
+        </a>
       </div>
       <div class="row ps-y-16 ps-x-md-16 justify-content-center">
         <div class="col-md-8 h-100">
@@ -32,8 +35,17 @@
             class="feature-image d-flex d-lg-flex justify-content-center mb-4"
             :style="{ background: bg }"
           >
+            <img
+              v-if="checkImageFormat(token.image_url) || isNotVideoFormat"
+              class="asset-img align-self-center"
+              :src="token.image_url"
+              alt="Token Image"
+              @load="onImageLoad"
+              @error="imageLoadError"
+              :poster="token.image_url"
+            >
             <video
-              v-if="isVideoFormat"
+              v-else
               controls
               autoplay
               muted
@@ -43,7 +55,6 @@
               <source
                 :src="token.image_url"
                 type="video/webm"
-                @error="handleNotVideo"
               />
               <source
                 :src="token.image_url"
@@ -56,14 +67,6 @@
                 @error="handleNotVideo"
               />
             </video>
-            <img
-              v-else
-              class="asset-img align-self-center"
-              :src="token.image_url"
-              alt="Kitty"
-              @load="onImageLoad"
-              @error="imageLoadError"
-            />
           </div>
           <div
             class="feature-info mobile d-flex d-lg-none flex-column ps-16 ps-lg-40 ms-y-16"
@@ -464,6 +467,8 @@ const { BigNumber } = require('@0x/utils')
 const { Web3Wrapper } = require('@0x/web3-wrapper')
 import { ORDER_TYPES } from '~/constants'
 
+const imageExtensions = ['gif', 'png', 'svg', 'jpg', 'jpeg']
+
 @Component({
   props: {
     orderId: {
@@ -525,7 +530,7 @@ export default class TokenDetail extends Vue {
   isLoadingBids = false
   isLoadingDetails = false
   isLoading = false
-  isVideoFormat = true
+  isNotVideoFormat = false;
 
   order = {}
 
@@ -536,6 +541,33 @@ export default class TokenDetail extends Vue {
   // initialize
   mounted() {
     this.fetchOrder()
+  }
+
+  get openseaUrl() {
+    return `https://opensea.io/assets/matic/${this.order.categories.categoriesaddresses[0].address}/${this.order.tokens_id}`
+  }
+
+  checkImageFormat(imgUrl) {
+    let imgExt = imgUrl.substr((imgUrl.lastIndexOf('.') + 1))
+    if (imageExtensions.includes(imgExt)) {
+      return true
+    }
+    return false
+  }
+
+  handleNotVideo() {
+    const image = new Image()
+    image.src = this.token.image_url
+    image.onload = () => { this.isNotVideoFormat = true }
+    image.onerror = () => {
+      const image = document.createElement('img')
+      image.src = this.category.img_url;
+      document.querySelector('.feature-image').appendChild(image)
+      image.style.width = '200px'
+      image.style.height = '200px'
+      image.classList.add("asset-img", "align-self-center")
+      document.getElementsByTagName("VIDEO")[0].style.display = "none"
+    }
   }
 
   onImageLoad() {
@@ -696,10 +728,6 @@ export default class TokenDetail extends Vue {
     event.target.style.width = '100px'
   }
 
-  handleNotVideo() {
-    this.isVideoFormat = false
-  }
-
   async cancelOrder() {
     this.isLoading = true
     try {
@@ -853,6 +881,12 @@ export default class TokenDetail extends Vue {
     max-height: 380px;
   }
 }
+
+.opensea-icon {
+  height: 64px;
+  width: 64px;
+}
+
 .feature-info {
   &.mobile {
     min-height: auto;
