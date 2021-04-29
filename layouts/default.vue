@@ -195,6 +195,8 @@ export default {
 
 .loader {
   height: calc(80vh - #{$navbar-local-height});
+  display: flex;
+  justify-content: center;
 }
 
 @media (max-width: 768px) {
