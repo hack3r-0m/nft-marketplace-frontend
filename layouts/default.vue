@@ -5,6 +5,9 @@
       <div v-if="isLoaded" class="nuxt-section">
         <nuxt />
       </div>
+      <div v-else class="loader" >
+        <Loader />
+      </div>
     </div>
     <toast />
   </div>
@@ -23,11 +26,13 @@ import {
 import Vue from 'vue'
 import Web3 from 'web3'
 import { IS_METAMASK_ENABLED } from '~/constants'
+import Loader from '~/components/loader'
 
 export default {
   components: {
     NavbarSection,
     Toast,
+    Loader,
   },
   data() {
     return {
@@ -186,6 +191,10 @@ export default {
 }
 .content-container {
   margin-top: $navbar-local-height;
+}
+
+.loader {
+  height: calc(80vh - #{$navbar-local-height});
 }
 
 @media (max-width: 768px) {
