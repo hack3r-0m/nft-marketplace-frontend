@@ -1,6 +1,6 @@
 <template>
-  <div class="wrapper py-5 d-flex justify-content-center">
-    <span class="spinner my-5" />
+  <div class="loader d-flex justify-content-center align-items-center">
+    <span class="spinner" />
   </div>
 </template>
 
@@ -14,3 +14,14 @@ import Component from 'nuxt-class-component'
 })
 export default class Loader extends Vue {}
 </script>
+
+<style lang="scss" scoped="">
+@import "~assets/css/theme/_theme";
+
+.loader {
+  .spinner {
+    height: 40px;
+    width: 40px;
+  }
+}
+</style>
