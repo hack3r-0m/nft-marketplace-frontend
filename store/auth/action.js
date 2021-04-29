@@ -51,6 +51,7 @@ export const action = {
 
         await dispatch('account/fetchActiveOrders', null, { root: true });
         await dispatch('account/fetchFavoritesOrders', null, { root: true });
+        await dispatch("token/fetchERC20Tokens", null, { root: true });
         Vue.logger.initTrack({ address: getters['address'] })
     },
     async getUser({ dispatch }) {
@@ -77,8 +78,9 @@ export const action = {
                     user: config,
                 })
                 // return true;
+            } else {
+                await dispatch("token/fetchERC20Tokens", config.isAuthenticated, { root: true });
             }
-            await dispatch("token/fetchERC20Tokens", config.isAuthenticated, { root: true });
         }
         // return false;
     },
