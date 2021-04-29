@@ -24,6 +24,10 @@ const scripts = [
 ]
 
 export default {
+  
+    googleAnalytics: {
+      id: 'G-G3664S3KDL'
+    },
   server: {
     port: 3000 // default: 3000
   },
@@ -92,7 +96,7 @@ export default {
   /*
    ** Nuxt.js dev-modules
    */
-  buildModules: [],
+  buildModules: ['@nuxtjs/google-analytics'],
   /*
    ** Nuxt.js modules
    */
