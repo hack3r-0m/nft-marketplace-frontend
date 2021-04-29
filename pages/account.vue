@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid">
+  <div v-if="isAuthenticated" class="container-fluid">
     <account-banner />
     <tab-switcher
       class="sticky-top"
@@ -33,6 +33,7 @@ import EthereumNewTab from '~/components/lego/account/ethereum-new-tab'
 import ActivityOrderTab from '~/components/lego/account/activity-order-tab'
 import ActivityDepositWithdrawTab from '~/components/lego/account/activity-deposit-withdraw-tab'
 import NotificationModal from '~/components/lego/notification-modal'
+import CheckAuth from '~/components/mixins/common/check_auth'
 
 @Component({
   props: {},
@@ -49,8 +50,7 @@ import NotificationModal from '~/components/lego/notification-modal'
     ActivityDepositWithdrawTab,
     NotificationModal,
   },
-  middleware: ['auth'],
-  mixins: [],
+  mixins: [CheckAuth],
   computed: {
     ...mapGetters('account', [
       'favouriteOrders',
@@ -64,6 +64,9 @@ import NotificationModal from '~/components/lego/notification-modal'
     ...mapState('network', {
       networks: (state) => state.networks,
     }),
+    ...mapGetters('auth', {
+      isAuthenticated: 'authenticated',
+    }),
   },
 })
 export default class Index extends Vue {
@@ -74,8 +77,9 @@ export default class Index extends Vue {
   showNotification = false
 
   async mounted() {
+    if (this.isLoggingOut) return
     this.$store.dispatch('page/clearFilters')
-    this.fetchTotalTokens();
+    this.fetchTotalTokens()
 
     // if (!localStorage.getItem('WalletSwapFeature')) {
     //   this.onNotificationOpen()
@@ -103,7 +107,9 @@ export default class Index extends Vue {
           user: this.user,
           chainId: this.maticChainId,
         }),
-        this.$store.dispatch('account/fetchNotification', {userId:this.user.id}),
+        this.$store.dispatch('account/fetchNotification', {
+          userId: this.user.id,
+        }),
       ])
     } catch (error) {
       this.$logger.error(error)
