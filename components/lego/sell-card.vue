@@ -26,7 +26,7 @@
           @error="handleNotVideo"
         />
       </video>
-      <img
+      <ImageWithLoader
         v-else
         :src="order.token.image_url"
         class="asset-img align-self-center"
@@ -126,6 +126,7 @@ import { getColorFromImage } from '~/utils'
 import OnSaleTag from '~/components/lego/token/on-sale-tag'
 import OwnedTag from '~/components/lego/token/owned-tag'
 import OrderTypeTag from '~/components/lego/token/order-type-tag'
+import ImageWithLoader from "~/components/common/image";
 
 @Component({
   props: {
@@ -149,7 +150,7 @@ import OrderTypeTag from '~/components/lego/token/order-type-tag'
       default: () => {},
     },
   },
-  components: { OnSaleTag, OwnedTag, OrderTypeTag },
+  components: { OnSaleTag, OwnedTag, OrderTypeTag,ImageWithLoader },
   computed: {
     ...mapGetters('category', ['categories', 'categoryById']),
     ...mapGetters('token', ['erc20Tokens']),
