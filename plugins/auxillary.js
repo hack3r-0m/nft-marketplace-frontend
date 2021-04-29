@@ -1,6 +1,6 @@
 import Vue from 'vue'
 
-import Loader from '~/components/loader'
+import Loader from '~/components/common/loader'
 import SvgSpriteIcon from '~/components/svg-sprite-icon'
 import ButtonLoader from '~/components/lego/button-loader'
 

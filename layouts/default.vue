@@ -26,7 +26,7 @@ import {
 import Vue from 'vue'
 import Web3 from 'web3'
 import { IS_METAMASK_ENABLED } from '~/constants'
-import Loader from '~/components/loader'
+import Loader from '~/components/common/loader'
 
 export default {
   components: {
@@ -56,7 +56,7 @@ export default {
       loggedInUser: (state) => state.user,
     }),
     shouldShowNavBar() {
-      return this.$route.name != 'login'
+      return this.isLoaded && this.$route.name != 'login'
     },
   },
   created() {

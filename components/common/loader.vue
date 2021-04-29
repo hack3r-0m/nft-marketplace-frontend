@@ -1,5 +1,10 @@
 <template>
   <div class="loader d-flex justify-content-center align-items-center">
+     <!-- <img
+                src=
+                alt="Open Sea Logo"
+                class=""
+              /> -->
     <span class="spinner" />
   </div>
 </template>
@@ -19,9 +24,13 @@ export default class Loader extends Vue {}
 @import "~assets/css/theme/_theme";
 
 .loader {
+  background: url("~assets/img/open-sea-logo.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 60px;
   .spinner {
-    height: 40px;
-    width: 40px;
+    height: 70px;
+    width: 70px;
   }
 }
 </style>
