@@ -86,10 +86,7 @@
         </div>
       </div>
     </div>
-    <div
-      class="modal-backdrop"
-      :class="{ show: show }"
-    />
+    <div class="modal-backdrop show" />
 
     <receive-qr-code
       :show="showReceiveModal"
