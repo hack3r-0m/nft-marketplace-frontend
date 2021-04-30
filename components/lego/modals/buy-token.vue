@@ -736,7 +736,7 @@ export default class BuyToken extends Vue {
         signedOrder.makerFee = BigNumber(signedOrder.makerFee)
         signedOrder.salt = BigNumber(signedOrder.salt)
         signedOrder.takerFee = BigNumber(signedOrder.takerFee)
-        console.log(signedOrder)
+        this.$logger.debug(signedOrder)
 
         // Check Approve 0x, Approve if not
         this.$logger.track('approve-start-fixed-0x:buy-token')
@@ -904,7 +904,7 @@ export default class BuyToken extends Vue {
           remainingFillableAmount,
           isValidSignature,
         })
-        console.log('is fillable', {
+        this.$logger.debug('is fillable', {
           orderStatus,
           orderHash,
           remainingFillableAmount,
@@ -953,7 +953,7 @@ export default class BuyToken extends Vue {
             remainingFillableAmount,
             isValidSignature,
           })
-          console.log('Order is already sold')
+          this.$logger.debug('Order is already sold')
           const res = await this.$store.dispatch(
             'order/validate',
             this.order.id,
@@ -1073,7 +1073,7 @@ export default class BuyToken extends Vue {
                 'approving-0x-complete-non-meta-tx:buy-token',
                 { response },
               )
-              console.log('Approved')
+              this.$logger.debug('Approved')
               this.$toast.show('Approved', 'You successfully approved', {
                 type: 'success',
               })

@@ -136,9 +136,9 @@ export default class CancelConfirm extends Vue {
   bg = '#f3f4f7';
 
   mounted() {
-    console.log('mounted')
-    console.log(this.order)
-    console.log(this.order.erc20tokens)
+    this.$logger.debug('mounted')
+    this.$logger.debug(this.order)
+    this.$logger.debug(this.order.erc20tokens)
   }
 
   onImageLoad() {

@@ -598,7 +598,7 @@ export default class SellToken extends Vue {
           nftContract,
           getProviderEngine(),
         )
-        console.log(erc721TokenCont)
+        this.$logger.debug(erc721TokenCont)
         this.$logger.track('approve0x-721-start:sell-token')
         isApproved = await this.approve0x(
           erc721TokenCont,
@@ -621,7 +621,7 @@ export default class SellToken extends Vue {
           this.networkMeta.abi('ChildERC1155', 'pos'),
           nftContract,
         )
-        console.log(erc1155TokenCont)
+        this.$logger.debug(erc1155TokenCont)
         this.$logger.track('approve0x-1155-start:sell-token')
         isApproved = await this.approve0x(
           erc1155TokenCont,
@@ -635,7 +635,7 @@ export default class SellToken extends Vue {
       this.isApprovedStatus = isApproved
       this.approveLoading = false
     } catch (error) {
-      console.log(error)
+      this.$logger.error(error)
       this.approveLoading = false
       this.txShowError(error, null, 'Something went wrong')
     }

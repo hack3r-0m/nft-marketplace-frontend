@@ -783,7 +783,7 @@ export default class TokenDetail extends Vue {
         await this.handleCancelOrder()
       }
     } catch (error) {
-      console.log(error)
+      this.$logger.error(error)
     }
     this.isLoading = false
     this.onCancelOrderClose()

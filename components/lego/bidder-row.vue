@@ -335,7 +335,7 @@ export default class BidderRow extends Vue {
           remainingFillableAmount,
           isValidSignature,
         })
-        console.log('is fillable', {
+        this.$logger.debug('is fillable', {
           orderStatus,
           orderHash,
           remainingFillableAmount,
@@ -348,7 +348,7 @@ export default class BidderRow extends Vue {
           remainingFillableAmount.isGreaterThan(0) &&
           isValidSignature
         ) {
-          console.log('Fillable')
+          this.$logger.debug('Fillable')
           this.$logger.track('accept-bid-fill-order:bid-options')
           const dataVal = await this.$store.dispatch(
             'order/fillBid',
@@ -437,7 +437,7 @@ export default class BidderRow extends Vue {
           )
           .call()
       }
-      console.log('Approving 1', isApprovedForAll)
+      this.$logger.debug('Approving 1', isApprovedForAll)
       if (!isApprovedForAll) {
         if (!(await this.metamaskValidation())) {
           this.approveLoading = false
@@ -447,7 +447,7 @@ export default class BidderRow extends Vue {
         const maticWeb3 = new Web3(window.ethereum)
         if (this.isErc721) {
           try {
-            console.log('Approving 2', {
+            this.$logger.debug('Approving 2', {
               isApprovedForAll,
               tokenContract: tokenContract,
               erc721Proxy: contractWrappers.contractAddresses.erc721Proxy,
@@ -487,7 +487,7 @@ export default class BidderRow extends Vue {
               this.networkMeta.abi('ChildERC1155', 'pos'),
               nftContract,
             )
-            console.log('Approving 2', {
+            this.$logger.debug('Approving 2', {
               isApprovedForAll,
               tokenContract: contract,
               erc1155Proxy: contractWrappers.contractAddresses.erc1155Proxy,

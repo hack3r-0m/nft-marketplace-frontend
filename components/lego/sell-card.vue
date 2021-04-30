@@ -250,15 +250,15 @@ export default class SellCard extends Vue {
 
   // Actions
   transfer() {
-    console.log('transfer')
+    this.$logger.debug('transfer')
   }
 
   moveToEthereum() {
-    console.log('moveToEthereum')
+    this.$logger.debug('moveToEthereum')
   }
 
   removeFromMarketplace() {
-    console.log('removeFromMarketplace')
+    this.$logger.debug('removeFromMarketplace')
   }
 
   imageLoadError(event) {

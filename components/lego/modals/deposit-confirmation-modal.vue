@@ -383,14 +383,14 @@ export default class DepositConfirmationModal extends Vue {
         this.isDeposited = true
       }
     } catch (error) {
-      console.log(error)
+      this.$logger.error(error)
       this.isLoading = false
       this.error = error.message
     }
   }
 
   async handleDeposit(txHash, token_ids, category_id) {
-    console.log('Deposit transaction', txHash)
+    this.$logger.debug('Deposit transaction', txHash)
     try {
       const data = {
         txhash: this.transactionHash,

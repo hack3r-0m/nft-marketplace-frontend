@@ -293,7 +293,7 @@ export default class Withdraw extends Vue {
         sig: sign,
       }
     } catch (error) {
-      // console.log(error);
+      this.$logger.error(error);
     }
 
     this.onSignatureDenied()
@@ -371,7 +371,7 @@ export default class Withdraw extends Vue {
         this.isLoading = false
       }
     } catch (error) {
-      // console.log(error);
+      this.$logger.error(error);
       this.error = error.message
       this.isLoading = false
       this.showWithdrawConfirmation = false

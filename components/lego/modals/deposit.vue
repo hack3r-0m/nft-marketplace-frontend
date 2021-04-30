@@ -225,12 +225,12 @@ export default class Deposit extends Vue {
           from: this.account.address,
         })
         if (txHash) {
-          console.log('approve transaction', txHash)
+          this.$logger.debug('approve transaction', txHash)
           this.isLoading = false
         }
       }
     } catch (error) {
-      console.log(error)
+      this.$logger.error(error)
       this.error = error.message
       this.isLoading = false
       this.showDepositConfirmation = false

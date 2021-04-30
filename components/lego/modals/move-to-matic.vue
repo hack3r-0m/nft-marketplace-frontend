@@ -176,7 +176,7 @@ export default class MoveToMatic extends Vue {
       }
       const txHash = await maticPOS.approveERC721ForDeposit(contract, tokenId)
       if (txHash) {
-        console.log('Approved : ', txHash)
+        this.$logger.debug('Approved : ', txHash)
         this.$toast.show(
           'Token approved successfully',
           'Your successfully token approved for deposit.',
@@ -212,7 +212,7 @@ export default class MoveToMatic extends Vue {
           tokenId,
         )
         if (txHash) {
-          console.log('Deposited : ', txHash)
+          this.$logger.debug('Deposited : ', txHash)
           this.$toast.show(
             'Token deposited successfully',
             'Your token deposited successfully to matic network, it will take 3-5 minute to appear on matic network',

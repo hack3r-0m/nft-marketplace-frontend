@@ -380,7 +380,6 @@ export default class SendToken extends Vue {
             const response = await this.$store.dispatch(`order/executeMetaTx`, tx)
             this.refreshNFTTokens()
             if (response) {
-              // console.log("Transfer receipt: " + response);
               this.$toast.show(
                 'Transferred',
                 'You successfully transferred the token',
