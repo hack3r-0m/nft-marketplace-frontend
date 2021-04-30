@@ -4,7 +4,6 @@ export default {
         const selectedAddress = await getDefaultAccount();
         next(vm => {
             vm.accountAddressFromMetaMask = selectedAddress;
-            debugger;
         })
     },
     mounted() {

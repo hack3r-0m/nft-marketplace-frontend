@@ -436,6 +436,7 @@ export default class BuyToken extends Vue {
   signLoading = false
   makerAmount = null
   depositModal = false
+  isApprovedAfterTransaction = false
 
   mounted() {
     this.$logger.track('mounted:buy-token', {
@@ -1094,27 +1095,35 @@ export default class BuyToken extends Vue {
           return false
         }
         try {
+          this.isApprovedAfterTransaction = false;
+          const maticWeb3 = new Web3(window.ethereum)
+
+          const erc20TokenContract = new maticWeb3.eth.Contract(
+              this.networkMeta.abi('ChildERC20', 'pos'),
+              erc20Address,
+            )
+          const tempThis = this
+
           const amount = new BigNumber(
             '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
           )
-          const erc20Approve = await erc20TokenCont
+          await erc20TokenContract.methods
             .approve(contractWrappers.contractAddresses.erc20Proxy, amount)
-            .sendTransactionAsync({
+            .send({
               from: this.account.address,
               gas: 100000,
             })
-          if (erc20Approve) {
-            console.log('Approved')
-            this.$toast.show('Approved', 'You successfully approved', {
-              type: 'success',
+            .on('receipt', function(receipt) {
+              tempThis.$toast.show(
+                'Approved successfully',
+                'You successfully approved the token to put on sale',
+                {
+                  type: 'success',
+                },
+              )
+              tempThis.isApprovedAfterTransaction = true
             })
-            this.$logger.track('approving-0x-complete-non-meta-tx:buy-token', {
-              erc20Approve,
-            })
-            return true
-          }
         } catch (error) {
-          console.log(error)
           if (
             error.message.includes(
               'MetaMask is having trouble connecting to the network',
@@ -1129,7 +1138,7 @@ export default class BuyToken extends Vue {
             )
           }
         }
-        return false
+        return this.isApprovedAfterTransaction
       }
     }
     return true
