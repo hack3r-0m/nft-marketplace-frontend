@@ -50,7 +50,7 @@
             @error="handleNotVideo"
           />
         </video>
-        <img
+        <ImageWithLoader
           v-else
           :src="token.image_url"
           class="asset-img align-self-center ps-x-12"
@@ -75,7 +75,7 @@
     </div>
 
     <div v-if="category" class="category-pill d-flex mx-auto ms-t-20 ms-b-16">
-      <img
+      <ImageWithLoader
         :src="category.img_url"
         class="icon ms-2 ms-l-4 ms-r-4 align-self-center"
       />
@@ -140,6 +140,7 @@ import Component from 'nuxt-class-component'
 import { mapGetters, mapState } from 'vuex'
 import MoreOptions from '~/components/lego/more-options'
 import rgbToHsl from '~/helpers/color-algorithm'
+import ImageWithLoader from "~/components/common/image";
 
 @Component({
   props: {
@@ -188,7 +189,7 @@ import rgbToHsl from '~/helpers/color-algorithm'
       default: () => {},
     },
   },
-  components: { MoreOptions },
+  components: { MoreOptions,ImageWithLoader },
   computed: {
     ...mapGetters('category', ['categories', 'categoryByToken']),
     ...mapState('network', {
