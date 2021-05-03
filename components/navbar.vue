@@ -1,6 +1,16 @@
 <template>
 <div class="fixed-top">
-  <div ref="infobanner" class="info-banner">Hello Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ad expedita ut harum incidunt, culpa ratione maxime fugit natus doloribus quam, doloremque at corporis libero repudiandae deleniti eveniet odio numquam tenetur!</div>
+  <div ref="infobanner" 
+    class="info-banner" 
+    :class="{
+      'info-banner--warning': infoBannerDetails.bannerType === 'warning'
+    }"
+  >
+    <strong v-if="infoBannerDetails.bannerTypeText">
+      {{ infoBannerDetails.bannerTypeText }}:
+    </strong>
+    {{ infoBannerDetails.bannerText }} 
+  </div>
   <nav class="navbar navbar-expand-lg p-0">
     <div class="container-fluid h-100">
       <div class="row mx-auto ps-x-16 w-100 h-100">
@@ -514,6 +524,15 @@ export default class Navbar extends Vue {
     }
   }
 
+  get infoBannerDetails() {
+    // sample banner response
+    return {
+      bannerType: 'warning', // or 'info', 'update'
+      bannerTypeText: 'Warning',
+      bannerText: 'This is a banner, please note that...',
+    }
+  }
+
   async logout() {
     await this.$store.dispatch('auth/logout')
     this.$router.push({ name: 'index' })
@@ -568,10 +587,14 @@ export default class Navbar extends Vue {
 }
 
 .info-banner {
-  background: red;
-  color: white;
-  padding: 2px 10%;
+  padding: 8px 10%;
   text-align: center;
+  background: rgb(33, 84, 250);
+  color: white;
+
+  &--warning {
+    background: red
+  }
 }
 
 .navbar {
