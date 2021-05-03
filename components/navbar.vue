@@ -1,16 +1,17 @@
 <template>
   <div class="fixed-top">
     <div
+      v-if="bannerData && bannerData.bannerText"
       ref="infobanner"
       class="info-banner"
       :class="{
-        'info-banner--warning': infoBannerDetails.bannerType === 'warning',
+        'info-banner--warning': bannerData.bannerType === 'warning',
       }"
     >
-      <strong v-if="infoBannerDetails.bannerTypeText">
-        {{ infoBannerDetails.bannerTypeText }}:
+      <strong v-if="bannerData.bannerHeading">
+        {{ bannerData.bannerHeading }}:
       </strong>
-      {{ infoBannerDetails.bannerText }}
+      {{ bannerData.bannerText }}
     </div>
     <nav class="navbar navbar-expand-lg p-0">
       <div class="container-fluid h-100">
@@ -437,6 +438,7 @@ import * as animationData from '~/static/lottie-animations/green-check.json'
     ...mapState('auth', {
       user: (state) => state.user,
     }),
+    ...mapState(['bannerData']),
     ...mapGetters('account', ['account']),
     ...mapGetters('network', ['selectedNetwork', 'rootChainNetwork']),
   },
@@ -461,7 +463,9 @@ export default class Navbar extends Vue {
   }
 
   mounted() {
-    this.$emit('bannerHeight', this.$refs.infobanner.clientHeight);
+    if(this.bannerData) {
+      this.$emit('bannerHeight', this.$refs.infobanner.clientHeight);
+    }
   }
 
   checkIfNestedRoute(...names) {
@@ -533,15 +537,6 @@ export default class Navbar extends Vue {
       return user.photoURL
     } catch (error) {
       return false
-    }
-  }
-
-  get infoBannerDetails() {
-    // sample banner response
-    return {
-      bannerType: 'warning', // or 'info', 'update'
-      bannerTypeText: 'Warning',
-      bannerText: 'This is a banner, please note that...',
     }
   }
 

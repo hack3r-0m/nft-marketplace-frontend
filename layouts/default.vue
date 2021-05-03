@@ -84,12 +84,10 @@ export default {
   },
 
   methods: {
+    ...mapActions({ getConfig: 'getConfig' }),
     ...mapActions('network', {
       setNetworks: 'setNetworks',
       setProviders: 'setProviders',
-    }),
-    ...mapActions('auth', {
-      getConfig: 'getConfig',
     }),
     ...mapActions('category', {
       fetchCategories: 'fetchCategories',

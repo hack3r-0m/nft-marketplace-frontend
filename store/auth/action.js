@@ -67,21 +67,4 @@ export const action = {
         }
         return false;
     },
-    async getConfig({ dispatch }) {
-        const response = await Vue.service.user.getConfig();
-        const config = response.data.data;
-        if (response.status === 200 && config) {
-            if (config.isAuthenticated) {
-                await dispatch("initUser", {
-                    loginStrategy: LocalStorage.get(LOCAL_STORAGE.loginStrategy),
-                    authToken: LocalStorage.get(LOCAL_STORAGE.authToken),
-                    user: config,
-                })
-                // return true;
-            } else {
-                await dispatch("token/fetchERC20Tokens", config.isAuthenticated, { root: true });
-            }
-        }
-        // return false;
-    },
 }
