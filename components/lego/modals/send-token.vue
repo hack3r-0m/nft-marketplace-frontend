@@ -408,7 +408,6 @@ export default class SendToken extends Vue {
             this.networkMeta.abi('ChildERC721', 'pos'),
             nftContract,
           )
-          const tempThis = this
           await erc721TokenCont.methods
             .safeTransferFrom(
               this.account.address,
@@ -419,21 +418,21 @@ export default class SendToken extends Vue {
               from: this.account.address,
               gas: 1000000,
             })
-            .on('receipt', function(receipt) {
-              tempThis.refreshNFTTokens()
+            .on('receipt', (receipt) => {
+              this.refreshNFTTokens()
               setTimeout(() => {
-                tempThis.refreshNFTTokens()
+                this.refreshNFTTokens()
               }, 10000)
 
-              tempThis.$toast.show(
+              this.$toast.show(
                 'Transferred successfully',
                 'You successfully transferred the token',
                 {
                   type: 'success',
                 },
               )
-              tempThis.close()
-              tempThis.$logger.track('success-non-meta-tx-ERC721:transfer-token')
+              this.close()
+              this.$logger.track('success-non-meta-tx-ERC721:transfer-token')
               return true
             })
         } else {
@@ -441,7 +440,6 @@ export default class SendToken extends Vue {
             this.networkMeta.abi('ChildERC1155', 'pos'),
             nftContract,
           )
-          const tempThis = this
           await erc1155TokenCont.methods
             .safeTransferFrom(
               this.account.address,
@@ -454,21 +452,21 @@ export default class SendToken extends Vue {
               from: this.account.address,
               gas: 1000000,
             })
-            .on('receipt', function(receipt) {
-              tempThis.refreshNFTTokens()
+            .on('receipt', (receipt) => {
+              this.refreshNFTTokens()
               setTimeout(() => {
-                tempThis.refreshNFTTokens()
+                this.refreshNFTTokens()
               }, 10000)
 
-              tempThis.$toast.show(
+              this.$toast.show(
                 'Transferred successfully',
                 'You successfully transferred the token',
                 {
                   type: 'success',
                 },
               )
-              tempThis.close()
-              tempThis.$logger.track('success-non-meta-tx-ERC721:transfer-token')
+              this.close()
+              this.$logger.track('success-non-meta-tx-ERC721:transfer-token')
               return true
             })
         }

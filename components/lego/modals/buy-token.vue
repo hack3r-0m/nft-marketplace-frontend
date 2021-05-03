@@ -1102,7 +1102,6 @@ export default class BuyToken extends Vue {
               this.networkMeta.abi('ChildERC20', 'pos'),
               erc20Address,
             )
-          const tempThis = this
 
           const amount = new BigNumber(
             '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
@@ -1113,15 +1112,15 @@ export default class BuyToken extends Vue {
               from: this.account.address,
               gas: 100000,
             })
-            .on('receipt', function(receipt) {
-              tempThis.$toast.show(
+            .on('receipt', (receipt) => {
+              this.$toast.show(
                 'Approved successfully',
                 'You successfully approved the token to put on sale',
                 {
                   type: 'success',
                 },
               )
-              tempThis.isApprovedAfterTransaction = true
+              this.isApprovedAfterTransaction = true
             })
         } catch (error) {
           if (

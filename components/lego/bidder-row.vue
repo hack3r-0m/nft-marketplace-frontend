@@ -457,7 +457,6 @@ export default class BidderRow extends Vue {
               this.networkMeta.abi('ChildERC721', 'pos'),
               nftContract,
             )
-            const tempThis = this
             await erc721TokenCont.methods
               .setApprovalForAll(
                 contractWrappers.contractAddresses.erc721Proxy,
@@ -467,11 +466,11 @@ export default class BidderRow extends Vue {
                 from: makerAddress,
                 gas: 100000,
               })
-              .on('receipt', function(receipt) {
-                tempThis.$toast.show('Approved', 'You successfully approved', {
+              .on('receipt', (receipt) => {
+                this.$toast.show('Approved', 'You successfully approved', {
                   type: 'success',
                 })
-                tempThis.isApprovedAfterTransaction = true
+                this.isApprovedAfterTransaction = true
               })
           } catch (error) {
             this.txShowError(
@@ -503,11 +502,11 @@ export default class BidderRow extends Vue {
                 from: makerAddress,
                 gas: 100000,
               })
-              .on('receipt', function(receipt) {
-                tempThis.$toast.show('Approved', 'You successfully approved', {
+              .on('receipt', (receipt) => {
+                this.$toast.show('Approved', 'You successfully approved', {
                   type: 'success',
                 })
-                tempThis.isApprovedAfterTransaction = true
+                this.isApprovedAfterTransaction = true
               })
           } catch(error) {
             this.txShowError(

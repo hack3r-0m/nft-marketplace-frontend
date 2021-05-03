@@ -871,7 +871,6 @@ export default class SellToken extends Vue {
               this.networkMeta.abi('ChildERC721', 'pos'),
               nftContract,
             )
-            const tempThis = this
             await erc721TokenCont.methods
               .setApprovalForAll(
                 contractWrappers.contractAddresses.erc721Proxy,
@@ -881,15 +880,15 @@ export default class SellToken extends Vue {
                 from: makerAddress,
                 gas: 100000,
               })
-              .on('receipt', function(receipt) {
-                tempThis.$toast.show(
+              .on('receipt', (receipt) => {
+                this.$toast.show(
                   'Approved successfully',
                   'You successfully approved the token to put on sale',
                   {
                     type: 'success',
                   },
                 )
-                tempThis.isApprovedAfterTransaction = true
+                this.isApprovedAfterTransaction = true
               })
           } catch (error) {
             if (
@@ -916,7 +915,6 @@ export default class SellToken extends Vue {
               nftContract,
             )
             let isApprovedAfterTransaction = false;
-            const tempThis = this
             await erc1155TokenCont.methods
               .setApprovalForAll(
                 contractWrappers.contractAddresses.erc1155Proxy,
@@ -926,15 +924,15 @@ export default class SellToken extends Vue {
                 from: makerAddress,
                 gas: 100000,
               })
-              .on('receipt', function(receipt) {
-                tempThis.$toast.show(
+              .on('receipt', (receipt) => {
+                this.$toast.show(
                   'Approved successfully',
                   'You successfully approved the token to put on sale',
                   {
                     type: 'success',
                   },
                 )
-                tempThis.isApprovedAfterTransaction = true
+                this.isApprovedAfterTransaction = true
               })
           } catch (error) {
             if (
