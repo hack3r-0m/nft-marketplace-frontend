@@ -61,63 +61,12 @@
     <div v-if="erc20Token && !onlyToken" class="price font-body-small ms-b-20">
       {{ order.price }} {{ erc20Token.symbol }} &nbsp; ({{ priceInUSD }})
     </div>
-    <div
-      v-if="isMyAccount && !isMainToken && onlyToken"
-      class="actions matic-chain d-flex justify-content-between text-center w-100 d-flex"
-    >
-      <a
-        class="btn btn-transparent w-50 align-self-center"
-        @click.prevent="sell(order.id)"
-      >
-        Sell
-      </a>
-      <a
-        class="btn btn-transparent w-50 align-self-center"
-        @click.prevent="transfer()"
-      >
-        Transfer
-      </a>
-    </div>
-    <div
-      v-if="false && isMyAccount"
-      class="actions matic-chain d-flex justify-content-between text-center w-100 d-flex"
-    >
-      <a
-        class="btn btn-red btn-transparent w-100 align-self-center"
-        @click.prevent="removeFromMarketplace()"
-      >
-        Remove from Marketplace
-      </a>
-    </div>
-    <div
-      v-if="isMainToken && isMyAccount"
-      class="actions matic-chain d-flex justify-content-between text-center w-100 d-flex"
-    >
-      <a
-        class="btn btn-transparent w-100 align-self-center"
-        @click.prevent="moveToMatic(order)"
-      >
-        Move to Matic
-      </a>
-    </div>
-    <div
-      v-if="false && isMyAccount"
-      class="actions matic-chain d-flex justify-content-between text-center w-100 d-flex"
-    >
-      <a
-        class="btn btn-transparent w-100 align-self-center"
-        @click.prevent="moveToEthereum()"
-      >
-        Move to Ethereum
-      </a>
-    </div>
   </nuxt-link>
 </template>
 
 <script>
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
-import app from '~/plugins/app'
 import { mapGetters, mapState } from 'vuex'
 
 import rgbToHsl from '~/helpers/color-algorithm'
@@ -195,14 +144,6 @@ export default class SellCard extends Vue {
     }
   }
 
-  // Get
-  get isMyAccount() {
-    if (this.$route.name === 'account') {
-      return true
-    }
-    return false
-  }
-
   get erc20Token() {
     return this.erc20Tokens.find(
       (token) => token.id === this.order.erc20TokenId,
@@ -222,22 +163,6 @@ export default class SellCard extends Vue {
     return this.order.token_type === 'ERC721'
   }
 
-  get isMainToken() {
-    if (this.order.chainId) {
-      return this.order.chainId === this.networks.main.chainId
-    }
-    return false
-  }
-
-  get isOwnersToken() {
-    if (this.user && this.order.type !== app.orderTypes.FIXED) {
-      return this.user.id === this.order.taker_address
-    } else if (this.user && this.order.type === app.orderTypes.FIXED) {
-      return this.user.id === this.order.maker_address
-    }
-    return false
-  }
-
   get sellOrderType() {
     return this.order.type
   }
@@ -249,18 +174,6 @@ export default class SellCard extends Vue {
   }
 
   // Actions
-  transfer() {
-    this.$logger.debug('transfer')
-  }
-
-  moveToEthereum() {
-    this.$logger.debug('moveToEthereum')
-  }
-
-  removeFromMarketplace() {
-    this.$logger.debug('removeFromMarketplace')
-  }
-
   imageLoadError(event) {
     if (this.isFallbackToCategoryImage) return
     this.isFallbackToCategoryImage = true
