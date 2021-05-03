@@ -19,7 +19,7 @@ export let STORE;
 const createStore = () => {
   STORE = new Vuex.Store({
     state: {
-      bannerData: null,
+      banner: null,
     },
 
     actions: {
@@ -29,8 +29,8 @@ const createStore = () => {
         const config = response.data.data;
 
         if (response.status === 200 && config) {
-          const bannerData = config.bannerData
-          commit('setBannerData', bannerData)
+          const bannerData = config.banner
+          commit('setBanner', bannerData)
 
           if (config.isAuthenticated) {
             await dispatch("auth/initUser", {
@@ -48,8 +48,8 @@ const createStore = () => {
     },
 
     mutations: {
-      setBannerData(state, value) {
-        state.bannerData = value
+      setBanner(state, value) {
+        state.banner = value
       }
     },
 

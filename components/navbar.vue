@@ -1,17 +1,17 @@
 <template>
   <div class="fixed-top">
     <div
-      v-if="bannerData && bannerData.bannerText"
+      v-if="banner && banner.text"
       ref="infobanner"
       class="info-banner"
       :class="{
-        'info-banner--warning': bannerData.bannerType === 'warning',
+        'info-banner--warning': banner.type === 'warning',
       }"
     >
-      <strong v-if="bannerData.bannerHeading">
-        {{ bannerData.bannerHeading }}:
+      <strong v-if="banner.heading">
+        {{ banner.heading }}:
       </strong>
-      {{ bannerData.bannerText }}
+      {{ banner.text }}
     </div>
     <nav class="navbar navbar-expand-lg p-0">
       <div class="container-fluid h-100">
@@ -438,7 +438,7 @@ import * as animationData from '~/static/lottie-animations/green-check.json'
     ...mapState('auth', {
       user: (state) => state.user,
     }),
-    ...mapState(['bannerData']),
+    ...mapState(['banner']),
     ...mapGetters('account', ['account']),
     ...mapGetters('network', ['selectedNetwork', 'rootChainNetwork']),
   },
@@ -463,7 +463,7 @@ export default class Navbar extends Vue {
   }
 
   mounted() {
-    if(this.bannerData) {
+    if(this.banner) {
       this.$emit('bannerHeight', this.$refs.infobanner.clientHeight);
     }
   }
