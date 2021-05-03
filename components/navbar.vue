@@ -1,5 +1,7 @@
 <template>
-  <nav class="navbar navbar-expand-lg fixed-top p-0">
+<div class="fixed-top">
+  <div ref="infobanner" class="info-banner">Hello Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ad expedita ut harum incidunt, culpa ratione maxime fugit natus doloribus quam, doloremque at corporis libero repudiandae deleniti eveniet odio numquam tenetur!</div>
+  <nav class="navbar navbar-expand-lg p-0">
     <div class="container-fluid h-100">
       <div class="row mx-auto ps-x-16 w-100 h-100">
         <nuxt-link class="logo-container d-flex" :to="{ name: 'index' }">
@@ -390,6 +392,7 @@
     />
     <logout-confirm :show="openLogout" :logout="logout" :close="logoutClose" />
   </nav>
+</div>
 </template>
 
 <script>
@@ -433,6 +436,10 @@ export default class Navbar extends Vue {
   currentNetwork = {
     key: 'matic',
     name: 'Matic',
+  }
+
+  mounted() {
+    this.$emit('bannerHeight', this.$refs.infobanner.clientHeight)
   }
 
   checkIfNestedRoute(...names) {
@@ -558,6 +565,13 @@ export default class Navbar extends Vue {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.info-banner {
+  background: red;
+  color: white;
+  padding: 2px 10%;
+  text-align: center;
 }
 
 .navbar {
