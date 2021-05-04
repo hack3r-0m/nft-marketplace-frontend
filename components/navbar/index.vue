@@ -1,18 +1,6 @@
 <template>
   <div class="fixed-top">
-    <div
-      v-if="banner && banner.text"
-      ref="infobanner"
-      class="info-banner"
-      :class="{
-        'info-banner--warning': banner.type === 'warning',
-      }"
-    >
-      <strong v-if="banner.heading">
-        {{ banner.heading }}:
-      </strong>
-      {{ banner.text }}
-    </div>
+    <banner @bannerHeight="bannerHeightHandler"/>
     <nav class="navbar navbar-expand-lg p-0">
       <div class="container-fluid h-100">
         <div class="row mx-auto ps-x-16 w-100 h-100">
@@ -428,12 +416,13 @@ import Lottie from 'vue-lottie'
 
 import ReceiveQrCode from '~/components/lego/receive-qr-code'
 import LogoutConfirm from '~/components/lego/logout-confirm'
+import Banner from './banner'
 
 import * as animationData from '~/static/lottie-animations/green-check.json'
 
 @Component({
   props: {},
-  components: { Lottie, ReceiveQrCode, LogoutConfirm },
+  components: { Lottie, ReceiveQrCode, LogoutConfirm, Banner },
   computed: {
     ...mapState('auth', {
       user: (state) => state.user,
@@ -462,10 +451,8 @@ export default class Navbar extends Vue {
     name: 'Matic',
   }
 
-  mounted() {
-    if(this.banner) {
-      this.$emit('bannerHeight', this.$refs.infobanner.clientHeight);
-    }
+  bannerHeightHandler(bannerHeight) {
+    this.$emit('bannerHeight', bannerHeight);
   }
 
   checkIfNestedRoute(...names) {
@@ -591,17 +578,6 @@ export default class Navbar extends Vue {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.info-banner {
-  padding: 8px 10%;
-  text-align: center;
-  background: rgb(33, 84, 250);
-  color: white;
-
-  &--warning {
-    background: red;
-  }
 }
 
 .navbar {
