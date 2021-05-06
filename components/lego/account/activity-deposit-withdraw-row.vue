@@ -151,7 +151,7 @@ export default class ActivityDepositWithdrawRow extends Vue {
 
   onAccept() {
     this.showAcceptBid = true
-    console.log('On accept')
+    this.$logger.debug('On accept')
   }
 
   onAcceptClose() {

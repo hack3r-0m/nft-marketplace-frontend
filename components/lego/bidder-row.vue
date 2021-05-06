@@ -138,6 +138,7 @@ export default class BidderRow extends Vue {
   showDenyBid = false
   showCancelBid = false
   isLoading = false
+  isApprovedAfterTransaction = false
   denyButtonTexts = { title: 'Deny', loadingTitle: 'Denying...' }
   cancelButtonTexts = { title: 'Cancel', loadingTitle: 'Cancelling...' }
   mounted() {}
@@ -334,7 +335,7 @@ export default class BidderRow extends Vue {
           remainingFillableAmount,
           isValidSignature,
         })
-        console.log('is fillable', {
+        this.$logger.debug('is fillable', {
           orderStatus,
           orderHash,
           remainingFillableAmount,
@@ -347,7 +348,7 @@ export default class BidderRow extends Vue {
           remainingFillableAmount.isGreaterThan(0) &&
           isValidSignature
         ) {
-          console.log('Fillable')
+          this.$logger.debug('Fillable')
           this.$logger.track('accept-bid-fill-order:bid-options')
           const dataVal = await this.$store.dispatch(
             'order/fillBid',
@@ -436,78 +437,85 @@ export default class BidderRow extends Vue {
           )
           .call()
       }
-      console.log('Approving 1', isApprovedForAll)
+      this.$logger.debug('Approving 1', isApprovedForAll)
       if (!isApprovedForAll) {
         if (!(await this.metamaskValidation())) {
           this.approveLoading = false
           return false
         }
-
+        this.isApprovedAfterTransaction = false;
+        const maticWeb3 = new Web3(window.ethereum)
         if (this.isErc721) {
-          console.log('Approving 2', {
-            isApprovedForAll,
-            tokenContract: tokenContract,
-            erc721Proxy: contractWrappers.contractAddresses.erc721Proxy,
-            makerAddress: makerAddress,
-          })
-          const makerERC721ApprovalTxHash = await tokenContract
-            .setApprovalForAll(
-              contractWrappers.contractAddresses.erc721Proxy,
-              true,
+          try {
+            this.$logger.debug('Approving 2', {
+              isApprovedForAll,
+              tokenContract: tokenContract,
+              erc721Proxy: contractWrappers.contractAddresses.erc721Proxy,
+              makerAddress: makerAddress,
+            })
+            const erc721TokenCont = new maticWeb3.eth.Contract(
+              this.networkMeta.abi('ChildERC721', 'pos'),
+              nftContract,
             )
-            .sendTransactionAsync({
-              from: makerAddress,
-              gas: 100000,
-            })
-          console.log('Approving 2')
-          if (makerERC721ApprovalTxHash) {
-            console.log('Approve Hash', makerERC721ApprovalTxHash)
-            this.$toast.show('Approved', 'You successfully approved', {
-              type: 'success',
-            })
-            return true
+            await erc721TokenCont.methods
+              .setApprovalForAll(
+                contractWrappers.contractAddresses.erc721Proxy,
+                true,
+              )
+              .send({
+                from: makerAddress,
+                gas: 100000,
+              })
+              .on('receipt', (receipt) => {
+                this.$toast.show('Approved', 'You successfully approved', {
+                  type: 'success',
+                })
+                this.isApprovedAfterTransaction = true
+              })
+          } catch (error) {
+            this.txShowError(
+              error,
+              'Failed to approve',
+              'You need to approve the transaction to sale the NFT',
+            )
           }
-          this.txShowError(
-            error,
-            'Failed to approve',
-            'You need to approve the transaction to sale the NFT',
-          )
+          return this.isApprovedAfterTransaction
         } else {
-          const maticWeb3 = new Web3(window.ethereum)
-          const contract = new maticWeb3.eth.Contract(
-            this.networkMeta.abi('ChildERC1155', 'pos'),
-            nftContract,
-          )
-
-          console.log('Approving 2', {
-            isApprovedForAll,
-            tokenContract: contract,
-            erc1155Proxy: contractWrappers.contractAddresses.erc1155Proxy,
-            makerAddress: makerAddress,
-          })
-
-          const makerERC1155ApprovalTxHash = await contract
-            .setApprovalForAll(
-              contractWrappers.contractAddresses.erc1155Proxy,
-              true,
+          try {
+            const erc1155TokenCont = new maticWeb3.eth.Contract(
+              this.networkMeta.abi('ChildERC1155', 'pos'),
+              nftContract,
             )
-            .send({
-              from: makerAddress,
-              gas: 100000,
+            this.$logger.debug('Approving 2', {
+              isApprovedForAll,
+              tokenContract: contract,
+              erc1155Proxy: contractWrappers.contractAddresses.erc1155Proxy,
+              makerAddress: makerAddress,
             })
-          console.log('Approving 2')
-          if (makerERC1155ApprovalTxHash) {
-            console.log('Approve Hash', makerERC1155ApprovalTxHash)
-            this.$toast.show('Approved', 'You successfully approved', {
-              type: 'success',
-            })
-            return true
+
+            await erc1155TokenCont.methods
+              .setApprovalForAll(
+                contractWrappers.contractAddresses.erc1155Proxy,
+                true,
+              )
+              .send({
+                from: makerAddress,
+                gas: 100000,
+              })
+              .on('receipt', (receipt) => {
+                this.$toast.show('Approved', 'You successfully approved', {
+                  type: 'success',
+                })
+                this.isApprovedAfterTransaction = true
+              })
+          } catch(error) {
+            this.txShowError(
+              error,
+              'Failed to approve',
+              'You need to approve the transaction to sale the NFT',
+            )
           }
-          this.txShowError(
-            error,
-            'Failed to approve',
-            'You need to approve the transaction to sale the NFT',
-          )
+          return this.isApprovedAfterTransaction
         }
       }
       return true

@@ -436,6 +436,7 @@ export default class BuyToken extends Vue {
   signLoading = false
   makerAmount = null
   depositModal = false
+  isApprovedAfterTransaction = false
 
   mounted() {
     this.$logger.track('mounted:buy-token', {
@@ -735,7 +736,7 @@ export default class BuyToken extends Vue {
         signedOrder.makerFee = BigNumber(signedOrder.makerFee)
         signedOrder.salt = BigNumber(signedOrder.salt)
         signedOrder.takerFee = BigNumber(signedOrder.takerFee)
-        console.log(signedOrder)
+        this.$logger.debug(signedOrder)
 
         // Check Approve 0x, Approve if not
         this.$logger.track('approve-start-fixed-0x:buy-token')
@@ -903,7 +904,7 @@ export default class BuyToken extends Vue {
           remainingFillableAmount,
           isValidSignature,
         })
-        console.log('is fillable', {
+        this.$logger.debug('is fillable', {
           orderStatus,
           orderHash,
           remainingFillableAmount,
@@ -952,7 +953,7 @@ export default class BuyToken extends Vue {
             remainingFillableAmount,
             isValidSignature,
           })
-          console.log('Order is already sold')
+          this.$logger.debug('Order is already sold')
           const res = await this.$store.dispatch(
             'order/validate',
             this.order.id,
@@ -1072,7 +1073,7 @@ export default class BuyToken extends Vue {
                 'approving-0x-complete-non-meta-tx:buy-token',
                 { response },
               )
-              console.log('Approved')
+              this.$logger.debug('Approved')
               this.$toast.show('Approved', 'You successfully approved', {
                 type: 'success',
               })
@@ -1094,27 +1095,34 @@ export default class BuyToken extends Vue {
           return false
         }
         try {
+          this.isApprovedAfterTransaction = false;
+          const maticWeb3 = new Web3(window.ethereum)
+
+          const erc20TokenContract = new maticWeb3.eth.Contract(
+              this.networkMeta.abi('ChildERC20', 'pos'),
+              erc20Address,
+            )
+
           const amount = new BigNumber(
             '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
           )
-          const erc20Approve = await erc20TokenCont
+          await erc20TokenContract.methods
             .approve(contractWrappers.contractAddresses.erc20Proxy, amount)
-            .sendTransactionAsync({
+            .send({
               from: this.account.address,
               gas: 100000,
             })
-          if (erc20Approve) {
-            console.log('Approved')
-            this.$toast.show('Approved', 'You successfully approved', {
-              type: 'success',
+            .on('receipt', (receipt) => {
+              this.$toast.show(
+                'Approved successfully',
+                'You successfully approved the token to put on sale',
+                {
+                  type: 'success',
+                },
+              )
+              this.isApprovedAfterTransaction = true
             })
-            this.$logger.track('approving-0x-complete-non-meta-tx:buy-token', {
-              erc20Approve,
-            })
-            return true
-          }
         } catch (error) {
-          console.log(error)
           if (
             error.message.includes(
               'MetaMask is having trouble connecting to the network',
@@ -1129,7 +1137,7 @@ export default class BuyToken extends Vue {
             )
           }
         }
-        return false
+        return this.isApprovedAfterTransaction
       }
     }
     return true

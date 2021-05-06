@@ -531,7 +531,7 @@ export default class WithdrawConfirmationModal extends Vue {
 
       const exited = await maticPoS.isBatchERC721ExitProcessed(burnHash)
       if (exited) {
-        console.log('exited before')
+        this.$logger.debug('exited before')
         await this.handleExit('TX EXITED EXTERNALLY')
         this.isLoading = false
         this.cancel()
@@ -544,7 +544,7 @@ export default class WithdrawConfirmationModal extends Vue {
           this.transactionHash = txHash
         },
         onReceipt: async (txHash) => {
-          console.log('exited now')
+          this.$logger.debug('exited now')
           await this.handleExit(txHash)
           this.isLoading = false
         },

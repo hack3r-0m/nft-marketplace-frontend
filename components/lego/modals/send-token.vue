@@ -380,7 +380,6 @@ export default class SendToken extends Vue {
             const response = await this.$store.dispatch(`order/executeMetaTx`, tx)
             this.refreshNFTTokens()
             if (response) {
-              // console.log("Transfer receipt: " + response);
               this.$toast.show(
                 'Transferred',
                 'You successfully transferred the token',
@@ -403,44 +402,45 @@ export default class SendToken extends Vue {
           return
         }
         this.$logger.track('non-meta-tx-start:transfer-token')
-
+        const web3 = new Web3(window.ethereum)
         if (this.isErc721) {
-          const erc721TransferTxHash = await erc721TokenCont
-            .safeTransferFrom1(
+          const erc721TokenCont = new web3.eth.Contract(
+            this.networkMeta.abi('ChildERC721', 'pos'),
+            nftContract,
+          )
+          await erc721TokenCont.methods
+            .safeTransferFrom(
               this.account.address,
               this.toAddress,
               new BigNumber(decimalnftTokenId),
             )
-            .sendTransactionAsync({
+            .send({
               from: this.account.address,
               gas: 1000000,
             })
-          if (erc721TransferTxHash) {
-            // console.log("Transfer Hash", erc721TransferTxHash);
-            this.refreshNFTTokens()
-            setTimeout(() => {
+            .on('receipt', (receipt) => {
               this.refreshNFTTokens()
-            }, 10000)
+              setTimeout(() => {
+                this.refreshNFTTokens()
+              }, 10000)
 
-            this.$toast.show(
-              'Transferred successfully',
-              'You successfully transferred the token',
-              {
-                type: 'success',
-              },
-            )
-            this.close()
-            this.$logger.track('success-non-meta-tx-ERC721:transfer-token')
-            return true
-          }
-          this.txShowError(error, 'Failed to transfer', 'Failed to transfer token')
+              this.$toast.show(
+                'Transferred successfully',
+                'You successfully transferred the token',
+                {
+                  type: 'success',
+                },
+              )
+              this.close()
+              this.$logger.track('success-non-meta-tx-ERC721:transfer-token')
+              return true
+            })
         } else {
-          const web3 = new Web3(window.ethereum)
           const erc1155TokenCont = new web3.eth.Contract(
             this.networkMeta.abi('ChildERC1155', 'pos'),
             nftContract,
           )
-          const erc1155TransferTxHash = await erc1155TokenCont.methods
+          await erc1155TokenCont.methods
             .safeTransferFrom(
               this.account.address,
               this.toAddress,
@@ -452,28 +452,26 @@ export default class SendToken extends Vue {
               from: this.account.address,
               gas: 1000000,
             })
-          if (erc1155TransferTxHash) {
-            this.refreshNFTTokens()
-            setTimeout(() => {
+            .on('receipt', (receipt) => {
               this.refreshNFTTokens()
-            }, 10000)
+              setTimeout(() => {
+                this.refreshNFTTokens()
+              }, 10000)
 
-            this.$toast.show(
-              'Transferred successfully',
-              'You successfully transferred the token',
-              {
-                type: 'success',
-              },
-            )
-            this.close()
-            this.$logger.track('success-non-meta-tx-ERC1155:transfer-token')
-            return true
-          }
-          this.txShowError(error, 'Failed to transfer', 'Failed to transfer token')
+              this.$toast.show(
+                'Transferred successfully',
+                'You successfully transferred the token',
+                {
+                  type: 'success',
+                },
+              )
+              this.close()
+              this.$logger.track('success-non-meta-tx-ERC721:transfer-token')
+              return true
+            })
         }
       }
     } catch (error) {
-      console.error(error);
       if (
         error.message.includes(
           "MetaMask is having trouble connecting to the network"

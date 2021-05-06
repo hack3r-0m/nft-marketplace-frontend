@@ -388,6 +388,7 @@ export default class SellToken extends Vue {
   approveLoading = false
   signLoading = false
   showNetworkChangeNeeded = false
+  isApprovedAfterTransaction = false
 
   approvalModalText = {
     approve: {
@@ -597,7 +598,7 @@ export default class SellToken extends Vue {
           nftContract,
           getProviderEngine(),
         )
-        console.log(erc721TokenCont)
+        this.$logger.debug(erc721TokenCont)
         this.$logger.track('approve0x-721-start:sell-token')
         isApproved = await this.approve0x(
           erc721TokenCont,
@@ -620,7 +621,7 @@ export default class SellToken extends Vue {
           this.networkMeta.abi('ChildERC1155', 'pos'),
           nftContract,
         )
-        console.log(erc1155TokenCont)
+        this.$logger.debug(erc1155TokenCont)
         this.$logger.track('approve0x-1155-start:sell-token')
         isApproved = await this.approve0x(
           erc1155TokenCont,
@@ -634,7 +635,7 @@ export default class SellToken extends Vue {
       this.isApprovedStatus = isApproved
       this.approveLoading = false
     } catch (error) {
-      console.log(error)
+      this.$logger.error(error)
       this.approveLoading = false
       this.txShowError(error, null, 'Something went wrong')
     }
@@ -862,32 +863,34 @@ export default class SellToken extends Vue {
           this.isLoading = false
           return false
         }
-
+        this.isApprovedAfterTransaction = false;
+        const maticWeb3 = new Web3(window.ethereum)
         if (this.isErc721) {
           try {
-            const makerERC721ApprovalTxHash = await tokenCont
+            const erc721TokenCont = new maticWeb3.eth.Contract(
+              this.networkMeta.abi('ChildERC721', 'pos'),
+              nftContract,
+            )
+            await erc721TokenCont.methods
               .setApprovalForAll(
                 contractWrappers.contractAddresses.erc721Proxy,
                 true,
               )
-              .sendTransactionAsync({
+              .send({
                 from: makerAddress,
                 gas: 100000,
               })
-
-            if (makerERC721ApprovalTxHash) {
-              console.log('Approve Hash', makerERC721ApprovalTxHash)
-              this.$toast.show(
-                'Approved successfully',
-                'You successfully approved the token to put on sale',
-                {
-                  type: 'success',
-                },
-              )
-              return true
-            }
+              .on('receipt', (receipt) => {
+                this.$toast.show(
+                  'Approved successfully',
+                  'You successfully approved the token to put on sale',
+                  {
+                    type: 'success',
+                  },
+                )
+                this.isApprovedAfterTransaction = true
+              })
           } catch (error) {
-            console.log(error)
             if (
               error.message.includes(
                 'MetaMask is having trouble connecting to the network',
@@ -904,41 +907,51 @@ export default class SellToken extends Vue {
               )
             }
           }
+          return this.isApprovedAfterTransaction
         } else {
-          const maticWeb3 = new Web3(window.ethereum)
-          const contract = new maticWeb3.eth.Contract(
-            this.networkMeta.abi('ChildERC1155', 'pos'),
-            nftContract,
-          )
-
-          const makerERC1155ApprovalTxHash = await contract.methods
-            .setApprovalForAll(
-              contractWrappers.contractAddresses.erc1155Proxy,
-              true,
+          try {
+            const erc1155TokenCont = new maticWeb3.eth.Contract(
+              this.networkMeta.abi('ChildERC1155', 'pos'),
+              nftContract,
             )
-            .send({
-              from: makerAddress,
-              gas: 100000,
-            })
-
-          if (makerERC1155ApprovalTxHash) {
-            console.log('Approve Hash', makerERC1155ApprovalTxHash)
-            this.$toast.show(
-              'Approved successfully',
-              'You successfully approved the token to put on sale',
-              {
-                type: 'success',
-              },
-            )
-            return true
+            let isApprovedAfterTransaction = false;
+            await erc1155TokenCont.methods
+              .setApprovalForAll(
+                contractWrappers.contractAddresses.erc1155Proxy,
+                true,
+              )
+              .send({
+                from: makerAddress,
+                gas: 100000,
+              })
+              .on('receipt', (receipt) => {
+                this.$toast.show(
+                  'Approved successfully',
+                  'You successfully approved the token to put on sale',
+                  {
+                    type: 'success',
+                  },
+                )
+                this.isApprovedAfterTransaction = true
+              })
+          } catch (error) {
+            if (
+              error.message.includes(
+                'MetaMask is having trouble connecting to the network',
+              )
+            ) {
+              this.txShowError(error, null, 'Please Try Again')
+            } else {
+              this.$toast.show(
+                'Failed to approve',
+                'You need to approve the transaction to sale the NFT',
+                {
+                  type: 'failure',
+                },
+              )
+            }
           }
-          this.$toast.show(
-            'Failed to approve',
-            'You need to approve the transaction to sale the NFT',
-            {
-              type: 'failure',
-            },
-          )
+          return this.isApprovedAfterTransaction
         }
       } else {
         const contractWrapperAddress = this.isErc1155

@@ -22,7 +22,6 @@
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
 import { mapGetters, mapState } from 'vuex'
-import SellCard from '~/components/lego/sell-card'
 import CategoriesSelector from '~/components/lego/categories-selector'
 import SearchBox from '~/components/lego/search-box'
 import SortDropdown from '~/components/lego/sort-dropdown'
@@ -38,7 +37,6 @@ import CheckAuth from '~/components/mixins/common/check_auth'
 @Component({
   props: {},
   components: {
-    SellCard,
     CategoriesSelector,
     SearchBox,
     SortDropdown,
