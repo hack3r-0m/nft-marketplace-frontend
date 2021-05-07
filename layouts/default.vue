@@ -1,7 +1,10 @@
 <template>
   <div class="container-fluid p-0">
-    <navbar-section v-if="shouldShowNavBar" />
-    <div class="content-container">
+    <navbar-section 
+      v-if="shouldShowNavBar"
+      @bannerHeight="bannerHeightHandler"
+    />
+    <div class="content-container" :style="contentContainerClasses">
       <div v-if="isLoaded" class="nuxt-section">
         <nuxt />
       </div>
@@ -27,6 +30,7 @@ import Vue from 'vue'
 import Web3 from 'web3'
 import { IS_METAMASK_ENABLED } from '~/constants'
 import Loader from '~/components/common/loader'
+import exportedCssVars from '~/assets/css/theme/_variables.scss'
 
 export default {
   components: {
@@ -37,6 +41,7 @@ export default {
   data() {
     return {
       isLoaded: false,
+      bannerHeight: '0px',
     }
   },
   watch: {
@@ -58,6 +63,11 @@ export default {
     shouldShowNavBar() {
       return this.isLoaded && this.$route.name != 'login'
     },
+    contentContainerClasses() {
+      return {
+        'margin-top': `calc(${exportedCssVars.navbarLocalHeight} + ${this.bannerHeight})`,
+      }
+    }
   },
   created() {
     this.isMobileDevice = window.innerWidth < 768
@@ -74,12 +84,10 @@ export default {
   },
 
   methods: {
+    ...mapActions({ getConfig: 'getConfig' }),
     ...mapActions('network', {
       setNetworks: 'setNetworks',
       setProviders: 'setProviders',
-    }),
-    ...mapActions('auth', {
-      getConfig: 'getConfig',
     }),
     ...mapActions('category', {
       fetchCategories: 'fetchCategories',
@@ -166,16 +174,15 @@ export default {
         this.$router.push('/login')
       }
     },
+    bannerHeightHandler(height) {
+      this.bannerHeight = `${height}px`
+    }
   },
 }
 </script>
 
 <style lang="scss" scoped="true">
 @import '~assets/css/theme/_theme';
-
-.nuxt-section {
-  margin-top: $navbar-local-height;
-}
 
 .logo-container {
   height: 100px;
@@ -188,9 +195,6 @@ export default {
 
 .logo-name {
   height: 24px;
-}
-.content-container {
-  margin-top: $navbar-local-height;
 }
 
 .loader {

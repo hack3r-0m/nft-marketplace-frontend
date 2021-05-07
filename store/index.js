@@ -1,4 +1,8 @@
+import Vue from "vue";
 import Vuex from 'vuex'
+
+import { LOCAL_STORAGE } from "~/constants";
+import { LocalStorage } from "~/utils";
 
 import locale from './locale'
 import page from './page'
@@ -14,11 +18,41 @@ export let STORE;
 
 const createStore = () => {
   STORE = new Vuex.Store({
-    actions: {
-      reset() {
+    state: {
+      banner: null,
+    },
 
+    actions: {
+      reset() {},
+      async getConfig({ dispatch, commit }) {
+        const response = await Vue.service.user.getConfig();
+        const config = response.data.data;
+
+        if (response.status === 200 && config) {
+          const bannerData = config.banner
+          commit('setBanner', bannerData)
+
+          if (config.isAuthenticated) {
+            await dispatch("auth/initUser", {
+              loginStrategy: LocalStorage.get(LOCAL_STORAGE.loginStrategy),
+              authToken: LocalStorage.get(LOCAL_STORAGE.authToken),
+              user: config,
+            })
+            // return true;
+          } else {
+            await dispatch("token/fetchERC20Tokens", config.isAuthenticated, { root: true });
+          }
+        }
+        // return false;
+      },
+    },
+
+    mutations: {
+      setBanner(state, value) {
+        state.banner = value
       }
     },
+
     // modules
     modules: {
       locale,
