@@ -519,13 +519,13 @@ export default class Navbar extends Vue {
     return ''
   }
 
-  get userProfilePic() {
-    try {
-      return user.photoURL
-    } catch (error) {
-      return false
-    }
-  }
+  // get userProfilePic() {
+  //   try {
+  //     return this.user.photoURL
+  //   } catch (error) {
+  //     return false
+  //   }
+  // }
 
   async logout() {
     await this.$store.dispatch('auth/logout')
