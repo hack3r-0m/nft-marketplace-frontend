@@ -103,6 +103,12 @@ export const action = {
             return response.data
         }
     },
+    async validateBid(_, payload) {
+        const response = await Vue.service.order.validateBid(payload);
+        if (response.status === 200) {
+            return response.data
+        }
+    },
     async cancelBid(_, payload) {
         const response = await Vue.service.order.cancelBid(payload);
         if (response.status === 200) {

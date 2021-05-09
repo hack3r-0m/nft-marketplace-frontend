@@ -34,6 +34,14 @@ export class OrderService {
         return this.httpCaller.patch(url, data);
     }
 
+    validateBid({ orderId, bidId }) {
+        const url = this.createUrl_(`validate/bid`)
+        return this.httpCaller.post(url, {
+            orderId: orderId,
+            bidId: bidId
+        });
+    }
+
     encodeForCancelBidOrder(bidId) {
         const url = this.createUrl_(`exchangedata/encodedbid?bidId=${bidId}&functionName=cancelOrder`);
         return this.httpCaller.get(url);

@@ -242,6 +242,34 @@ export default class BidderRow extends Vue {
       erc20Token: this.bid.erc20Token,
     })
     this.isLoading = true
+
+    try {
+      const isValidBid = await this.$store.dispatch('order/validateBid', {
+        bidId: this.bid.id,
+        orderId: this.bid.order.id
+      })
+
+      if(!isValidBid.bid_valid) {
+        this.txShowError(
+          null,
+          'Invalid Bid',
+          'Bid not valid',
+        )
+        this.isLoading = false
+        this.onAcceptClose()
+        this.refreshBids()
+        return
+      }
+    } catch (error) {
+      this.$logger.error(error)
+      this.isLoading = false
+      this.txShowError(error, null, 'Something went wrong')
+      this.onAcceptClose()
+      return
+    }
+
+    
+
     if (this.order.taker_address === this.user.id) {
       try {
         // const chainId = this.networks.matic.chainId
