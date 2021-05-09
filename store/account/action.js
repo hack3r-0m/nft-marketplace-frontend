@@ -44,6 +44,12 @@ export const action = {
             return response.data;
         }
     },
+    async fetchNFT(_, payload) {
+        const response = await Vue.service.token.fetchNFT(payload);
+        if (response.status === 200) {
+            return response.data;
+        }
+    },
     async fetchMainNFT({ commit, dispatch }, payload) {
         const response = await dispatch('fetchUserNFT', payload);
         const tokens = [];
