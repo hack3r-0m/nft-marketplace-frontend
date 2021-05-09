@@ -11,6 +11,7 @@
             class="align-self-center"
             :token="token"
             :category="category"
+            :defaultPage="!isOwnerOfNFT"
           />
         </div>
         <a :href="openseaUrl" v-tooltip.left="'View on OpenSea'" rel="noopener noreferrer" target="_blank" class="align-self-center ps-x-16 ps-x-md-0">

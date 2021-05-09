@@ -13,8 +13,10 @@
         {{ token.name }} {{ isErc1155 ? `( ${token.amount} )` : '' }}
       </h1>
       <div class="font-body-small owner-info">
-        Owned by
-        <a href @click.prevent>{{ shortAddress }}</a>
+        <span v-if="!defaultPage">
+          Owned by
+          <a href @click.prevent>{{ shortAddress }}</a>
+        </span>
         in
         <a
           :href="token.external_url || token.external_link"
@@ -42,6 +44,11 @@ import Component from 'nuxt-class-component'
       type: Object,
       required: true,
     },
+    defaultPage: {
+      type: Boolean,
+      required: false,
+      default: false
+    }
   },
   components: {},
   computed: {},
