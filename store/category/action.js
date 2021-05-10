@@ -1,6 +1,9 @@
 import Vue from "vue";
 
 export const action = {
+    reset({ commit }) {
+        commit('RESET');
+    },
     async fetchCategories({ commit, rootState }) {
         const response = await Vue.service.category.getCategories();
         const categoriesFromResponse = response.data.data.categories;

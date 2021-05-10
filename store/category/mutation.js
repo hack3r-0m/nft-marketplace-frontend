@@ -1,6 +1,10 @@
 import Vue from "vue";
+import { initialState } from "./state";
 
 export const mutation = {
+    RESET(state) {
+        Object.assign(state, initialState())
+    },
     categories(state, categories) {
         state.categories = categories
     },

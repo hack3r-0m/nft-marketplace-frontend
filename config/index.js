@@ -1,7 +1,6 @@
 
 import Vue from "vue";
 const config = require("./default");
-// debugger;
 console.log("BUILD_ENV", process.env.BUILD_ENV)
 if (process.env.BUILD_ENV === "mainnet" || process.env.NODE_ENV === "production") {
     Object.assign(config, require("./mainnet"))
