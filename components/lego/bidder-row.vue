@@ -253,7 +253,7 @@ export default class BidderRow extends Vue {
         this.txShowError(
           null,
           'Invalid Bid',
-          'Bid not valid',
+          'This bid is no longer valid as bidder has exhausted their balance.  Please go ahead with the next bid or wait for new bids to be placed',
         )
         this.isLoading = false
         this.onAcceptClose()
