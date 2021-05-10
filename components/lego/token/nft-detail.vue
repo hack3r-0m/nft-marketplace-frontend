@@ -365,7 +365,7 @@ export default class NftDetail extends Vue {
   }
 
   get openseaUrl() {
-    return `https://opensea.io/assets/matic/${this.category.address}/${this.token.token_id}`
+    return `https://opensea.io/assets/matic/${this.contractAddress}/${this.tokenId}`
   }
 
   checkImageFormat(imgUrl) {
