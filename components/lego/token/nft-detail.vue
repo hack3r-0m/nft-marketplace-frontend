@@ -377,7 +377,7 @@ export default class NftDetail extends Vue {
   }
   handleNotVideo() {
     const image = new Image()
-    image.src = this.token.img_url
+    image.src = this.token.image_url
     image.onload = () => { this.isNotVideoFormat = true }
     image.onerror = () => {
       const image = document.createElement('img')
