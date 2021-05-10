@@ -3,28 +3,47 @@
     <div class="double-bounce1"></div>
     <div class="double-bounce2"></div>
   </div>
-  <img v-else :src="src" :class="$attrs.class" />
+  <img
+    v-else
+    :src="imgSrc"
+    :class="($attrs.class || []).concat(categoryClass)"
+  />
 </template>
 <script>
 export default {
   props: {
     src: String,
+    fallBackSrc: String,
+  },
+  computed: {
+    categoryClass() {
+      if (this.fallbackSrcChoosen) {
+        return ['category-img']
+      }
+      return []
+    },
   },
   data() {
     return {
       isLoading: true,
+      fallbackSrcChoosen: false,
     }
   },
   mounted() {
     const img = new Image()
     img.src = this.src
+    this.fallbackSrcChoosen = false
     img.onload = (e) => {
       this.$emit('load', e)
+      this.imgSrc = img.src
       this.isLoading = false
     }
     img.onerror = (e) => {
-      this.$emit('error', e)
-      this.isLoading = false
+      img.src = this.fallBackSrc
+      if (this.fallbackSrcChoosen) {
+        this.$emit('error', e)
+      }
+      this.fallbackSrcChoosen = true
     }
   },
 }
@@ -78,5 +97,8 @@ export default {
     transform: scale(1);
     -webkit-transform: scale(1);
   }
+}
+.category-img {
+  width: 100px;
 }
 </style>

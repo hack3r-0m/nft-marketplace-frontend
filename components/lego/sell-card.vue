@@ -32,7 +32,7 @@
         class="asset-img align-self-center"
         :alt="order.token.name"
         @load="onImageLoad"
-        @error="imageLoadError"
+        :fallBackSrc="category.img_url"
       />
     </div>
     <div
@@ -116,7 +116,6 @@ import ImageWithLoader from "~/components/common/image";
 export default class SellCard extends Vue {
   bg = '#f3f4f7'
   isVideoFormat = true
-  isFallbackToCategoryImage = false
   // Initial
   mounted() {
 
@@ -173,13 +172,7 @@ export default class SellCard extends Vue {
       : '$0'
   }
 
-  // Actions
-  imageLoadError(event) {
-    if (this.isFallbackToCategoryImage) return
-    this.isFallbackToCategoryImage = true
-    event.target.src = this.category.img_url
-    event.target.style.width = '100px'
-  }
+
 
   handleNotVideo() {
     this.isVideoFormat = false
