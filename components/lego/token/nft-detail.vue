@@ -11,6 +11,7 @@
             class="align-self-center"
             :token="token"
             :category="category"
+            :defaultPage="!isOwnerOfNFT"
           />
         </div>
         <a :href="openseaUrl" v-tooltip.left="'View on OpenSea'" rel="noopener noreferrer" target="_blank" class="align-self-center ps-x-16 ps-x-md-0">
@@ -98,11 +99,11 @@
                 {{ tokenDescription }}
               </p>
 
-              <button class="btn btn-primary ms-t-32" @click="onSellToken">
+              <button v-if="isOwnerOfNFT" class="btn btn-primary ms-t-32" @click="onSellToken">
                 {{ $t('sell') }}
               </button>
 
-              <button class="btn btn-primary ms-t-16" @click="onTransferToken">
+              <button v-if="isOwnerOfNFT" class="btn btn-primary ms-t-16" @click="onTransferToken">
                 {{ $t('transfer') }}
               </button>
             </div>
@@ -224,11 +225,11 @@
               {{ tokenDescription }}
             </p>
 
-            <button class="btn btn-primary ms-t-32" @click="onSellToken">
+            <button v-if="isOwnerOfNFT" class="btn btn-primary ms-t-32" @click="onSellToken">
               {{ $t('sell') }}
             </button>
 
-            <button class="btn btn-primary ms-t-16" @click="onTransferToken">
+            <button v-if="isOwnerOfNFT" class="btn btn-primary ms-t-16" @click="onTransferToken">
               {{ $t('transfer') }}
             </button>
           </div>
@@ -330,6 +331,7 @@ export default class NftDetail extends Vue {
   showSellModal = false
   showSendModal = false
   isNotVideoFormat = false;
+  isOwnerOfNFT = true;
 
   token = {}
 
@@ -438,28 +440,42 @@ export default class NftDetail extends Vue {
     }
     this.isLoadingDetails = true
     try {
-      const response = await this.$store.dispatch('account/fetchUserNFT', {
-        user: this.user,
-        chainId: this.chainId,
-      })
-      const tokens = response.data
-      if (tokens) {
-        // should use a endpoint that returns detail for just one token
-        let currentToken = tokens.filter((token) => {
+      let tokens = null;
+      if(this.user) {
+        const response = await this.$store.dispatch('account/fetchUserNFT', {
+          user: this.user,
+          chainId: this.chainId,
+        })
+        tokens = response.data
+      }
+
+      let currentToken = null;
+      if(tokens) {
+        currentToken = tokens.filter((token) => {
           return (
             token.token_id === this.tokenId &&
             token.contract.match(new RegExp(this.contractAddress, 'i'))
           )
         })
-        if (currentToken.length > 0) {
-          currentToken = currentToken[0]
-        } else {
-          return
-        }
+      }
 
-        currentToken.chainId = this.chainId
-        currentToken.attributes = currentToken.attributes? JSON.parse(currentToken.attributes) : ''
-        this.token = currentToken
+      if (currentToken && currentToken.length > 0) {
+          currentToken = currentToken[0]
+          currentToken.chainId = this.chainId
+          currentToken.attributes = currentToken.attributes? JSON.parse(currentToken.attributes) : ''
+          this.token = currentToken
+          this.isOwnerOfNFT = true;
+      } else {
+        const result = await this.$store.dispatch('account/fetchNFT', {
+          categoryAddress: this.contractAddress,
+          tokenId: this.tokenId,
+          chainId: this.chainId
+        })
+        this.isOwnerOfNFT = false;
+        const token = result.data
+        token.chainId = this.chainId
+        token.attributes = token.attributes? JSON.parse(token.attributes) : ''
+        this.token = token
       }
     } catch (error) {
       this.$logger.error(error)

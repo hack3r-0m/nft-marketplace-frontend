@@ -843,7 +843,7 @@ export default class TokenDetail extends Vue {
 
   async refreshBids() {
     await this.fetchBidders()
-    await this.fetchOrder()
+    // await this.fetchOrder()
   }
 
   async fetchBidders() {
