@@ -74,7 +74,7 @@
               v-if="SHOW_COUNT.MATIC === countFor"
               class="count ps-l-12 font-body-medium ml-auto"
             >
-              {{ category.maticCount || 0 }}
+              {{ category | maticCount }}
             </div>
           </div>
         </div>
@@ -101,10 +101,25 @@ const SHOW_COUNT = { ORDER: 0, MATIC: 1, MAIN: 2 }
       required: false,
       default: 0,
     },
+    isTab: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    isLoading: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
   computed: {
     ...mapGetters('page', ['selectedCategory']),
     ...mapGetters('category', ['categories', 'allCategory']),
+  },
+  filters: {
+    maticCount(ct) {
+      return Object.keys(ct.maticTokens).length
+    },
   },
 })
 export default class CategoriesSidebar extends Vue {
@@ -127,27 +142,22 @@ export default class CategoriesSidebar extends Vue {
   // Getters
 
   get allCount() {
-    if (this.SHOW_COUNT.MATIC === this.countFor) {
-      return (
-        this.categories.reduce((total, category) => {
-          if (category.maticCount) {
-            total = total + parseInt(category.maticCount)
-          }
-          return total
-        }, 0) || 0
-      )
-    } else if (this.SHOW_COUNT.MAIN === this.countFor) {
-      return (
-        this.categories.reduce((total, category) => {
-          if (category.mainCount) {
-            total = total + parseInt(category.mainCount)
-          }
-          return total
-        }, 0) || 0
-      )
-    } else {
-      return this.totalOrderCount
+    if (
+      this.SHOW_COUNT.MATIC === this.countFor &&
+      !this.isLoading &&
+      this.isTab
+    ) {
+      return this.allCategory.maticCount
+    } else if (
+      this.SHOW_COUNT.MAIN === this.countFor &&
+      !this.isLoading &&
+      this.isTab
+    ) {
+      return this.allCategory.mainCount
+    } else if (!this.isTab) {
+      return this.allCategory.count
     }
+    return 0
   }
 
   get defaultSelectedCategory() {

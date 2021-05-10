@@ -4,11 +4,15 @@ import { LOCAL_STORAGE } from "~/constants";
 import { LocalStorage } from "~/utils";
 
 export const action = {
-    reset({ commit }) {
+    reset({ commit, dispatch }) {
+        debugger
         commit("reset");
+        dispatch('account/reset', {}, { root: true })
+        dispatch('category/reset', {}, { root: true })
     },
 
     logout({ dispatch }) {
+        debugger
         dispatch('reset');
         dispatch('trunk/resetBalances', {}, { root: true })
         LocalStorage.remove(LOCAL_STORAGE.authToken);
@@ -16,7 +20,7 @@ export const action = {
     },
 
     // do login
-    async doLogin({ dispatch, commit }, payload) {
+    async doLogin({ dispatch, commit, rootState }, payload) {
         if (!payload || !payload.address || !payload.signature) {
             console.log('User addresss and Signature is required for login')
             return
@@ -33,6 +37,10 @@ export const action = {
             })
             LocalStorage.set(LOCAL_STORAGE.authToken, authToken);
             LocalStorage.set(LOCAL_STORAGE.loginStrategy, payload.loginStrategy);
+            let categories = rootState.category.categories
+            if(categories.length === 0){
+                await dispatch("category/fetchCategories", null, { root: true })
+            }
         }
         return null
     },
