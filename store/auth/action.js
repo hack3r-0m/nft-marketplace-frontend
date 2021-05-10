@@ -5,14 +5,12 @@ import { LocalStorage } from "~/utils";
 
 export const action = {
     reset({ commit, dispatch }) {
-        debugger
         commit("reset");
         dispatch('account/reset', {}, { root: true })
         dispatch('category/reset', {}, { root: true })
     },
 
     logout({ dispatch }) {
-        debugger
         dispatch('reset');
         dispatch('trunk/resetBalances', {}, { root: true })
         LocalStorage.remove(LOCAL_STORAGE.authToken);
