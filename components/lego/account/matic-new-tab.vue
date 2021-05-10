@@ -15,10 +15,7 @@
           <div
             class="col-12 col-lg cat-switch d-flex d-lg-none ms-b-16 ms-b-lg-0 justify-content-between justify-content-lg-start"
           >
-            <categories-selector
-              :countFor="1"
-              class="category-wrapper"
-            />
+            <categories-selector :countFor="1" class="category-wrapper" />
           </div>
           <div
             class="col-12 col-lg cat-switch d-none d-lg-flex ms-b-16 ms-b-lg-0 justify-content-between justify-content-lg-start"
@@ -31,12 +28,12 @@
                 :src="allCategory.img_url"
                 :alt="allCategory.name"
                 class="icon align-self-center ms-r-12"
-              >
+              />
               <div class="font-body-large align-self-center font-medium">
                 {{ allCategory.name }}
               </div>
               <div class="count ps-l-12 font-body-large ml-auto">
-                {{ totalMaticNft }} {{ $t("collectibles") }}
+                {{ totalMaticNft }} {{ $t('collectibles') }}
               </div>
             </div>
             <div
@@ -47,17 +44,17 @@
                 :src="selectedCategory.img_url"
                 :alt="selectedCategory.name"
                 class="icon align-self-center ms-r-12"
-              >
+              />
               <div class="font-body-large align-self-center font-medium">
                 {{ selectedCategory.name }}
               </div>
               <div class="count ps-l-12 font-body-large ml-auto">
                 {{
                   selectedCategory.maticCount ||
-                    (displayedTokens && displayedTokens.length) ||
-                    0
+                  (displayedTokens && displayedTokens.length) ||
+                  0
                 }}
-                {{ $t("collectibles") }}
+                {{ $t('collectibles') }}
               </div>
             </div>
           </div>
@@ -80,16 +77,16 @@
               class="btn btn-primary ps-x-32 ms-l-sm-20 ms-t-16 ms-t-sm-0 text-nowrap"
               :disabled="
                 displayedTokens.length <= 0 ||
-                  !selectedCategory.isOpenseaCompatible
+                !selectedCategory.isOpenseaCompatible
               "
               @click.prevent="onWithdraw()"
             >
               {{
-                $t("maticTab.withdrawBtn", {
+                $t('maticTab.withdrawBtn', {
                   count:
                     selectedTokens && selectedTokens.length
                       ? selectedTokens.length
-                      : "",
+                      : '',
                 })
               }}
             </button>
@@ -148,7 +145,7 @@
         <withdraw
           v-if="
             (selectedCategory && showWithdrawModal) ||
-              (selectedTokens.length > 0 && showWithdrawModal)
+            (selectedTokens.length > 0 && showWithdrawModal)
           "
           :visible="onWithdraw"
           :cancel="onWithdrawClose"
@@ -164,7 +161,7 @@
           <button-loader
             v-if="
               (hasNextPage && displayedTokens && displayedTokens.length > 0) ||
-                isLoadingTokens
+              isLoadingTokens
             "
             class="mx-auto"
             :loading="isLoadingTokens"
@@ -187,14 +184,8 @@
 <script>
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
-import { mapGetters } from 'vuex'
-import getAxios from '~/plugins/axios'
-import app from '~/plugins/app'
-import { fuzzysearch, fuzzySearchResult } from '~/plugins/helpers/index'
-
-import NFTTokenModel from '~/components/model/nft-token'
-
-import SellCard from '~/components/lego/sell-card'
+import { mapGetters, mapActions, mapState } from 'vuex'
+import { fuzzysearch, fuzzySearchResult } from '~/helpers/index'
 import CategoriesSelector from '~/components/lego/categories-selector'
 import SearchBox from '~/components/lego/search-box'
 import SortDropdown from '~/components/lego/sort-dropdown'
@@ -210,7 +201,6 @@ import Withdraw from '~/components/lego/modals/withdraw'
 @Component({
   props: {},
   components: {
-    SellCard,
     CategoriesSelector,
     SearchBox,
     SortDropdown,
@@ -224,17 +214,30 @@ import Withdraw from '~/components/lego/modals/withdraw'
     PendingWithdrawals,
   },
   computed: {
-    ...mapGetters('page', ['selectedFilters', 'selectedCategory']),
+    ...mapGetters('page', [
+      'selectedFilters',
+      'selectedCategory',
+      'selectedCategoryId',
+    ]),
     ...mapGetters('category', ['categories', 'allCategory']),
     ...mapGetters('account', ['account', 'userOrders', 'totalMaticNft']),
-    ...mapGetters('auth', ['user']),
-    ...mapGetters('network', ['networks']),
+    ...mapState('auth', {
+      user : state => state.user
+    }),
+    ...mapState('network', {
+      networks: (state) => state.networks,
+    }),
+  },
+  methods: {
+    ...mapActions('account', {
+      fetchUserMainNFT: 'fetchMainNFT',
+    }),
   },
   middleware: [],
   mixins: [],
   watch: {
     selectedFilters: {
-      handler: async function() {
+      handler: async function () {
         // disabled api call on category change
         // this.fetchNFTTokens({ filtering: true });
       },
@@ -244,20 +247,20 @@ import Withdraw from '~/components/lego/modals/withdraw'
 })
 export default class MaticNewTab extends Vue {
   // Modals
-  showSellModal = false;
-  showSendModal = false;
-  showWithdrawModal = false;
-  selectedToken = null;
-  selectedTokens = [];
-  searchInput = null;
-  maxTokenSelection = app.uiconfig.maxBulkDeposit;
+  showSellModal = false
+  showSendModal = false
+  showWithdrawModal = false
+  selectedToken = null
+  selectedTokens = []
+  searchInput = null
+  maxTokenSelection = Vue.appConfig.maxBulkDeposit
 
-  tokensFullList = [];
-  hasNextPage = true;
-  displayTokens = 0;
-  isLoadingTokens = false;
-  limit = 20;
-  fuzzysearch = fuzzysearch;
+  tokensFullList = []
+  hasNextPage = true
+  displayTokens = 0
+  isLoadingTokens = false
+  limit = 20
+  fuzzysearch = fuzzysearch
 
   mounted() {
     this.fetchNFTTokens()
@@ -303,12 +306,17 @@ export default class MaticNewTab extends Vue {
 
   refreshBalance() {
     this.fetchNFTTokens({ filtering: true })
-    this.fetchEthereumCount()
+    this.fetchUserMainNFT({
+      user: this.user,
+      chainId: this.mainChainId,
+    })
     this.$store.dispatch('account/fetchPendingWithdrawals')
   }
 
   onSelectToken(token) {
-    const exists = this.selectedTokens.find((t) => t.token_id === token.token_id)
+    const exists = this.selectedTokens.find(
+      (t) => t.token_id === token.token_id,
+    )
     if (typeof exists === 'undefined') {
       if (
         this.selectedTokens &&
@@ -320,21 +328,6 @@ export default class MaticNewTab extends Vue {
       this.selectedTokens = this.selectedTokens.filter(
         (t) => t.token_id !== token.token_id,
       )
-    }
-  }
-
-  // Async
-  async fetchEthereumCount() {
-    try {
-      const response = await getAxios().get(
-        `tokens/balance?userId=${this.user.id}&chainId=${this.mainChainId}`,
-      )
-
-      if (response.status === 200 && response.data.count) {
-        this.$store.commit('account/totalMainNft', response.data.count)
-      }
-    } catch (error) {
-      // console.log(error);
     }
   }
 
@@ -352,60 +345,32 @@ export default class MaticNewTab extends Vue {
         offset = 0
       }
 
-      // Fetch tokens with pagination and filters
-      const response = await getAxios().get(
-        `tokens/balance?userId=${this.user.id}&chainId=${this.chainId}${this.ifCategory}${this.ifSort}&offset=${offset}&limit=${this.limit}`,
-      )
-
-      if (response.status === 200 && response.data.data) {
-        // Update total token number
-        this.$store.commit('account/totalMaticNft', response.data.count)
-        // Check for next page
-        // this.hasNextPage = response.data.data.has_next_page;
-        this.hasNextPage = false
-
-        const tokens = []
-        const balances = {}
-        let i = 0
-        response.data.data.forEach((token) => {
-          i++
-          token.id = i
-          token.chainId = this.chainId
-          tokens.push(new NFTTokenModel(token))
-          if (Object.keys(balances).includes(token.contract)) {
-            balances[token.contract]++
-          } else {
-            balances[token.contract] = 1
-          }
-        })
-        this.$store.commit('category/addUsersMaticCount', balances)
-        if (options && options.filtering) {
-          this.tokensFullList = tokens
-          this.isLoadingTokens = false
-          return
-        }
-        this.tokensFullList = [...this.tokensFullList, ...tokens]
+      const tokens = await this.$store.dispatch('account/fetchMaticNFT', {
+        user: this.user,
+        chainId: this.chainId,
+        category: this.selectedCategoryId,
+        sort: this.selectedFilters.selectedSort,
+        offset: offset,
+        limit: this.limit,
+      })
+      this.hasNextPage = false
+      if (options && options.filtering) {
+        this.tokensFullList = tokens
+        this.isLoadingTokens = false
+        return
       }
+      this.tokensFullList = [...this.tokensFullList, ...tokens]
     } catch (error) {
-      // console.log(error);
+      this.$logger.error(error)
     }
     this.isLoadingTokens = false
   }
 
   async fetchNotifications() {
     try {
-      const activityResponse = await getAxios().get(
-        `users/notification/${this.user.id}`,
-      )
-
-      if (activityResponse.status === 200 && activityResponse.data.data) {
-        this.$store.commit(
-          'account/totalUnreadActivity',
-          activityResponse.data.data.unread_count,
-        )
-      }
+      await this.$store.dispatch("account/fetchNotification")
     } catch (error) {
-      // console.log(error);
+      this.$logger.error(error);
     }
   }
 
@@ -493,18 +458,6 @@ export default class MaticNewTab extends Vue {
     return []
   }
 
-  get ifCategory() {
-    return this.selectedFilters.selectedCategory
-      ? `&categoryArray=[${this.selectedFilters.selectedCategory.id}]`
-      : '&categoryArray=[]'
-  }
-
-  get ifSort() {
-    return this.selectedFilters.selectedSort
-      ? `&sort=${this.selectedFilters.selectedSort}`
-      : ''
-  }
-
   get chainId() {
     return this.networks.matic.chainId
   }
@@ -544,22 +497,22 @@ export default class MaticNewTab extends Vue {
 </script>
 
 <style lang="scss" scoped>
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 
 .sticky-top {
   &.tab-header {
     top: 126px !important;
-    background-color: light-color("700");
+    background-color: light-color('700');
   }
   &.sidebar-container {
     top: 126px !important;
-    background-color: light-color("700");
+    background-color: light-color('700');
     overflow-x: hidden;
     overflow-y: scroll;
   }
 }
 .category {
-  background-color: light-color("700");
+  background-color: light-color('700');
   box-sizing: border-box;
 
   .icon {
@@ -567,7 +520,7 @@ export default class MaticNewTab extends Vue {
     height: 24px;
   }
   .count {
-    color: dark-color("300") !important;
+    color: dark-color('300') !important;
   }
 }
 .search-box {
@@ -583,7 +536,7 @@ export default class MaticNewTab extends Vue {
   padding: 12px !important;
   max-width: 348px;
   height: 100%;
-  border-right: 1px solid light-color("500");
+  border-right: 1px solid light-color('500');
   max-height: 77vh;
   min-height: 77vh;
   border-right: 1px solid #f3f4f7;

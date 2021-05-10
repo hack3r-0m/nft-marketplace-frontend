@@ -40,7 +40,7 @@
                 <div class="col-md-12 ps-y-32">
                   <img
                     class="asset-img mx-auto"
-                    :src="order.token.img_url"
+                    :src="order.token.image_url"
                     :alt="order.token.name"
                     @load="onImageLoad"
                     @error="imageLoadError"
@@ -92,9 +92,8 @@
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
 
-import rgbToHsl from '~/plugins/helpers/color-algorithm'
-import ColorThief from 'color-thief'
-const colorThief = new ColorThief()
+import rgbToHsl from '~/helpers/color-algorithm'
+import { getColorFromImage } from '~/utils'
 
 @Component({
   props: {
@@ -137,9 +136,9 @@ export default class CancelConfirm extends Vue {
   bg = '#f3f4f7';
 
   mounted() {
-    console.log('mounted')
-    console.log(this.order)
-    console.log(this.order.erc20tokens)
+    this.$logger.debug('mounted')
+    this.$logger.debug(this.order)
+    this.$logger.debug(this.order.erc20tokens)
   }
 
   onImageLoad() {

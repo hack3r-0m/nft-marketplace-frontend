@@ -86,9 +86,8 @@
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
 
-import rgbToHsl from '~/plugins/helpers/color-algorithm'
-import ColorThief from 'color-thief'
-const colorThief = new ColorThief()
+import rgbToHsl from '~/helpers/color-algorithm'
+import { getColorFromImage } from '~/utils'
 
 @Component({
   props: {

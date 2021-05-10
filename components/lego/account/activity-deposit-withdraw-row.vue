@@ -20,46 +20,35 @@
         :src="imgUrl"
         class="asset-img align-self-center profile-logo"
         :alt="activity.categories.img_url"
-      >
+      />
       <div
         class="d-flex message flex-column align-self-center ps-x-16 ps-l-md-0 ps-r-md-16"
       >
-        <div
-          v-if="true"
-          class="font-body-small"
-        >
+        <div v-if="true" class="font-body-small">
           {{ activity.message }}
         </div>
         <div class="font-caption text-gray-300">
           {{ remainingTimeinWords }} ago
         </div>
       </div>
-      <div
-        v-if="true"
-        class="d-flex ml-auto ms-r-16"
-      >
+      <div v-if="true" class="d-flex ml-auto ms-r-16">
         <a
           :href="explorerLink"
           target="_blank"
           rel="noopener noreferrer"
           class="btn btn-light align-self-center"
-        >View details
+        >
+          View details
         </a>
       </div>
-      <div
-        v-if="false"
-        class="d-flex ml-auto ms-r-16"
-      >
+      <div v-if="false" class="d-flex ml-auto ms-r-16">
         <button
           class="btn btn-light btn-deny align-self-center ms-r-12"
           @click="onDeny()"
         >
           Deny
         </button>
-        <button
-          class="btn btn-light align-self-center"
-          @click="onAccept()"
-        >
+        <button class="btn btn-light align-self-center" @click="onAccept()">
           Accept
         </button>
       </div>
@@ -73,14 +62,9 @@
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
 import moment from 'moment'
-
 import AcceptBid from '~/components/lego/modals/bid-confirmation'
-
-import rgbToHsl from '~/plugins/helpers/color-algorithm'
-import ColorThief from 'color-thief'
-import app from '~/plugins/app'
-
-const colorThief = new ColorThief()
+import rgbToHsl from '~/helpers/color-algorithm'
+import { getColorFromImage } from '~/utils'
 
 @Component({
   props: {
@@ -94,23 +78,23 @@ const colorThief = new ColorThief()
   },
 })
 export default class ActivityDepositWithdrawRow extends Vue {
-  bg = '#ffffff';
-  showAcceptBid = false;
-  showInProcess = false;
-  showTokenList = false;
-  explorerLink = '';
+  bg = '#ffffff'
+  showAcceptBid = false
+  showInProcess = false
+  showTokenList = false
+  explorerLink = ''
 
   async mounted() {
     if (this.activity.type === 'DEPOSIT') {
       this.explorerLink =
-        app.uiconfig.mainExplorer + 'tx/' + this.activity.txhash
+        Vue.appConfig.mainExplorer + 'tx/' + this.activity.txhash
     } else if (this.activity.type === 'WITHDRAW') {
       if (this.activity.status === 0 || this.activity.status === 1) {
         this.explorerLink =
-          app.uiconfig.maticExplorer + 'tx/' + this.activity.txhash
+          Vue.appConfig.maticExplorer + 'tx/' + this.activity.txhash
       } else if (this.activity.status === 2 || this.activity.status === 3) {
         this.explorerLink =
-          app.uiconfig.mainExplorer + 'tx/' + this.activity.exit_txhash
+          Vue.appConfig.mainExplorer + 'tx/' + this.activity.exit_txhash
       }
     }
   }
@@ -118,7 +102,7 @@ export default class ActivityDepositWithdrawRow extends Vue {
   onImageLoad() {
     try {
       const img = this.$el.querySelector('.asset-img')
-      const rgbColor = colorThief.getColor(img)
+      const rgbColor = getColorFromImage(img)
       if (rgbColor) {
         const hsl = rgbToHsl({
           r: rgbColor[0],
@@ -133,7 +117,7 @@ export default class ActivityDepositWithdrawRow extends Vue {
   }
 
   get imgUrl() {
-    return `${app.uiconfig.apis.FILE_HOST}${this.activity.categories.img_url}`
+    return `${Vue.appConfig.apis.FILE_HOST}${this.activity.categories.img_url}`
   }
 
   get timeRemaining() {
@@ -167,7 +151,7 @@ export default class ActivityDepositWithdrawRow extends Vue {
 
   onAccept() {
     this.showAcceptBid = true
-    console.log('On accept')
+    this.$logger.debug('On accept')
   }
 
   onAcceptClose() {
@@ -185,9 +169,9 @@ export default class ActivityDepositWithdrawRow extends Vue {
 </script>
 
 <style lang="scss" scoped>
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 a {
-  color: primary-color("600");
+  color: primary-color('600');
 }
 .unread-mark {
   margin-left: -14px;
@@ -196,7 +180,7 @@ a {
 
 .activity-wrapper {
   width: 100%;
-  background-color: light-color("600");
+  background-color: light-color('600');
   border-radius: $default-card-box-border-radius;
   .img-wrapper {
     display: flex;
@@ -220,10 +204,10 @@ a {
   white-space: nowrap;
 }
 .btn-deny {
-  color: red-color("600");
+  color: red-color('600');
 }
 .text-gray-300 {
-  color: dark-color("300");
+  color: dark-color('300');
 }
 
 @media (max-width: 768px) {

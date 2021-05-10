@@ -10,10 +10,7 @@
         to receive the updates, so keep checking!
       </div>
     </div>
-    <div
-      v-if="notifications"
-      class="row"
-    >
+    <div v-if="notifications" class="row">
       <activity-order-row
         v-for="activity in notifications"
         :key="activity.id"
@@ -47,10 +44,7 @@
 <script>
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
-import { mapGetters } from 'vuex'
-
-import getAxios from '~/plugins/axios'
-
+import { mapGetters, mapState } from 'vuex'
 import ActivityOrderRow from '~/components/lego/account/activity-order-row'
 import NoItem from '~/components/lego/no-item'
 
@@ -61,14 +55,16 @@ import NoItem from '~/components/lego/no-item'
     NoItem,
   },
   computed: {
-    ...mapGetters('auth', ['user']),
+    ...mapState('auth', {
+      user: (state) => state.user,
+    }),
   },
 })
 export default class ActivityOrderTab extends Vue {
-  notifications = [];
-  isLoading = false;
-  limit = 20;
-  hasNextPage = true;
+  notifications = []
+  isLoading = false
+  limit = 20
+  hasNextPage = true
   async mounted() {
     await this.fetchNotifications()
   }
@@ -83,28 +79,26 @@ export default class ActivityOrderTab extends Vue {
     try {
       const offset = this.notifications.length
 
-      const response = await getAxios().get(
-        `users/notification/${this.user.id}?offset=${offset}&limit=${this.limit}`,
-      )
-      if (response.status === 200 && response.data.data.notifications) {
-        this.hasNextPage = response.data.data.has_next_page
+      const data = await this.$store.dispatch('account/fetchNotification', {
+        offset,
+        limit: this.limit,
+        userId: this.user.id,
+      })
+      if (data && data.notifications) {
+        this.hasNextPage = data.has_next_page
         if (offset === 0) {
-          this.notifications = response.data.data.notifications
+          this.notifications = data.notifications
         } else {
-          this.notifications = [
-            ...this.notifications,
-            ...response.data.data.notifications,
-          ]
+          this.notifications = [...this.notifications, ...this.notifications]
         }
         // mark read the notification
         this.markAsRead()
-        this.isLoading = false
       } else {
-        this.isLoading = false
         this.hasNextPage = false
       }
+      this.isLoading = false
     } catch (error) {
-      // console.log(error);
+      this.$logger.error(error)
       this.isLoading = false
       this.hasNextPage = false
     }
@@ -112,8 +106,10 @@ export default class ActivityOrderTab extends Vue {
 
   async markAsRead() {
     try {
-      await getAxios().put(`users/notification/mark-read/${this.user.id}`)
-    } catch (error) {}
+      await this.$store.dispatch('account/markNotificationAsRead', this.user.id)
+    } catch (error) {
+      this.$logger.error(error)
+    }
   }
 
   // Getters
@@ -128,7 +124,7 @@ export default class ActivityOrderTab extends Vue {
 </script>
 
 <style lang="scss" scoped>
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 
 .container {
   max-width: 940px;

@@ -9,16 +9,13 @@
       class="modal receive-modal-wrapper"
       :class="{ show: show }"
     >
-      <div
-        class="modal-dialog w-sm-100 align-self-center"
-        role="document"
-      >
+      <div class="modal-dialog w-sm-100 align-self-center" role="document">
         <div class="box withdraw-box">
           <div class="box-header justify-content-center">
             <div
               class="font-heading-medium font-semibold align-self-center w-100 text-center"
             >
-              {{ $t("withdraw.title") }}
+              {{ $t('withdraw.title') }}
             </div>
             <span
               class="left-arrow align-self-center float-right cursor-pointer"
@@ -43,7 +40,7 @@
                   <img
                     class="cate-icon align-self-center ms-r-8"
                     :src="category.img_url"
-                  >
+                  />
                   <div class="text-white align-self-center">
                     {{ transaction.token_array.length }} Collectibles
                   </div>
@@ -60,7 +57,7 @@
                       class="align-self-center"
                       :src="token.img_url"
                       :alt="token.name"
-                    >
+                    />
                   </div>
                 </div>
               </div>
@@ -73,22 +70,26 @@
                       v-if="transactionStatus === STATUS.BURNING"
                       src="~/static/img/yellow-check.svg"
                       alt="In Progress"
-                    >
+                    />
                     <img
                       v-if="transactionStatus >= STATUS.CHECKPOINTING"
                       src="~/static/img/green-check.svg"
                       alt="Green Check"
-                    >
+                    />
                   </div>
                   <div class="float-left body-medium ps-2 ms-l-12 d-flex">
                     <span
                       v-if="transactionStatus === STATUS.BURNING"
                       class="ps-t-0"
-                    >{{ "Withdraw Initializing..." }}</span>
+                    >
+                      {{ 'Withdraw Initializing...' }}
+                    </span>
                     <span
                       v-if="transactionStatus >= STATUS.CHECKPOINTING"
                       class="ps-t-2"
-                    >{{ "Withdraw Initialized" }}</span>
+                    >
+                      {{ 'Withdraw Initialized' }}
+                    </span>
                   </div>
                 </div>
                 <div class="col-12 p-0">
@@ -98,19 +99,21 @@
                     <div class="ps-b-16">
                       <span v-if="transactionStatus === STATUS.BURNING">
                         {{
-                          "It will take a few seconds for the transaction to complete"
+                          'It will take a few seconds for the transaction to complete'
                         }}
                       </span>
                       <a
                         v-if="
                           transactionStatus >= STATUS.BURNING &&
-                            transaction.txhash
+                          transaction.txhash
                         "
                         :href="maticExplorerURL"
                         rel="noopener noreferrer"
                         target="_blank"
                         :title="transaction.txhash"
-                      >{{ $t("viewOnMaticscan") }}</a>
+                      >
+                        {{ $t('viewOnMaticscan') }}
+                      </a>
                     </div>
                   </div>
                 </div>
@@ -125,15 +128,15 @@
                       v-if="transactionStatus === STATUS.CHECKPOINTING"
                       src="~/static/img/yellow-check.svg"
                       alt="Green Check"
-                    >
+                    />
                     <img
                       v-if="transactionStatus >= STATUS.CHECKPOINTED"
                       src="~/static/img/green-check.svg"
                       alt="Green Check"
-                    >
+                    />
                   </div>
                   <div class="float-left body-medium ps-2 ps-t-0 ms-l-12">
-                    {{ "Checkpoint on Ethereum" }}
+                    {{ 'Checkpoint on Ethereum' }}
                   </div>
                 </div>
                 <div class="col-12 p-0">
@@ -143,7 +146,7 @@
                     <div class="ps-b-16">
                       <span v-if="transactionStatus === STATUS.CHECKPOINTING">
                         {{
-                          "Waiting for Checkpoint to be reached on Ethereum. Approx time taken will be ~34 minutes"
+                          'Waiting for Checkpoint to be reached on Ethereum. Approx time taken will be ~34 minutes'
                         }}
                       </span>
                     </div>
@@ -161,20 +164,20 @@
                       class="ms-l-2 ms-y-2"
                       src="~/static/img/information-check.svg"
                       alt="Green Check"
-                    >
+                    />
                     <img
                       v-if="transactionStatus === STATUS.EXITING"
                       src="~/static/img/yellow-check.svg"
                       alt="Green Check"
-                    >
+                    />
                     <img
                       v-if="transactionStatus >= STATUS.EXITED"
                       src="~/static/img/green-check.svg"
                       alt="Green Check"
-                    >
+                    />
                   </div>
                   <div class="float-left body-medium ps-2 ps-t-0 ms-l-12">
-                    {{ "Exit transaction on Ethereum" }}
+                    {{ 'Exit transaction on Ethereum' }}
                   </div>
                 </div>
                 <div class="col-12 p-0">
@@ -184,12 +187,14 @@
                     <div class="ps-b-8">
                       <span v-if="transactionStatus === STATUS.CHECKPOINTED">
                         {{
-                          "Please confirm the transaction to complete the Withdraw."
+                          'Please confirm the transaction to complete the Withdraw.'
                         }}
                       </span>
-                      <span v-if="transactionStatus === STATUS.EXITING">{{
-                        "Transactions on Ethereum sometimes take longer based on network congestion. Please wait or increase the gas price "
-                      }}</span>
+                      <span v-if="transactionStatus === STATUS.EXITING">
+                        {{
+                          'Transactions on Ethereum sometimes take longer based on network congestion. Please wait or increase the gas price '
+                        }}
+                      </span>
                       <a
                         v-if="
                           transactionStatus >= STATUS.EXITING && transactionHash
@@ -198,7 +203,9 @@
                         rel="noopener noreferrer"
                         target="_blank"
                         :title="transactionHash"
-                      >{{ $t("viewOnEtherscan") }}</a>
+                      >
+                        {{ $t('viewOnEtherscan') }}
+                      </a>
                     </div>
                     <div
                       v-if="
@@ -206,7 +213,7 @@
                       "
                       class="ps-b-16 text-red font-semibold"
                     >
-                      {{ $t("preventUserWithdrawModalClose") }}
+                      {{ $t('preventUserWithdrawModalClose') }}
                     </div>
                   </div>
                 </div>
@@ -219,10 +226,10 @@
                       v-if="transactionStatus >= STATUS.EXITED"
                       src="~/static/img/green-check.svg"
                       alt="Green Check"
-                    >
+                    />
                   </div>
                   <div class="float-left body-medium ps-2 ms-l-12">
-                    {{ "Withdraw completed" }}
+                    {{ 'Withdraw completed' }}
                   </div>
                 </div>
                 <div class="col-12 p-0">
@@ -234,7 +241,7 @@
                       class="ps-l-2"
                     >
                       {{
-                        "It will take ~2 minutes for the NFT to appear in your Ethereum account."
+                        'It will take ~2 minutes for the NFT to appear in your Ethereum account.'
                       }}
                     </span>
                   </div>
@@ -248,10 +255,7 @@
                   />
                 </div>
               </div>
-              <div
-                v-if="transactionStatus !== STATUS.EXITED"
-                class="row p-0"
-              >
+              <div v-if="transactionStatus !== STATUS.EXITED" class="row p-0">
                 <div class="col-12 p-0 d-flex justify-content-space-between">
                   <button-loader
                     class="w-100"
@@ -276,25 +280,21 @@
         </div>
       </div>
     </div>
-    <div
-      class="modal-backdrop"
-      :class="{ show: show }"
-    />
+    <div class="modal-backdrop" :class="{ show: show }" />
   </div>
 </template>
 
 <script>
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import app from '~/plugins/app'
-import getAxios from '~/plugins/axios'
 import Dagger from '@maticnetwork/dagger'
 import Decoder from 'eth-decoder'
 import BigNumber from '~/plugins/bignumber'
 import { VueWatch } from '~/components/decorator'
 
-import { getWalletProvider } from '~/plugins/helpers/providers'
+import { getWalletProvider } from '~/helpers/providers'
 
 import PreventUnload from 'vue-prevent-unload'
 const MaticPOSClient = require('@maticnetwork/maticjs').MaticPOSClient
@@ -345,29 +345,35 @@ const STATUS = {
   methods: {},
   computed: {
     ...mapGetters('account', ['account']),
-    ...mapGetters('network', ['networks', 'networkMeta']),
+    ...mapState('auth', {
+      loginStrategy: (state) => state.loginStrategy,
+    }),
+    ...mapState('network', {
+      networks: (state) => state.networks,
+      networkMeta: (state) => state.networkMeta,
+    }),
   },
 })
 export default class WithdrawConfirmationModal extends Vue {
-  STATUS = STATUS;
+  STATUS = STATUS
 
-  selectToken = false;
-  isLoading = false;
-  error = null;
-  transactionHash = null;
-  isExited = false;
-  isCheckpointed = false;
+  selectToken = false
+  isLoading = false
+  error = null
+  transactionHash = null
+  isExited = false
+  isCheckpointed = false
 
   // Checkpoint
-  dagger = null;
-  ROOT_CONTRACT = null;
+  dagger = null
+  ROOT_CONTRACT = null
   FUNCTION =
-    '0xba5de06d22af2685c6c7765f60067f7d2b08c2d29f53cdf14d67f6d1c9bfb527';
+    '0xba5de06d22af2685c6c7765f60067f7d2b08c2d29f53cdf14d67f6d1c9bfb527'
 
-  DAGGER_EVENT = null;
-  DAGGER_URL = null;
-  rootChainDecoder = null;
-  childERC20Decoder = null;
+  DAGGER_EVENT = null
+  DAGGER_URL = null
+  rootChainDecoder = null
+  childERC20Decoder = null
 
   async mounted() {
     await this.initCheckpointCheck()
@@ -385,7 +391,9 @@ export default class WithdrawConfirmationModal extends Vue {
     if (this.isCheckpointed) {
       try {
         this.dagger.off(DAGGER_EVENT, this.handleCheckpointCreation)
-      } catch (error) {}
+      } catch (error) {
+        this.$logger.error(error)
+      }
     } else {
       this.ROOT_CONTRACT = this.networks.main.contracts.RootChainProxy
       this.DAGGER_EVENT = `latest:log/${this.ROOT_CONTRACT}/filter/${this.FUNCTION}/#`
@@ -470,25 +478,32 @@ export default class WithdrawConfirmationModal extends Vue {
         return
       }
       if (this.transaction.status === 0) {
-        const { data } = await getAxios().get(
-          `${this.networks.main.watcherUrl}/header/included/${this.transaction.block_number}`,
-        )
-        if (data && data.status === 'success') {
+        const {
+          status,
+        } = await this.$store.dispatch('migrate/checkForTransactionInclusion', {
+          watcherUrl: this.networks.main.watcherUrl,
+          blockNumber: this.transaction.block_number,
+        })
+        if (status === 'success') {
           // const nextStatus = this.STATUS.CHECKPOINTED
           this.handleCheckpointInclusion()
         }
       }
-    } catch (error) {}
+    } catch (error) {
+      this.$logger.error(error)
+    }
   }
 
   getMaticPOS() {
     const maticProvider = getWalletProvider({
       networks: this.networks,
       primaryProvider: 'matic',
+      loginStrategy: this.loginStrategy,
     })
     const parentProvider = getWalletProvider({
       networks: this.networks,
       primaryProvider: 'main',
+      loginStrategy: this.loginStrategy,
     })
     return new MaticPOSClient({
       network: app.uiconfig.matic.deployment.network,
@@ -516,8 +531,8 @@ export default class WithdrawConfirmationModal extends Vue {
 
       const exited = await maticPoS.isBatchERC721ExitProcessed(burnHash)
       if (exited) {
-        console.log('exited before')
-        await this.handleExitedTokens()
+        this.$logger.debug('exited before')
+        await this.handleExit('TX EXITED EXTERNALLY')
         this.isLoading = false
         this.cancel()
         return
@@ -528,8 +543,8 @@ export default class WithdrawConfirmationModal extends Vue {
         onTransactionHash: (txHash) => {
           this.transactionHash = txHash
         },
-        onReceipt: async(txHash) => {
-          console.log('exited now')
+        onReceipt: async (txHash) => {
+          this.$logger.debug('exited now')
           await this.handleExit(txHash)
           this.isLoading = false
         },
@@ -564,49 +579,30 @@ export default class WithdrawConfirmationModal extends Vue {
       const data = {
         status: 1,
       }
-      const response = await getAxios().put(
-        `assetmigrate/${this.transaction.id}`,
-        data,
+      this.isCheckpointed = await this.$store.dispatch(
+        'migrate/updateTransactionStatusToCheckpointed',
+        { transactionId: this.transaction.id, payload: data },
       )
-      if (response.status === 200) {
-        this.isCheckpointed = true
-      }
-    } catch (error) {}
+    } catch (error) {
+      this.$logger.error(error)
+    }
   }
 
   async handleExit(txHash) {
-    console.log('Withdraw exit', txHash)
+    this.$logger.debug('Withdraw exit', txHash)
     try {
       const data = {
-        exit_txhash: this.transactionHash,
+        exit_txhash: txHash,
         status: 2,
       }
-      const response = await getAxios().put(
-        `assetmigrate/${this.transaction.id}`,
-        data,
+      this.isExited = await this.$store.dispatch(
+        'migrate/updateTransactionStatusToExited',
+        { transactionId: this.transaction.id, payload: data },
       )
-      if (response.status === 200) {
-        this.isExited = true
-        this.refreshBalance()
-      }
-    } catch (error) {}
-  }
-
-  async handleExitedTokens() {
-    try {
-      const data = {
-        exit_txhash: 'TX EXITED EXTERNALLY',
-        status: 2,
-      }
-      const response = await getAxios().put(
-        `assetmigrate/${this.transaction.id}`,
-        data,
-      )
-      if (response.status === 200) {
-        this.isExited = true
-        this.refreshBalance()
-      }
-    } catch (error) {}
+      this.refreshBalance()
+    } catch (error) {
+      this.$logger.error(error)
+    }
   }
 
   onCancel() {
@@ -621,7 +617,7 @@ export default class WithdrawConfirmationModal extends Vue {
 </script>
 
 <style lang="scss" scoped>
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 
 .withdraw-box {
   width: 446px;
@@ -638,21 +634,21 @@ export default class WithdrawConfirmationModal extends Vue {
   border-radius: 50%;
 }
 .label {
-  color: dark-color("500");
+  color: dark-color('500');
 }
 .amount {
-  color: dark-color("700");
+  color: dark-color('700');
 }
 
 .bottom-border {
-  border-bottom: 1px solid light-color("500");
+  border-bottom: 1px solid light-color('500');
 }
 
 .mark-wrapper:not(.check) {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  border: 1px solid light-color("400");
+  border: 1px solid light-color('400');
   margin: 2px;
 }
 .mark-wrapper.check {
@@ -661,14 +657,14 @@ export default class WithdrawConfirmationModal extends Vue {
 }
 
 .process-msg {
-  border-left: 1px solid light-color("400");
+  border-left: 1px solid light-color('400');
   min-height: 18px;
 }
 .text-gray {
-  color: dark-color("300");
+  color: dark-color('300');
 }
 .text-red {
-  color: red-color("600");
+  color: red-color('600');
 }
 .disabled-cursor {
   cursor: default !important;
@@ -679,7 +675,7 @@ export default class WithdrawConfirmationModal extends Vue {
 }
 
 .container-wrapper {
-  background: dark-color("300");
+  background: dark-color('300');
   text-align: left;
   margin-bottom: 24px;
 

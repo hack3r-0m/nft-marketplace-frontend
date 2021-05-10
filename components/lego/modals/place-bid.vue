@@ -1,17 +1,8 @@
 <template>
   <div class="section position-absolute">
-    <div
-      class="modal-backdrop"
-      :class="{ show: show }"
-    />
-    <div
-      class="modal add-token-modal-wrapper"
-      :class="{ show: show }"
-    >
-      <div
-        class="modal-dialog w-sm-100 align-self-center"
-        role="document"
-      >
+    <div class="modal-backdrop" :class="{ show: show }" />
+    <div class="modal add-token-modal-wrapper" :class="{ show: show }">
+      <div class="modal-dialog w-sm-100 align-self-center" role="document">
         <div class="box accept-box">
           <div
             class="box-body"
@@ -22,27 +13,18 @@
                 ' 0%, rgba(236, 235, 223, 0) 45%)',
             }"
           >
-            <div
-              class="close-wrapper"
-              @click="close()"
-            >
-              <svg-sprite-icon
-                name="close-modal"
-                class="close"
-              />
+            <div class="close-wrapper" @click="close()">
+              <svg-sprite-icon name="close-modal" class="close" />
             </div>
             <div class="container-fluid text-center">
-              <div
-                v-if="defaultSelectedToken"
-                class="row"
-              >
+              <div v-if="defaultSelectedToken" class="row">
                 <div class="col-md-12 ps-y-32">
                   <img
                     class="asset-img mx-auto"
-                    :src="order.token.img_url"
+                    :src="order.token.image_url"
                     alt="order.token.name"
                     @load="onImageLoad"
-                  >
+                  />
                 </div>
                 <div class="col-md-12 ps-x-40">
                   <div class="font-heading-large title font-semibold">
@@ -100,8 +82,14 @@
                   class="col-md-12 ps-x-40 ps-y-8 ps-b-20 font-caption text-gray-300"
                 >
                   Account balance:
-                  {{ defaultSelectedToken.formattedFullUSDBalance }} =
-                  {{ defaultSelectedToken.formattedBalance }}
+                  {{
+                    defaultSelectedToken
+                      | tokenUsdBalance(currentTokenBalance)
+                      | fixed(2)
+                      | dollarSymbol
+                  }}
+                  =
+                  {{ currentTokenBalance | fixed(2) }}
                   {{ defaultSelectedToken.symbol }}
                 </div>
 
@@ -145,16 +133,16 @@ import Vue from 'vue'
 import Component from 'nuxt-class-component'
 import { mapGetters } from 'vuex'
 
-import rgbToHsl from '~/plugins/helpers/color-algorithm'
-import ColorThief from 'color-thief'
+import rgbToHsl from '~/helpers/color-algorithm'
+import { getColorFromImage } from '~/utils'
 
-import { FormValidator } from '~/components/mixin'
+import FormValidator from '~/components/mixins/common/form-validator'
 import InputToken from '~/components/lego/input-token'
 import BigNumber from '~/plugins/bignumber'
-const colorThief = new ColorThief()
 
 const ZERO = new BigNumber(0)
 const TEN = new BigNumber(10)
+import { parseUSDBalance } from '~/helpers/token-utils'
 
 @Component({
   props: {
@@ -195,16 +183,28 @@ const TEN = new BigNumber(10)
     ...mapGetters('network', ['networks']),
     ...mapGetters('account', ['account']),
     ...mapGetters('auth', ['user']),
+    ...mapGetters('trunk', ['tokenBalance', 'tokenFullBalance']),
+    currentTokenBalance() {
+      return this.tokenBalance(this.defaultSelectedToken)
+    },
+    currentTokenFullBalance() {
+      return this.tokenFullBalance(this.defaultSelectedToken)
+    },
+  },
+  filters: {
+    tokenUsdBalance(token, tokenBalance) {
+      return parseUSDBalance(tokenBalance, token.usd)
+    },
   },
   mixins: [FormValidator],
 })
 export default class PlaceBid extends Vue {
-  bg = '#f3f4f7';
-  inputAmount = '';
-  isLoading = false;
-  validationMessage = '';
-  noEnoughBalance = false;
-  submitOfferButtonDisabled = true;
+  bg = '#f3f4f7'
+  inputAmount = ''
+  isLoading = false
+  validationMessage = ''
+  noEnoughBalance = false
+  submitOfferButtonDisabled = true
 
   mounted() {}
 
@@ -255,17 +255,21 @@ export default class PlaceBid extends Vue {
       return (this.validationMessage = ' ')
     } else if (!this.inputAmount || !this.inputAmount.gt(ZERO)) {
       return (this.validationMessage = 'Enter a valid amount')
-    } else if (
-      !this.defaultSelectedToken.fullBalance.gte(this.inputAmount || ZERO)
-    ) {
+    }
+    const balance = this.currentTokenFullBalance
+    if (!balance.gte(this.inputAmount || ZERO)) {
       this.noEnoughBalance = true
       return (this.validationMessage = "You don't have sufficient balance")
-    } else if (!this.inputAmount.gte(this.order.getMinPriceInBN())) {
+    }
+    const minPriceInBN = this.$store.getters['order/minPriceInBN'](this.order)
+    if (!this.inputAmount.gte(minPriceInBN)) {
       return (this.validationMessage = `Minimum ${this.order.min_price} ${this.defaultSelectedToken.symbol} required`)
-    } else if (!this.inputAmount.lte(this.order.getPriceInBN())) {
+    }
+    const priceInBN = this.$store.getters['order/priceInBN'](this.order)
+    if (!this.inputAmount.lte(priceInBN)) {
       return (this.validationMessage = `Maximum ${this.order.price} ${this.defaultSelectedToken.symbol} allowed`)
     } else {
-      return (this.validationMessage = '')
+      this.validationMessage = ''
     }
   }
 
@@ -303,23 +307,23 @@ export default class PlaceBid extends Vue {
 </script>
 
 <style lang="scss" scoped>
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 
 .asset-img {
   max-width: 112px;
   max-height: 112px;
 }
 .text-gray-500 {
-  color: dark-color("500");
+  color: dark-color('500');
 }
 .text-gray-300 {
-  color: dark-color("300");
+  color: dark-color('300');
 }
 .text-primary-600 {
-  color: primary-color("600");
+  color: primary-color('600');
 }
 .error {
-  color: red-color("400");
+  color: red-color('400');
 }
 
 .box {

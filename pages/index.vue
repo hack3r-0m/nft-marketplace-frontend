@@ -4,20 +4,14 @@
       <div
         class="col container-fluid sidebar-container d-none d-lg-block sticky-top"
       >
-        <category-sidebar
-          :countFor="0"
-          :isLoading="isLoadingTokens"
-        />
+        <category-sidebar :countFor="0" :isLoading="isLoadingTokens" />
       </div>
       <div class="col container-fluid content-container">
         <div class="row ps-y-16 ps-x-16 sticky-top tab-header">
           <div
             class="col-12 col-lg cat-switch d-flex d-lg-none ms-b-16 ms-b-lg-0 justify-content-between justify-content-lg-start"
           >
-            <categories-selector
-              :countFor="0"
-              class="category-wrapper"
-            />
+            <categories-selector :countFor="0" class="category-wrapper" />
           </div>
           <div
             class="col-12 col-lg cat-switch d-none d-lg-flex ms-b-16 ms-b-lg-0 justify-content-between justify-content-lg-start"
@@ -30,12 +24,12 @@
                 :src="allCategory.img_url"
                 :alt="allCategory.name"
                 class="icon align-self-center ms-r-12"
-              >
+              />
               <div class="font-body-large align-self-center font-medium">
                 {{ allCategory.name }}
               </div>
               <div class="count ps-l-12 font-body-large ml-auto">
-                {{ allCategory.count }} {{ $t("collectibles") }}
+                {{ allCategory.count }} {{ $t('collectibles') }}
               </div>
             </div>
             <div
@@ -46,17 +40,17 @@
                 :src="selectedCategory.img_url"
                 :alt="selectedCategory.name"
                 class="icon align-self-center ms-r-12"
-              >
+              />
               <div class="font-body-large align-self-center font-medium">
                 {{ selectedCategory.name }}
               </div>
               <div class="count ps-l-12 font-body-large ml-auto">
                 {{
                   selectedCategory.count ||
-                    (displayedTokens && displayedTokens.length) ||
-                    0
+                  (displayedTokens && displayedTokens.length) ||
+                  0
                 }}
-                {{ $t("collectibles") }}
+                {{ $t('collectibles') }}
               </div>
             </div>
           </div>
@@ -66,7 +60,7 @@
             <search-box
               class="search-box ms-r-0 ms-r-sm-6"
               placeholder="Search NFT..."
-              :change="(val) => (searchInput = val)"
+              :change="handleSearchInput"
             />
             <sort-dropdown
               class="dropdown-filter ms-l-0 ms-l-sm-6"
@@ -82,12 +76,12 @@
           <no-item
             v-if="orderFullList.length <= 0 && !isLoadingTokens"
             class="ps-b-120"
-            :message="exmptyMsg"
+            :message="emptyMsg"
           />
           <no-item
             v-else-if="searchedTokens.length === 0 && !isLoadingTokens"
             class="ps-b-120"
-            :message="this.$t('searchNotFound')"
+            :message="$t('searchNotFound')"
           />
 
           <sell-card
@@ -104,7 +98,7 @@
           <button-loader
             v-if="
               (hasNextPage && searchedTokens && searchedTokens.length > 0) ||
-                isLoadingTokens
+              isLoadingTokens
             "
             class="mx-auto"
             :loading="isLoadingTokens"
@@ -119,31 +113,24 @@
       </div>
     </div>
 
-    <notification-modal
-      v-if="showNotification"
-      @close="onNotificationClose"
-    />
+    <notification-modal v-if="showNotification" @close="onNotificationClose" />
   </div>
 </template>
 
 <script>
-import Vue from "vue";
-import Component from "nuxt-class-component";
-import { mapGetters, mapState } from "vuex";
-import app from "~/plugins/app";
-import { fuzzysearch } from "~/plugins/helpers/index";
-import { fuzzySearchResult } from "~/plugins/helpers/index";
-import getAxios from "~/plugins/axios";
-import { VueWatch, VueDebounce } from "~/components/decorator";
+import Vue from 'vue'
+import Component from 'nuxt-class-component'
+import { mapGetters, mapState } from 'vuex'
+import { fuzzysearch } from '~/helpers'
+import { VueWatch, VueDebounce } from '~/components/decorator'
 
-import SellCard from "~/components/lego/sell-card";
-import CategoriesSelector from "~/components/lego/categories-selector";
-import SearchBox from "~/components/lego/search-box";
-import SortDropdown from "~/components/lego/sort-dropdown";
-import OrderModel from "~/components/model/order";
-import NoItem from "~/components/lego/no-item";
+import SellCard from '~/components/lego/sell-card'
+import CategoriesSelector from '~/components/lego/categories-selector'
+import SearchBox from '~/components/lego/search-box'
+import SortDropdown from '~/components/lego/sort-dropdown'
+import NoItem from '~/components/lego/no-item'
 
-import CategorySidebar from "~/components/lego/account/category-sidebar";
+import CategorySidebar from '~/components/lego/account/category-sidebar'
 import NotificationModal from '~/components/lego/notification-modal'
 
 @Component({
@@ -158,24 +145,31 @@ import NotificationModal from '~/components/lego/notification-modal'
     NotificationModal,
   },
   computed: {
-    ...mapGetters('page', ['selectedFilters', 'selectedCategory']),
+    ...mapGetters('page', [
+      'selectedFilters',
+      'selectedCategory',
+      'selectedCategoryId',
+      'activeSort',
+    ]),
     ...mapState('page', ['isCategoryFetching']),
+    ...mapState('order', {
+      orderFullList: (state) => state.orders,
+    }),
     ...mapGetters('category', ['categories', 'allCategory']),
-    ...mapGetters('token', ['erc20Tokens']),
   },
   middleware: [],
   mixins: [],
 })
 export default class Index extends Vue {
-  limit = app.uiconfig.defaultPageSize;
-  searchInput = null;
-  fuzzysearch = fuzzysearch;
-  exmptyMsg = {
+  limit = Vue.appConfig.defaultPageSize
+  searchInput = null
+  fuzzysearch = fuzzysearch
+  emptyMsg = {
     title: 'Oops! No item found.',
     description: 'We didn’t found any item that is on sale.',
     img: true,
-  };
-  showNotification = false;
+  }
+  showNotification = false
 
   sortItems = [
     {
@@ -198,23 +192,20 @@ export default class Index extends Vue {
       name: 'Price high to low',
       filter: '-usd_price',
     },
-  ];
+  ]
 
-  orderFullList = [];
-  hasNextPage = true;
-  displayTokens = 0;
-  isLoadingTokens = false;
+  hasNextPage = true
+  displayTokens = 0
+  isLoadingTokens = true
 
-  showModal = false;
+  showModal = false
 
   mounted() {
-    // this.updateCategories();
-    // this.fetchOrders();
-    this.$store.dispatch("token/reloadBalances");
-
-    if (!localStorage.getItem('WalletSwapFeature')) {
-      this.onNotificationOpen();
-    }
+    this.$store.dispatch('page/clearFilters')
+    // this.$store.dispatch('token/reloadBalances')
+    // if (!localStorage.getItem('WalletSwapFeature')) {
+    //   this.onNotificationOpen()
+    // }
   }
 
   // Wathers
@@ -225,7 +216,6 @@ export default class Index extends Vue {
       return
     }
     this.hasNextPage = true
-    this.orderFullList.length = 0
     this.$store.commit('page/setIsCategoryFetching', true)
     await this.fetchOrders({ filtering: true })
     this.$store.commit('page/setIsCategoryFetching', false)
@@ -237,12 +227,12 @@ export default class Index extends Vue {
   }
 
   onNotificationOpen() {
-    this.showNotification = true;
-    localStorage.setItem('WalletSwapFeature', true);
+    this.showNotification = true
+    localStorage.setItem('WalletSwapFeature', true)
   }
 
   onNotificationClose() {
-    this.showNotification = false;
+    this.showNotification = false
   }
 
   onModalShow() {
@@ -253,52 +243,28 @@ export default class Index extends Vue {
     this.showModal = false
   }
 
+  handleSearchInput(val) {
+    const formattedString = val.trim()
+    this.$store.commit('page/setSearchString', formattedString)
+  }
+
   // Get
   get displayedTokens() {
     return this.orderFullList || []
   }
 
   get searchedTokens() {
-    const searchedTokensList = []
-
-    if (this.searchInput !== null && this.orderFullList.length > 0) {
-      this.orderFullList.forEach((order) => {
-        if (
-          fuzzysearch(this.searchInput, order.name) ||
-          fuzzysearch(this.searchInput, order.tokens_id)
-        ) {
-          searchedTokensList.push(order)
-        }
-      })
-    } else {
-      return this.orderFullList
-    }
-
-    return searchedTokensList
+    return this.orderFullList
   }
-
-  get ifCategory() {
-    return this.selectedFilters.selectedCategory
-      ? `&categoryArray=[${this.selectedFilters.selectedCategory.id}]`
-      : '&categoryArray=[]'
-  }
-
-  get ifSort() {
-    return this.selectedFilters.selectedSort
-      ? `&sort=${this.selectedFilters.selectedSort}`
-      : `&sort=${this.sortItems[0].filter}`
-  }
-
-  // async
 
   async fetchOrders(options = {}) {
+
     // Do not remove data while fetching
-    if (this.isLoadingTokens || !this.hasNextPage) {
+    if (!this.hasNextPage) {
       return
     }
     this.isLoadingTokens = true
     try {
-      let response
       let offset = this.orderFullList.length
 
       if (options && options.filtering) {
@@ -306,32 +272,18 @@ export default class Index extends Vue {
         offset = 0
       }
 
-      // Fetch tokens with pagination and filters
-      if (this.searchInput !== null && this.searchInput.length > 0) {
-        // with search
-        response = await getAxios().get(
-          `orders/?offset=${offset}&limit=${this.limit}${this.ifCategory}${this.ifSort}`,
-        )
-      } else {
-        // without search
-        response = await getAxios().get(
-          `orders/?offset=${offset}&limit=${this.limit}${this.ifCategory}${this.ifSort}`,
-        )
+      const payload = {
+        offset: offset,
+        limit: this.limit,
+        category: this.selectedCategoryId,
+        sort: this.activeSort ? this.activeSort : this.sortItems[0].filter,
+        searchString: (this.selectedFilters.searchString && this.selectedFilters.searchString.length > 0) ? this.selectedFilters.searchString : ''
       }
 
-      if (response && response.status === 200 && response.data.data.order) {
-        this.hasNextPage = response.data.data.has_next_page
-        const data = response.data.data.order.map(function(order) {
-          return new OrderModel(order)
-        })
-        if (options && options.filtering) {
-          this.orderFullList = data
-        } else {
-          this.orderFullList = [...this.orderFullList, ...data]
-        }
-      }
+      const data = await this.$store.dispatch('order/getOrders', payload)
+      this.hasNextPage = data.has_next_page
     } catch (error) {
-      console.log(error)
+      this.$logger.error(error)
     }
     this.isLoadingTokens = false
   }
@@ -340,29 +292,29 @@ export default class Index extends Vue {
     this.$store.dispatch('category/fetchCategories')
   }
 
-  async loadMore() {
-    await this.fetchOrders()
+  loadMore() {
+    this.fetchOrders()
   }
 }
 </script>
 
 <style lang="scss" scoped>
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 
 .sticky-top {
   &.tab-header {
     top: $navbar-local-height !important;
-    background-color: light-color("700");
+    background-color: light-color('700');
   }
   &.sidebar-container {
     top: $navbar-local-height !important;
-    background-color: light-color("700");
+    background-color: light-color('700');
     overflow-x: hidden;
     overflow-y: scroll;
   }
 }
 .category {
-  background-color: light-color("700");
+  background-color: light-color('700');
   box-sizing: border-box;
 
   .icon {
@@ -370,7 +322,7 @@ export default class Index extends Vue {
     height: 24px;
   }
   .count {
-    color: dark-color("300") !important;
+    color: dark-color('300') !important;
   }
 }
 .search-box {
@@ -386,7 +338,7 @@ export default class Index extends Vue {
   padding: 12px !important;
   max-width: 348px;
   height: 100%;
-  border-right: 1px solid light-color("500");
+  border-right: 1px solid light-color('500');
   height: 90vh;
   border-right: 1px solid #f3f4f7;
   overflow-y: scroll;

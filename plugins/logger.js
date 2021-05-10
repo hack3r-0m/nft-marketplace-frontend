@@ -1,17 +1,15 @@
 import Vue from 'vue'
 import mixpanel from 'mixpanel-browser'
-const uiconfig = require('~/config/uiconfig')
 
 export default {
   install() {
-    // if (process.env.NODE_ENV === "production") {
-    mixpanel.init(uiconfig.MIXPANEL_TOKEN)
-    // }
+    if (process.env.NODE_ENV === "production") {
+      mixpanel.init(Vue.appConfig.MIXPANEL_TOKEN)
+    }
     let shouldTrack = false
     const logger = {
       initTrack(user) {
-        // if(user && process.env.NODE_ENV === "production"){
-        if (user) {
+        if (user && process.env.NODE_ENV === "production") {
           mixpanel.identify(user.address)
         } else {
           user = {}
@@ -22,22 +20,26 @@ export default {
         shouldTrack = false
       },
       track(event, payload = {}) {
-        // if (process.env.NODE_ENV !== "production") {
-        //     console.log(event, JSON.parse(JSON.stringify(payload)));
-        // }
-        // else if (shouldTrack) {
-        if (shouldTrack) {
+        if (process.env.NODE_ENV !== "production") {
+          console.log(event, JSON.parse(JSON.stringify(payload)));
+        }
+        else if (shouldTrack) {
+          // if (shouldTrack) {
           mixpanel.track(event, JSON.parse(JSON.stringify(payload)))
         }
       },
       error(err) {
-        console.error('error occured', err)
+        if (process.env.NODE_ENV !== "production") {
+          console.error('error occured', err)
+        }
         if (process.env.NODE_ENV === 'production') {
           // send error to entry
         }
       },
       debug(...args) {
-        console.log(args)
+        if (process.env.NODE_ENV !== "production") {
+          console.log(...args)
+        }
       },
     }
     Vue.logger = logger

@@ -1,16 +1,13 @@
 <template>
   <div class="section position-absolute">
     <div class="modal receive-modal-wrapper show">
-      <div
-        class="modal-dialog w-sm-100 align-self-center"
-        role="document"
-      >
+      <div class="modal-dialog w-sm-100 align-self-center" role="document">
         <div class="box withdraw-box">
           <div class="box-header justify-content-center">
             <div
               class="font-heading-medium font-semibold text-center align-self-center w-100"
             >
-              {{ $t("withdraw.title") }}
+              {{ $t('withdraw.title') }}
             </div>
             <span
               class="left-arrow align-self-center float-right cursor-pointer"
@@ -32,10 +29,7 @@
                 :onSelectionChange="onSelectionChange"
               />
 
-              <div
-                v-if="error"
-                class="row ps-x-32 ps-b-8"
-              >
+              <div v-if="error" class="row ps-x-32 ps-b-8">
                 <div
                   class="font-body-small text-danger text-center mx-auto"
                   v-html="error"
@@ -80,12 +74,11 @@
 <script>
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import app from '~/plugins/app'
 import Web3 from 'web3'
 
-import getAxios from '~/plugins/axios'
-import { getWalletProvider } from '~/plugins/helpers/providers'
+import { getWalletProvider } from '~/helpers/providers'
 
 import WithdrawConfirmationModal from '~/components/lego/modals/withdraw-confirmation-modal'
 import TokenVerticleList from '~/components/lego/modals/token-verticle-list'
@@ -123,20 +116,26 @@ const { getTypedData } = require('~/plugins/meta-tx')
   methods: {},
   computed: {
     ...mapGetters('account', ['account']),
-    ...mapGetters('network', ['networks', 'networkMeta']),
     ...mapGetters('page', ['selectedCategory']),
+    ...mapState('auth', {
+      loginStrategy: (state) => state.loginStrategy,
+    }),
+    ...mapState('network', {
+      networks: (state) => state.networks,
+      networkMeta: (state) => state.networkMeta,
+    }),
   },
 })
 export default class Withdraw extends Vue {
-  error = null;
-  isLoading = false;
-  hidden = false;
-  selectingTokens = false;
-  selectedTokens = [];
-  showWithdrawConfirmation = false;
-  burnTransactionHash = null;
-  withdrawTransaction = null;
-  lastCategory = {};
+  error = null
+  isLoading = false
+  hidden = false
+  selectingTokens = false
+  selectedTokens = []
+  showWithdrawConfirmation = false
+  burnTransactionHash = null
+  withdrawTransaction = null
+  lastCategory = {}
 
   async mounted() {
     this.selectedTokens = this.preSelectedTokens
@@ -182,10 +181,12 @@ export default class Withdraw extends Vue {
     const maticProvider = getWalletProvider({
       networks: this.networks,
       primaryProvider: 'matic',
+      loginStrategy: this.loginStrategy,
     })
     const parentProvider = getWalletProvider({
       networks: this.networks,
       primaryProvider: 'main',
+      loginStrategy: this.loginStrategy,
     })
 
     return new MaticPOSClient({
@@ -292,7 +293,7 @@ export default class Withdraw extends Vue {
         sig: sign,
       }
     } catch (error) {
-      // console.log(error);
+      this.$logger.error(error);
     }
 
     this.onSignatureDenied()
@@ -309,20 +310,20 @@ export default class Withdraw extends Vue {
     )
     if (tx) {
       try {
-        const response = await getAxios().post(`orders/executeMetaTx`, tx)
-        if (response.status === 200) {
+        const response = await this.$store.dispatch(`order/executeMetaTx`, tx)
+        if (response) {
           // To send transction receipt
-          return response.data.data
+          return response.data
         }
       } catch (error) {
-        app.addToast(
+        this.$logger.error(error)
+        this.$toast.show(
           'Failed to init withdraw',
           'You need to sign the transaction to start withdraw',
           {
             type: 'failure',
           },
         )
-        throw error
       }
     }
   }
@@ -370,7 +371,7 @@ export default class Withdraw extends Vue {
         this.isLoading = false
       }
     } catch (error) {
-      // console.log(error);
+      this.$logger.error(error);
       this.error = error.message
       this.isLoading = false
       this.showWithdrawConfirmation = false
@@ -379,16 +380,14 @@ export default class Withdraw extends Vue {
   }
 
   async handleBurnTransaction(txHash) {
-    console.log('Burn txhash', txHash)
+    this.$logger.debug('Burn txhash', txHash)
     this.withdrawTransaction.block_number = txHash.blockNumber.toString()
-    const response = await getAxios().post(
-      'assetmigrate',
+    const response = await this.$store.dispatch(
+      'migrate/burnTransaction',
       this.withdrawTransaction,
     )
     this.refreshBalance()
-    if (response.status === 200) {
-      this.withdrawTransaction = response.data.data
-    }
+    this.withdrawTransaction = response.data
   }
 
   onCloseConfirmWithdraw() {
@@ -404,7 +403,7 @@ export default class Withdraw extends Vue {
 </script>
 
 <style lang="scss" scoped>
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 
 .receive-modal-wrapper {
   font-size: 14px;
@@ -417,7 +416,7 @@ export default class Withdraw extends Vue {
 
 .account-info {
   height: 44px;
-  background-color: light-color("400");
+  background-color: light-color('400');
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
   padding: 10px;
@@ -469,7 +468,7 @@ export default class Withdraw extends Vue {
   text-align: right;
 }
 .category {
-  background-color: light-color("700");
+  background-color: light-color('700');
   box-sizing: border-box;
 
   .icon {
@@ -485,7 +484,7 @@ export default class Withdraw extends Vue {
 }
 
 .text-gray-300 {
-  color: dark-color("300");
+  color: dark-color('300');
 }
 
 .btn-pay {

@@ -1,10 +1,7 @@
 <template>
   <div class="col-md-12 d-flex ps-x-0 ms-y-8">
     <div class="d-flex align-self-center bidder-wrapper ps-y-24">
-      <svg-sprite-icon
-        name="profile"
-        class="profile-logo align-self-center"
-      />
+      <svg-sprite-icon name="profile" class="profile-logo align-self-center" />
       <div
         class="d-flex message flex-column align-self-center ps-x-16 ps-l-md-0 ps-r-md-16"
       >
@@ -15,7 +12,9 @@
             href
             :title="bid.users.address"
             @click.prevent
-          >{{ shortChecksumAddress }}</a>
+          >
+            {{ shortChecksumAddress }}
+          </a>
         </div>
         <div class="font-caption text-gray-300">
           {{ remainingTimeinWords }} ago
@@ -25,7 +24,9 @@
         <div class="ps-y-12 ps-x-16">
           <span
             class="ps-y-8 ps-x-16 font-body-small font-medium price-pill text-nowrap"
-          >{{ bid.price }} {{ bid.erc20Token.symbol }}</span>
+          >
+            {{ bid.price }} {{ bid.erc20Token.symbol }}
+          </span>
         </div>
 
         <button
@@ -82,21 +83,15 @@
 <script>
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
-import { mapGetters } from 'vuex'
-import BidModel from '~/components/model/bid'
+import { mapGetters, mapState } from 'vuex'
+import { Bid as BidModel } from '~/models'
 import { toChecksumAddress } from 'ethereumjs-util'
 import moment from 'moment'
 import Web3 from 'web3'
-
-import app from '~/plugins/app'
-import getAxios from '~/plugins/axios'
-
 import BidConfirmation from '~/components/lego/modals/bid-confirmation'
-import { txShowError } from '~/plugins/helpers/transaction-utils'
-import {
-} from '~/plugins/helpers/0x-utils'
-
-import { providerEngine } from '~/plugins/helpers/provider-engine'
+import Toast from '~/components/mixins/common/toast'
+import {} from '~/helpers/0x-utils'
+import { getProviderEngine } from '~/helpers/provider-engine'
 
 // 0X
 const {
@@ -107,6 +102,7 @@ const {
 const { generatePseudoRandomSalt, signatureUtils } = require('@0x/order-utils')
 const { BigNumber } = require('@0x/utils')
 const { Web3Wrapper } = require('@0x/web3-wrapper')
+import { ORDER_TYPES } from '~/constants'
 
 @Component({
   props: {
@@ -125,19 +121,26 @@ const { Web3Wrapper } = require('@0x/web3-wrapper')
     },
   },
   components: { BidConfirmation },
+  mixins: [Toast],
   computed: {
     ...mapGetters('account', ['account']),
-    ...mapGetters('auth', ['user']),
-    ...mapGetters('network', ['networks', 'networkMeta']),
+    ...mapState('auth', {
+      user: (state) => state.user,
+    }),
+    ...mapState('network', {
+      networks: (state) => state.networks,
+      networkMeta: (state) => state.networkMeta,
+    }),
   },
 })
 export default class BidderRow extends Vue {
-  showAcceptBid = false;
-  showDenyBid = false;
-  showCancelBid = false;
-  isLoading = false;
-  denyButtonTexts = { title: 'Deny', loadingTitle: 'Denying...' };
-  cancelButtonTexts = { title: 'Cancel', loadingTitle: 'Cancelling...' };
+  showAcceptBid = false
+  showDenyBid = false
+  showCancelBid = false
+  isLoading = false
+  isApprovedAfterTransaction = false
+  denyButtonTexts = { title: 'Deny', loadingTitle: 'Denying...' }
+  cancelButtonTexts = { title: 'Cancel', loadingTitle: 'Cancelling...' }
   mounted() {}
 
   // Get
@@ -166,7 +169,7 @@ export default class BidderRow extends Vue {
   }
 
   get showAction() {
-    return this.order.type === app.orderTypes.AUCTION
+    return this.order.type === ORDER_TYPES.auction
   }
 
   get isErc1155() {
@@ -239,11 +242,38 @@ export default class BidderRow extends Vue {
       erc20Token: this.bid.erc20Token,
     })
     this.isLoading = true
+
+    try {
+      const isValidBid = await this.$store.dispatch('order/validateBid', {
+        bidId: this.bid.id,
+        orderId: this.bid.order.id
+      })
+
+      if(!isValidBid.bid_valid) {
+        this.txShowError(
+          null,
+          'Invalid Bid',
+          'Bid not valid',
+        )
+        this.isLoading = false
+        this.onAcceptClose()
+        this.refreshBids()
+        return
+      }
+    } catch (error) {
+      this.$logger.error(error)
+      this.isLoading = false
+      this.txShowError(error, null, 'Something went wrong')
+      this.onAcceptClose()
+      return
+    }
+
+    
+
     if (this.order.taker_address === this.user.id) {
       try {
         // const chainId = this.networks.matic.chainId
-        const nftContract = this.order.categories.categoriesaddresses[0]
-          .address
+        const nftContract = this.order.categories.categoriesaddresses[0].address
         const nftTokenId = this.order.tokens_id
         // const erc20Address = this.order.erc20tokens.erc20tokensaddresses[0]
         //   .address
@@ -262,13 +292,11 @@ export default class BidderRow extends Vue {
         //   this.order.erc20tokens.decimal
         // );
         const signedOrder = JSON.parse(this.bid.signature)
-        const contractWrappers = new ContractWrappers(providerEngine(), {
+        const contractWrappers = new ContractWrappers(getProviderEngine(), {
           chainId: signedOrder.chainId,
         })
 
-        signedOrder.makerAssetAmount = BigNumber(
-          signedOrder.makerAssetAmount,
-        )
+        signedOrder.makerAssetAmount = BigNumber(signedOrder.makerAssetAmount)
         signedOrder.takerAssetAmount = takerAssetAmount
         signedOrder.expirationTimeSeconds = BigNumber(
           signedOrder.expirationTimeSeconds,
@@ -281,7 +309,7 @@ export default class BidderRow extends Vue {
         if (this.isErc721) {
           tokenContract = new ERC721TokenContract(
             nftContract,
-            providerEngine(),
+            getProviderEngine(),
           )
 
           // Owner of current token
@@ -291,7 +319,7 @@ export default class BidderRow extends Vue {
           const isOwnerOfToken =
             owner.toLowerCase() === this.account.address.toLowerCase()
           if (!isOwnerOfToken) {
-            txShowError(
+            this.txShowError(
               null,
               'You are no owner of this token',
               'You are no longer owner of this token, refresh to update the data',
@@ -317,6 +345,7 @@ export default class BidderRow extends Vue {
         )
         if (!isApproved) {
           this.$logger.track('accept-bid-not-approved:bid-options')
+          this.isLoading = false
           return
         }
 
@@ -334,7 +363,7 @@ export default class BidderRow extends Vue {
           remainingFillableAmount,
           isValidSignature,
         })
-        console.log('is fillable', {
+        this.$logger.debug('is fillable', {
           orderStatus,
           orderHash,
           remainingFillableAmount,
@@ -347,18 +376,19 @@ export default class BidderRow extends Vue {
           remainingFillableAmount.isGreaterThan(0) &&
           isValidSignature
         ) {
-          console.log('Fillable')
+          this.$logger.debug('Fillable')
           this.$logger.track('accept-bid-fill-order:bid-options')
-          const dataVal = await getAxios().get(
-            `orders/exchangedata/encodedbid?bidId=${this.bid.id}&functionName=fillOrder`,
+          const dataVal = await this.$store.dispatch(
+            'order/fillBid',
+            this.bid.id,
           )
           this.$logger.track('accept-bid-fill-order-complete:bid-options')
           const zrx = {
             salt: generatePseudoRandomSalt(),
             expirationTimeSeconds: signedOrder.expirationTimeSeconds,
-            gasPrice: app.uiconfig.TX_DEFAULTS.gasPrice,
+            gasPrice: Vue.appConfig.TX_DEFAULTS.gasPrice,
             signerAddress: takerAddress,
-            data: dataVal.data.data,
+            data: dataVal.data,
             domain: {
               name: '0x Protocol',
               version: '3.0.0',
@@ -368,7 +398,7 @@ export default class BidderRow extends Vue {
           }
           this.$logger.track('accept-metamask-sign-start:bid-options')
           const takerSign = await signatureUtils.ecSignTransactionAsync(
-            providerEngine(),
+            getProviderEngine(),
             zrx,
             takerAddress,
           )
@@ -380,9 +410,8 @@ export default class BidderRow extends Vue {
           }
         }
       } catch (error) {
-        // throw error;
-        console.error(error)
-        txShowError(error, null, 'Something went wrong')
+        this.$logger.error(error)
+        this.txShowError(error, null, 'Something went wrong')
       }
     }
     this.isLoading = false
@@ -395,12 +424,12 @@ export default class BidderRow extends Vue {
         const data = {
           taker_signature: JSON.stringify(takerSign),
         }
-        const response = await getAxios().patch(
-          `orders/${this.bid.id}/execute`,
-          data,
-        )
-        if (response.status === 200) {
-          app.addToast(
+        const response = await this.$store.dispatch('order/acceptBid', {
+          bidId: this.bid.id,
+          payload: data,
+        })
+        if (response) {
+          this.$toast.show(
             'Accepted successfully',
             'You accepted the bid for your order',
             {
@@ -409,7 +438,9 @@ export default class BidderRow extends Vue {
           )
           this.$router.push({ name: 'account' })
         }
-      } catch (error) {}
+      } catch (error) {
+        this.$logger.error(error)
+      }
       this.$store.dispatch('category/fetchCategories')
     }
   }
@@ -434,80 +465,90 @@ export default class BidderRow extends Vue {
           )
           .call()
       }
-      console.log('Approving 1', isApprovedForAll)
+      this.$logger.debug('Approving 1', isApprovedForAll)
       if (!isApprovedForAll) {
+        if (!(await this.metamaskValidation())) {
+          this.approveLoading = false
+          return false
+        }
+        this.isApprovedAfterTransaction = false;
+        const maticWeb3 = new Web3(window.ethereum)
         if (this.isErc721) {
-          console.log('Approving 2', {
-            isApprovedForAll,
-            tokenContract: tokenContract,
-            erc721Proxy: contractWrappers.contractAddresses.erc721Proxy,
-            makerAddress: makerAddress,
-          })
-          const makerERC721ApprovalTxHash = await erc721TokenCont
-            .setApprovalForAll(
-              contractWrappers.contractAddresses.erc721Proxy,
-              true,
+          try {
+            this.$logger.debug('Approving 2', {
+              isApprovedForAll,
+              tokenContract: tokenContract,
+              erc721Proxy: contractWrappers.contractAddresses.erc721Proxy,
+              makerAddress: makerAddress,
+            })
+            const erc721TokenCont = new maticWeb3.eth.Contract(
+              this.networkMeta.abi('ChildERC721', 'pos'),
+              nftContract,
             )
-            .sendTransactionAsync({
-              from: makerAddress,
-              gas: 100000,
-              gasPrice: 1000000000,
-            })
-          console.log('Approving 2')
-          if (makerERC721ApprovalTxHash) {
-            console.log('Approve Hash', makerERC721ApprovalTxHash)
-            app.addToast('Approved', 'You successfully approved', {
-              type: 'success',
-            })
-            return true
+            await erc721TokenCont.methods
+              .setApprovalForAll(
+                contractWrappers.contractAddresses.erc721Proxy,
+                true,
+              )
+              .send({
+                from: makerAddress,
+                gas: 100000,
+              })
+              .on('receipt', (receipt) => {
+                this.$toast.show('Approved', 'You successfully approved', {
+                  type: 'success',
+                })
+                this.isApprovedAfterTransaction = true
+              })
+          } catch (error) {
+            this.txShowError(
+              error,
+              'Failed to approve',
+              'You need to approve the transaction to sale the NFT',
+            )
           }
-          txShowError(
-            error,
-            'Failed to approve',
-            'You need to approve the transaction to sale the NFT',
-          )
+          return this.isApprovedAfterTransaction
         } else {
-          const maticWeb3 = new Web3(window.ethereum)
-          const contract = new maticWeb3.eth.Contract(
-            this.networkMeta.abi('ChildERC1155', 'pos'),
-            nftContract,
-          )
-
-          console.log('Approving 2', {
-            isApprovedForAll,
-            tokenContract: contract,
-            erc1155Proxy: contractWrappers.contractAddresses.erc1155Proxy,
-            makerAddress: makerAddress,
-          })
-
-          const makerERC1155ApprovalTxHash = await cont
-            .setApprovalForAll(
-              contractWrappers.contractAddresses.erc1155Proxy,
-              true,
+          try {
+            const erc1155TokenCont = new maticWeb3.eth.Contract(
+              this.networkMeta.abi('ChildERC1155', 'pos'),
+              nftContract,
             )
-            .send({
-              from: makerAddress,
-              gas: 100000,
-              gasPrice: 1000000000,
+            this.$logger.debug('Approving 2', {
+              isApprovedForAll,
+              tokenContract: contract,
+              erc1155Proxy: contractWrappers.contractAddresses.erc1155Proxy,
+              makerAddress: makerAddress,
             })
-          console.log('Approving 2')
-          if (makerERC1155ApprovalTxHash) {
-            console.log('Approve Hash', makerERC1155ApprovalTxHash)
-            app.addToast('Approved', 'You successfully approved', {
-              type: 'success',
-            })
-            return true
+
+            await erc1155TokenCont.methods
+              .setApprovalForAll(
+                contractWrappers.contractAddresses.erc1155Proxy,
+                true,
+              )
+              .send({
+                from: makerAddress,
+                gas: 100000,
+              })
+              .on('receipt', (receipt) => {
+                this.$toast.show('Approved', 'You successfully approved', {
+                  type: 'success',
+                })
+                this.isApprovedAfterTransaction = true
+              })
+          } catch(error) {
+            this.txShowError(
+              error,
+              'Failed to approve',
+              'You need to approve the transaction to sale the NFT',
+            )
           }
-          txShowError(
-            error,
-            'Failed to approve',
-            'You need to approve the transaction to sale the NFT',
-          )
+          return this.isApprovedAfterTransaction
         }
       }
       return true
     } catch (error) {
-      throw error
+      this.$logger.error(error)
       return false
     }
   }
@@ -520,12 +561,12 @@ export default class BidderRow extends Vue {
     })
     if (this.bid.order.taker_address === this.user.id) {
       try {
-        const response = await getAxios().patch(
-          `orders/bid/${this.bid.id}/cancel`,
-        )
-        if (response.status === 200) {
+        const response = await this.$store.dispatch('order/cancelBid', {
+          bidId: this.bid.id,
+        })
+        if (response.message === "success") {
           this.$logger.track('deny-bid-success:bid-options')
-          app.addToast(
+          this.$toast.show(
             'Bid declined successfully',
             'You declined bid successfully',
             {
@@ -535,8 +576,8 @@ export default class BidderRow extends Vue {
           this.refreshBids()
         }
       } catch (error) {
-        console.error(error)
-        txShowError(error, null, 'Something went wrong')
+        this.$logger.error(error)
+        this.txShowError(error, null, 'Something went wrong')
       }
     }
   }
@@ -549,15 +590,13 @@ export default class BidderRow extends Vue {
       erc20Token: this.bid.erc20Token,
     })
     try {
-      if (this.order.type === app.orderTypes.NEGOTIATION) {
+      if (this.order.type === ORDER_TYPES.negotiation) {
         const signedOrder = JSON.parse(this.bid.signature)
         const takerAssetAmount = Web3Wrapper.toBaseUnitAmount(
           new BigNumber(this.bid.price),
           this.erc20Token.decimal,
         )
-        signedOrder.makerAssetAmount = BigNumber(
-          signedOrder.makerAssetAmount,
-        )
+        signedOrder.makerAssetAmount = BigNumber(signedOrder.makerAssetAmount)
         signedOrder.takerAssetAmount = takerAssetAmount
         signedOrder.expirationTimeSeconds = BigNumber(
           signedOrder.expirationTimeSeconds,
@@ -567,20 +606,21 @@ export default class BidderRow extends Vue {
         signedOrder.takerFee = BigNumber(signedOrder.takerFee)
 
         const chainId = this.networks.matic.chainId
-        const contractWrappers = new ContractWrappers(providerEngine(), {
+        const contractWrappers = new ContractWrappers(getProviderEngine(), {
           chainId: chainId,
         })
         this.$logger.track('cancel-bid-api-cancel-order:bid-options')
-        const dataVal = await getAxios().get(
-          `orders/exchangedata/encodedbid?bidId=${this.bid.id}&functionName=cancelOrder`,
+        const dataVal = await this.$store.dispatch(
+          'order/encodeForCancelBidOrder',
+          this.bid.id,
         )
         this.$logger.track('cancel-bid-api-cancel-order-completed:bid-options')
         const zrx = {
           salt: generatePseudoRandomSalt(),
           expirationTimeSeconds: signedOrder.expirationTimeSeconds,
-          gasPrice: app.uiconfig.TX_DEFAULTS.gasPrice,
+          gasPrice: Vue.appConfig.TX_DEFAULTS.gasPrice,
           signerAddress: signedOrder.makerAddress,
-          data: dataVal.data.data,
+          data: dataVal.data,
           domain: {
             name: '0x Protocol',
             version: '3.0.0',
@@ -590,7 +630,7 @@ export default class BidderRow extends Vue {
         }
         this.$logger.track('cancel-bid-metamask-start:bid-options')
         const takerSign = await signatureUtils.ecSignTransactionAsync(
-          providerEngine(),
+          getProviderEngine(),
           zrx,
           signedOrder.makerAddress,
         )
@@ -608,7 +648,7 @@ export default class BidderRow extends Vue {
         this.$logger.track('handle-cancel-bid-completed:bid-options')
       }
     } catch (error) {
-      console.log(error)
+      this.$logger.error(error)
     }
     this.isLoading = false
     this.onCancelClose()
@@ -620,12 +660,12 @@ export default class BidderRow extends Vue {
         const data = {
           taker_signature: JSON.stringify(takerSign),
         }
-        const response = await getAxios().patch(
-          `orders/bid/${this.bid.id}/cancel`,
-          data,
-        )
-        if (response.status === 200) {
-          app.addToast(
+        const response = await this.$store.dispatch('order/cancelBid', {
+          bidId: this.bid.id,
+          data: data,
+        })
+        if (response) {
+          this.$toast.show(
             'Bid cancelled successfully',
             'You cancelled your bid successfully',
             {
@@ -635,21 +675,31 @@ export default class BidderRow extends Vue {
           this.refreshBids()
         }
       } catch (error) {
-        console.error(error)
-        txShowError(error, null, 'Something went wrong')
+        this.$logger.error(error)
+        this.txShowError(error, null, 'Something went wrong')
       }
     }
     this.$store.dispatch('category/fetchCategories')
+  }
+
+  async metamaskValidation() {
+    const web3obj = new Web3(window.ethereum)
+    const chainId = await web3obj.eth.getChainId()
+    if (chainId !== this.networks.matic.chainId) {
+        this.error = 'selectMatic';
+        return false;
+    }
+    return true
   }
 }
 </script>
 
 <style lang="scss" scoped="true">
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 
 .bidder-wrapper {
   width: 100%;
-  border: 1px solid light-color("500");
+  border: 1px solid light-color('500');
   border-radius: $default-card-box-border-radius;
   .img-wrapper {
     display: flex;
@@ -663,7 +713,7 @@ export default class BidderRow extends Vue {
   }
 }
 .price-pill {
-  background-color: light-color("500");
+  background-color: light-color('500');
   border-radius: 18px;
 }
 .profile-logo {
@@ -677,10 +727,10 @@ export default class BidderRow extends Vue {
   white-space: nowrap;
 }
 .btn-deny {
-  color: red-color("600");
+  color: red-color('600');
 }
 .text-gray-300 {
-  color: dark-color("300");
+  color: dark-color('300');
 }
 
 @media (max-width: 768px) {

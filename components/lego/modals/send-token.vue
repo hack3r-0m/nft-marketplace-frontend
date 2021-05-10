@@ -135,20 +135,18 @@
 <script>
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import Web3 from 'web3'
 
 import app from '~/plugins/app'
 import BigNumber from '~/plugins/bignumber'
-import getAxios from '~/plugins/axios'
-
-import { FormValidator } from '~/components/mixin'
+import FormValidator from '~/components/mixins/common/form-validator'
 import { Textfield } from '@maticnetwork/matic-design-system'
 import { isValidAddress } from 'ethereumjs-util'
 
-import { providerEngine } from '~/plugins/helpers/provider-engine'
-import { registerNetwork } from '~/plugins/helpers/metamask-utils'
-import { txShowError } from '~/plugins/helpers/transaction-utils'
+import { getProviderEngine } from '~/helpers/provider-engine'
+import { registerNetwork } from '~/helpers/metamask-utils'
+import Toast from '~/components/mixins/common/toast'
 
 const { getTypedData } = require('~/plugins/meta-tx')
 
@@ -176,12 +174,17 @@ const ZERO = BigNumber(0)
   computed: {
     ...mapGetters('token', ['selectedERC20Token']),
     ...mapGetters('account', ['account']),
-    ...mapGetters('auth', ['user']),
-    ...mapGetters('network', ['networks', 'networkMeta']),
+    ...mapState('auth', {
+      user: (state) => state.user,
+    }),
+    ...mapState('network', {
+      networks: (state) => state.networks,
+      networkMeta: (state) => state.networkMeta,
+    }),
     ...mapGetters('category', ['categories']),
   },
   methods: {},
-  mixins: [FormValidator],
+  mixins: [FormValidator, Toast],
 })
 export default class SendToken extends Vue {
   isLoading = false;
@@ -253,9 +256,9 @@ export default class SendToken extends Vue {
     this.error = ''
 
     try {
-      const nftContract = this.nftToken.category.getAddress(
-        this.networks.matic.chainId,
-      )
+      const nftContract = this.$store.getters[
+        'category/contractAddressByToken'
+      ](this.nftToken, this.networks.matic.chainId)
       const decimalnftTokenId = this.nftToken.token_id
       let quantity = null
       let erc721TokenCont = null
@@ -264,7 +267,7 @@ export default class SendToken extends Vue {
         // ERC721 contract
         erc721TokenCont = new ERC721TokenContract(
           nftContract,
-          providerEngine(),
+          getProviderEngine(),
         )
 
         // Owner of current token
@@ -279,7 +282,7 @@ export default class SendToken extends Vue {
         })
 
         if (!isOwnerOfToken) {
-          txShowError(
+          this.txShowError(
             null,
             'You are no owner of this token',
             'You are no longer owner of this token, refresh to update the data',
@@ -361,26 +364,23 @@ export default class SendToken extends Vue {
         })
 
         const { sig } = await this.executeMetaTx(data)
-
+        const maticNftContract = this.$store.getters['category/contractAddressByToken'](this.nftToken, this.networks.matic.chainId)
         const tx = {
           intent: sig,
           fnSig: data,
           from: this.account.address,
           contractAddress: matic.utils.toChecksumAddress(
-            this.category.categoriesaddresses.find(
-              (category) => category.chain_id === this.networks.matic.chainId,
-            ).address,
+            maticNftContract
           ),
         }
 
         if (tx) {
           try {
             this.$logger.track('service-call-execute-meta-tx:transfer-token')
-            const response = await getAxios().post(`orders/executeMetaTx`, tx)
+            const response = await this.$store.dispatch(`order/executeMetaTx`, tx)
             this.refreshNFTTokens()
-            if (response.status === 200) {
-              // console.log("Transfer receipt: " + response);
-              app.addToast(
+            if (response) {
+              this.$toast.show(
                 'Transferred',
                 'You successfully transferred the token',
                 {
@@ -392,8 +392,8 @@ export default class SendToken extends Vue {
               return true
             }
           } catch (error) {
-            console.error(error)
-            txShowError(null, 'Failed to Transfer', 'Failed to transfer asset')
+            this.$logger.error(error);
+            this.txShowError(null, 'Failed to Transfer', 'Failed to transfer asset')
           }
         }
       } else {
@@ -402,45 +402,45 @@ export default class SendToken extends Vue {
           return
         }
         this.$logger.track('non-meta-tx-start:transfer-token')
-
+        const web3 = new Web3(window.ethereum)
         if (this.isErc721) {
-          const erc721TransferTxHash = await erc721TokenCont
-            .safeTransferFrom1(
+          const erc721TokenCont = new web3.eth.Contract(
+            this.networkMeta.abi('ChildERC721', 'pos'),
+            nftContract,
+          )
+          await erc721TokenCont.methods
+            .safeTransferFrom(
               this.account.address,
               this.toAddress,
               new BigNumber(decimalnftTokenId),
             )
-            .sendTransactionAsync({
+            .send({
               from: this.account.address,
               gas: 1000000,
-              gasPrice: 1000000000,
             })
-          if (erc721TransferTxHash) {
-            // console.log("Transfer Hash", erc721TransferTxHash);
-            this.refreshNFTTokens()
-            setTimeout(() => {
+            .on('receipt', (receipt) => {
               this.refreshNFTTokens()
-            }, 10000)
+              setTimeout(() => {
+                this.refreshNFTTokens()
+              }, 10000)
 
-            app.addToast(
-              'Transferred successfully',
-              'You successfully transferred the token',
-              {
-                type: 'success',
-              },
-            )
-            this.close()
-            this.$logger.track('success-non-meta-tx-ERC721:transfer-token')
-            return true
-          }
-          txShowError(error, 'Failed to transfer', 'Failed to transfer token')
+              this.$toast.show(
+                'Transferred successfully',
+                'You successfully transferred the token',
+                {
+                  type: 'success',
+                },
+              )
+              this.close()
+              this.$logger.track('success-non-meta-tx-ERC721:transfer-token')
+              return true
+            })
         } else {
-          const web3 = new Web3(window.ethereum)
           const erc1155TokenCont = new web3.eth.Contract(
             this.networkMeta.abi('ChildERC1155', 'pos'),
             nftContract,
           )
-          const erc1155TransferTxHash = await erc1155TokenCont.methods
+          await erc1155TokenCont.methods
             .safeTransferFrom(
               this.account.address,
               this.toAddress,
@@ -451,38 +451,35 @@ export default class SendToken extends Vue {
             .send({
               from: this.account.address,
               gas: 1000000,
-              gasPrice: 1000000000,
             })
-          if (erc1155TransferTxHash) {
-            this.refreshNFTTokens()
-            setTimeout(() => {
+            .on('receipt', (receipt) => {
               this.refreshNFTTokens()
-            }, 10000)
+              setTimeout(() => {
+                this.refreshNFTTokens()
+              }, 10000)
 
-            app.addToast(
-              'Transferred successfully',
-              'You successfully transferred the token',
-              {
-                type: 'success',
-              },
-            )
-            this.close()
-            this.$logger.track('success-non-meta-tx-ERC1155:transfer-token')
-            return true
-          }
-          txShowError(error, 'Failed to transfer', 'Failed to transfer token')
+              this.$toast.show(
+                'Transferred successfully',
+                'You successfully transferred the token',
+                {
+                  type: 'success',
+                },
+              )
+              this.close()
+              this.$logger.track('success-non-meta-tx-ERC721:transfer-token')
+              return true
+            })
         }
       }
     } catch (error) {
-      console.error(error);
       if (
         error.message.includes(
           "MetaMask is having trouble connecting to the network"
         )
       ) {
-        txShowError(error, null, "Please Try Again");
+        this.txShowError(error, null, "Please Try Again");
       } else {
-        txShowError(error, null, "Something went wrong");
+        this.txShowError(error, null, "Something went wrong");
       }
     }
     this.isLoading = false
@@ -504,11 +501,10 @@ export default class SendToken extends Vue {
       },
       [address],
     )
+    const maticNftContract = this.$store.getters['category/contractAddressByToken'](this.nftToken, this.networks.matic.chainId)
     const _nonce = await matic.eth.call({
       to: matic.utils.toChecksumAddress(
-        this.category.categoriesaddresses.find(
-          (category) => category.chain_id === this.networks.matic.chainId,
-        ).address,
+        maticNftContract
       ),
       data,
     })
@@ -517,9 +513,7 @@ export default class SendToken extends Vue {
       version: '1',
       salt: app.uiconfig.SALT,
       verifyingContract: matic.utils.toChecksumAddress(
-        this.category.categoriesaddresses.find(
-          (category) => category.chain_id === this.networks.matic.chainId,
-        ).address,
+        maticNftContract
       ),
       nonce: parseInt(_nonce),
       from: address,
@@ -570,10 +564,7 @@ export default class SendToken extends Vue {
   }
 
   get category() {
-    return this.categories.find(
-      (category) =>
-        category.address.toLowerCase() === this.nftToken.contract.toLowerCase(),
-    )
+    return this.$store.getters["category/categoryByToken"](this.nftToken)
   }
 }
 </script>

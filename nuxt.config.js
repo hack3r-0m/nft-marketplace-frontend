@@ -1,4 +1,6 @@
-const uiconfig = require('./config/uiconfig')
+import config from "./config";
+import webpack from "webpack";
+const isProd = process.env.NODE_ENV === 'production';
 
 const scripts = [
   // For GTM Google Analytics
@@ -22,6 +24,13 @@ const scripts = [
 ]
 
 export default {
+  
+    googleAnalytics: {
+      id: 'G-G3664S3KDL'
+    },
+  server: {
+    port: 3000 // default: 3000
+  },
   mode: 'spa',
   /*
    ** Headers of the page
@@ -54,12 +63,6 @@ export default {
     __dangerouslyDisableSanitizers: ['script'], // to clean up url params in GTM Google Analytics script link
   },
   /*
-   ** Environment variables
-   */
-  env: {
-    uiconfig: JSON.stringify(uiconfig),
-  },
-  /*
    ** Customize the progress-bar color
    */
   loading: { color: '#fff' },
@@ -85,6 +88,7 @@ export default {
   plugins: [
     { src: '~/plugins/i18n', ssr: false }, // i18n initialize
     { src: '~/plugins/v-body-scroll-lock', ssr: false }, // Vue Body Scroll Lock initialize
+    { src: '~/plugins/vue-tooltip', ssr: false }, // Adds v-tooltip prop
 
     { src: '~/plugins/auxillary', ssr: false }, // Vue auxillary :)
     { src: '~/plugins/app-init', ssr: false }, // Initialize local app
@@ -92,17 +96,17 @@ export default {
   /*
    ** Nuxt.js dev-modules
    */
-  buildModules: [],
+  buildModules: ['@nuxtjs/google-analytics'],
   /*
    ** Nuxt.js modules
    */
   modules: [
     // Doc: https://axios.nuxtjs.org/usage
-    '@nuxtjs/axios',
+    // '@nuxtjs/axios',
     '@nuxtjs/pwa',
     // Doc: https://github.com/nuxt-community/dotenv-module
-    '@nuxtjs/dotenv',
-    '@nuxtjs/sentry',
+    // '@nuxtjs/dotenv',
+    ...(isProd ? ['@nuxtjs/sentry'] : [])
   ],
   /*
    ** Axios module configuration
@@ -113,6 +117,12 @@ export default {
    ** Build configuration
    */
   build: {
+    plugins : [
+      new webpack.DefinePlugin({
+        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+        'process.env.BUILD_ENV': JSON.stringify(process.env.BUILD_ENV)
+      }),
+    ],
     // extractCSS
     extractCSS: true,
 
@@ -139,7 +149,7 @@ export default {
     extend(config, ctx) {
       config.node = {
         fs: 'empty',
-      }
+      };
 
       // if (ctx.isDev && ctx.isClient) {
       //   config.module.rules.push({
@@ -157,10 +167,13 @@ export default {
   },
 
   sentry: {
-    dsn: uiconfig.sentryDsn,
+    dsn: config.sentryDsn,
     config: {
-      environment: uiconfig.matic.deployment.network,
+      environment: config.matic.deployment.network,
       beforeSend: (sentryError) => {
+        if (process.env.NODE_ENV === "development") {
+          return console.error("sentry stopped", sentryError);
+        }
         /**
          * Use this function to filter and stop sending
          * the error events that are not required

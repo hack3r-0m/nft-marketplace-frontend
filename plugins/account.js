@@ -1,7 +1,6 @@
 import utils from 'ethereumjs-util'
 import ETHAccount from 'ethereumjs-wallet'
 
-import { accounts as accountStore } from '~/plugins/localstore'
 
 const N_FACTOR = 1024
 

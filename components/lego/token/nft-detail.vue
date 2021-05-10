@@ -4,15 +4,19 @@
       v-if="token.token_id && !isLoadingDetails"
       class="container-fluid ps-y-16"
     >
-      <div class="row ps-y-16 ps-x-md-16">
+      <div class="row ps-y-16 ps-x-md-16 justify-content-between">
         <div class="col-md-7 d-flex">
           <token-short-info
-            v-if="category"
+            v-if="token.name"
             class="align-self-center"
-            :order="token"
+            :token="token"
             :category="category"
+            :defaultPage="!isOwnerOfNFT"
           />
         </div>
+        <a :href="openseaUrl" v-tooltip.left="'View on OpenSea'" rel="noopener noreferrer" target="_blank" class="align-self-center ps-x-16 ps-x-md-0">
+          <img src="~/static/icons/opensea.svg" class="opensea-icon ps-r-16" alt="OS">
+        </a>
       </div>
       <div class="row ps-y-16 ps-x-md-16 justify-content-center">
         <div class="col-md-8 h-100">
@@ -20,38 +24,37 @@
             class="feature-image d-flex d-lg-flex justify-content-center mb-4"
             :style="{ background: bg }"
           >
+            <img
+              v-if="checkImageFormat(token.image_url) || isNotVideoFormat"
+              class="asset-img align-self-center"
+              :src="token.image_url"
+              alt="Token Image"
+              @load="onImageLoad"
+              @error="imageLoadError"
+            >
             <video
-              v-if="isVideoFormat"
+              v-else
               controls
               autoplay
               muted
               loop
               height="500px"
+              :poster="token.image_url"
             >
               <source
-                :src="token.img_url"
+                :src="token.image_url"
                 type="video/webm"
-                @error="handleNotVideo"
-              >
+              />
               <source
-                :src="token.img_url"
+                :src="token.image_url"
                 type="video/ogg"
-                @error="handleNotVideo"
-              >
+              />
               <source
-                :src="token.img_url"
+                :src="token.image_url"
                 type="video/mp4"
                 @error="handleNotVideo"
-              >
+              />
             </video>
-            <img
-              v-else
-              class="asset-img align-self-center"
-              :src="token.img_url"
-              alt="Kitty"
-              @load="onImageLoad"
-              @error="imageLoadError"
-            >
           </div>
           <div class="details-section">
             <div
@@ -67,44 +70,41 @@
               >
                 {{ tokenDescription.slice(0, tokenDescription.length / 2) }}
                 <span class="dots">...</span>
-                <span class="more">{{
-                  tokenDescription.slice(
-                    tokenDescription.length / 2,
-                    tokenDescription.length
-                  )
-                }}</span>
+                <span class="more">
+                  {{
+                    tokenDescription.slice(
+                      tokenDescription.length / 2,
+                      tokenDescription.length,
+                    )
+                  }}
+                </span>
                 <a
                   v-if="!showMore"
                   class="font-body-small d-flex ps-t-8 font-medium"
                   href="#more-info"
                   @click.prevent="showMore = true"
-                >More info</a>
+                >
+                  More info
+                </a>
                 <a
                   v-if="showMore"
                   class="font-body-small d-flex ps-t-8 font-medium"
                   href="#more-info"
                   @click.prevent="showMore = false"
-                >Show less</a>
+                >
+                  Show less
+                </a>
               </p>
-              <p
-                v-else
-                class="font-body-medium"
-              >
+              <p v-else class="font-body-medium">
                 {{ tokenDescription }}
               </p>
 
-              <button
-                class="btn btn-primary ms-t-32"
-                @click="onSellToken"
-              >
-                {{ $t("sell") }}
+              <button v-if="isOwnerOfNFT" class="btn btn-primary ms-t-32" @click="onSellToken">
+                {{ $t('sell') }}
               </button>
 
-              <button
-                class="btn btn-primary ms-t-16"
-                @click="onTransferToken"
-              >
-                {{ $t("transfer") }}
+              <button v-if="isOwnerOfNFT" class="btn btn-primary ms-t-16" @click="onTransferToken">
+                {{ $t('transfer') }}
               </button>
             </div>
 
@@ -123,7 +123,9 @@
                     :href="category.url"
                     target="_blank"
                     rel="noopener noreferrer"
-                  >Visit Website</a>
+                  >
+                    Visit Website
+                  </a>
 
                   <span
                     v-if="category.description"
@@ -143,7 +145,7 @@
             </div>
 
             <div
-              v-if="token.token.attributes_metadata"
+              v-if="token.attributes"
               class="properties details-section--dropdown"
             >
               <div
@@ -165,24 +167,22 @@
                 class="d-flex flex-row flex-wrap ps-t-16 ps-l-16"
               >
                 <div
-                  v-for="attribute in token.token.attributes_metadata"
-                  :key="`${attribute.trait_type}-${attribute.value}`"
+                  v-for="(attribute, index) in token.attributes"
+                  :key="`${attribute.trait_type}-${attribute.value}-${index}`"
                   class="col-md-3 p-0 pr-4 justify-content-between"
                 >
                   <div
                     class="d-flex flex-column text-center properties-pill p-3 mb-4"
                   >
-                    <p
-                      class="property-title m-0 p-0 text-truncate"
-                    >
+                    <p class="property-title m-0 p-0 text-truncate">
                       {{ attribute.trait_type | pascal }}
                     </p>
                     <p class="property-detail m-0 pt-1 text-truncate">
                       <template v-if="attribute.trait_type === 'birthday'">
-                        {{  attribute.value | date-human }}
+                        {{ attribute.value | dateHuman }}
                       </template>
                       <template v-else>
-                        {{  attribute.value | pascal }}
+                        {{ attribute.value | pascal }}
                       </template>
                     </p>
                   </div>
@@ -209,33 +209,28 @@
                 class="font-body-small d-flex ps-t-8 font-medium"
                 href="#more-info"
                 @click.prevent="showMore = true"
-              >More info</a>
+              >
+                More info
+              </a>
               <a
                 v-if="showMore"
                 class="font-body-small d-flex ps-t-8 font-medium"
                 href="#more-info"
                 @click.prevent="showMore = false"
-              >Show less</a>
+              >
+                Show less
+              </a>
             </p>
-            <p
-              v-else
-              class="font-body-medium"
-            >
+            <p v-else class="font-body-medium">
               {{ tokenDescription }}
             </p>
 
-            <button
-              class="btn btn-primary ms-t-32"
-              @click="onSellToken"
-            >
-              {{ $t("sell") }}
+            <button v-if="isOwnerOfNFT" class="btn btn-primary ms-t-32" @click="onSellToken">
+              {{ $t('sell') }}
             </button>
 
-            <button
-              class="btn btn-primary ms-t-16"
-              @click="onTransferToken"
-            >
-              {{ $t("transfer") }}
+            <button v-if="isOwnerOfNFT" class="btn btn-primary ms-t-16" @click="onTransferToken">
+              {{ $t('transfer') }}
             </button>
           </div>
         </div>
@@ -276,12 +271,7 @@
 <script>
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
-import getAxios from '~/plugins/axios'
-import app from '~/plugins/app'
-import { mapGetters } from 'vuex'
-
-import NFTTokenModel from '~/components/model/nft-token'
-
+import { mapGetters, mapState } from 'vuex'
 import TokenShortInfo from '~/components/lego/token/token-short-info'
 import WishlistButton from '~/components/lego/wishlist-button'
 import BuyToken from '~/components/lego/modals/buy-token'
@@ -289,11 +279,10 @@ import SellToken from '~/components/lego/modals/sell-token'
 import SendToken from '~/components/lego/modals/send-token'
 import CancelConfirm from '~/components/lego/modals/cancel-confirm'
 
-import rgbToHsl from '~/plugins/helpers/color-algorithm'
-import ColorThief from 'color-thief'
-
-import { providerEngine } from '~/plugins/helpers/provider-engine'
-const colorThief = new ColorThief()
+import rgbToHsl from '~/helpers/color-algorithm'
+import { getProviderEngine } from '~/helpers/provider-engine'
+import { getColorFromImage } from '~/utils'
+import { IMAGE_EXTENSIONS } from '~/constants'
 
 @Component({
   props: {
@@ -319,31 +308,36 @@ const colorThief = new ColorThief()
     CancelConfirm,
   },
   computed: {
-    ...mapGetters('category', ['categories']),
+    ...mapGetters('category', ['categories', 'categoryByToken']),
     ...mapGetters('token', ['erc20Tokens']),
-    ...mapGetters('auth', ['user']),
-    ...mapGetters('network', ['networks']),
+    ...mapState('auth', {
+      user: (state) => state.user,
+    }),
+     ...mapState('network', {
+      networks: (state) => state.networks,
+    }),
   },
   middleware: [],
   mixins: [],
 })
 export default class NftDetail extends Vue {
-  bg = '#ffffff';
-  showMore = false;
-  showCategoryInfo = true;
-  showProperties = true;
+  bg = '#ffffff'
+  showMore = false
+  showCategoryInfo = true
+  showProperties = true
 
-  isLoadingDetails = false;
-  isLoading = false;
-  isVideoFormat = true;
-  showSellModal = false;
-  showSendModal = false;
+  isLoadingDetails = false
+  isLoading = false
+  showSellModal = false
+  showSendModal = false
+  isNotVideoFormat = false;
+  isOwnerOfNFT = true;
 
-  token = {};
+  token = {}
 
   // initialize
-  async mounted() {
-    await this.fetchNFTTokens()
+  mounted() {
+    this.fetchNFTTokens()
   }
 
   onImageLoad() {
@@ -351,7 +345,7 @@ export default class NftDetail extends Vue {
       const img = this.$el.querySelector('.asset-img')
       // img.crossOrigin = "Anonymous";
 
-      const rgbColor = colorThief.getColor(img)
+      const rgbColor = getColorFromImage(img)
       if (rgbColor) {
         const hsl = rgbToHsl({
           r: rgbColor[0],
@@ -370,8 +364,32 @@ export default class NftDetail extends Vue {
     event.target.style.width = '100px'
   }
 
+  get openseaUrl() {
+    return `https://opensea.io/assets/matic/${this.category.address}/${this.token.token_id}`
+  }
+
+  checkImageFormat(imgUrl) {
+    if(imgUrl){
+      let imgExt = imgUrl.substr((imgUrl.lastIndexOf('.') + 1))
+      if (IMAGE_EXTENSIONS.includes(imgExt)) {
+        return true
+      }
+    }
+    return false
+  }
   handleNotVideo() {
-    this.isVideoFormat = false
+    const image = new Image()
+    image.src = this.token.image_url
+    image.onload = () => { this.isNotVideoFormat = true }
+    image.onerror = () => {
+      const image = document.createElement('img')
+      image.src = this.category.img_url;
+      document.querySelector('.feature-image').appendChild(image)
+      image.style.width = '200px'
+      image.style.height = '200px'
+      image.classList.add("asset-img", "align-self-center")
+      document.getElementsByTagName("VIDEO")[0].style.display = "none"
+    }
   }
 
   onCloseSellModal() {
@@ -396,13 +414,8 @@ export default class NftDetail extends Vue {
 
   // Get
   get category() {
-    return this.categories.filter(
-      (item) => item.id === this.token.categories_id,
-    )[0]
-  }
-
-  get app() {
-    return app
+    const ct = this.categoryByToken(this.token)
+    return ct
   }
 
   get tokenDescription() {
@@ -427,31 +440,45 @@ export default class NftDetail extends Vue {
     }
     this.isLoadingDetails = true
     try {
-      const response = await getAxios().get(
-        `tokens/balance?userId=${this.user.id}&chainId=${this.chainId}`,
-      )
+      let tokens = null;
+      if(this.user) {
+        const response = await this.$store.dispatch('account/fetchUserNFT', {
+          user: this.user,
+          chainId: this.chainId,
+        })
+        tokens = response.data
+      }
 
-      if (response.status === 200 && response.data.data) {
-        // should use a endpoint that returns detail for just one token
-        let currentToken = response.data.data.filter((token) => {
+      let currentToken = null;
+      if(tokens) {
+        currentToken = tokens.filter((token) => {
           return (
             token.token_id === this.tokenId &&
             token.contract.match(new RegExp(this.contractAddress, 'i'))
           )
         })
+      }
 
-        if (currentToken.length > 0) {
+      if (currentToken && currentToken.length > 0) {
           currentToken = currentToken[0]
-        } else {
-          return
-        }
-
-        currentToken.chainId = this.chainId
-        const data = new NFTTokenModel(currentToken)
-        this.token = data
+          currentToken.chainId = this.chainId
+          currentToken.attributes = currentToken.attributes? JSON.parse(currentToken.attributes) : ''
+          this.token = currentToken
+          this.isOwnerOfNFT = true;
+      } else {
+        const result = await this.$store.dispatch('account/fetchNFT', {
+          categoryAddress: this.contractAddress,
+          tokenId: this.tokenId,
+          chainId: this.chainId
+        })
+        this.isOwnerOfNFT = false;
+        const token = result.data
+        token.chainId = this.chainId
+        token.attributes = token.attributes? JSON.parse(token.attributes) : ''
+        this.token = token
       }
     } catch (error) {
-      console.log(error)
+      this.$logger.error(error)
     }
     this.isLoadingDetails = false
   }
@@ -459,7 +486,7 @@ export default class NftDetail extends Vue {
 </script>
 
 <style lang="scss" scoped>
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 .feature-image {
   width: 100%;
   padding-top: 3.75rem;
@@ -472,6 +499,12 @@ export default class NftDetail extends Vue {
     max-height: 380px;
   }
 }
+
+.opensea-icon {
+  height: 64px;
+  width: 64px;
+}
+
 .feature-info {
   &.mobile {
     min-height: auto;
@@ -488,12 +521,12 @@ export default class NftDetail extends Vue {
 }
 .details-section {
   &--dropdown {
-    border: 1px solid light-color("500");
+    border: 1px solid light-color('500');
     border-radius: 6px;
     margin-bottom: 20px;
 
     .header-wrapper {
-      background-color: light-color("500");
+      background-color: light-color('500');
     }
   }
 }
@@ -503,7 +536,7 @@ export default class NftDetail extends Vue {
   .svg-sprite-icon {
     width: 10px;
     height: 14px;
-    fill: rgba(dark-color("700"), 0.4);
+    fill: rgba(dark-color('700'), 0.4);
   }
   &.down-icon {
     .svg-sprite-icon {
@@ -530,17 +563,17 @@ export default class NftDetail extends Vue {
 
 .properties {
   .properties-pill {
-    background: primary-color("100");
-    border: 1px solid primary-color("300");
+    background: primary-color('100');
+    border: 1px solid primary-color('300');
     border-radius: 8px;
   }
   .property-title {
-    @include font-setting("body-medium", "700");
+    @include font-setting('body-medium', '700');
     font-weight: 600;
   }
   .property-detail {
-    @include font-setting("body-large", "500");
-    color: dark-color("500");
+    @include font-setting('body-large', '500');
+    color: dark-color('500');
   }
 }
 

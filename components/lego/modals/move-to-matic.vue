@@ -1,17 +1,8 @@
 <template>
   <div class="section position-absolute">
-    <div
-      class="modal-backdrop"
-      :class="{ show: show }"
-    />
-    <div
-      class="modal add-token-modal-wrapper"
-      :class="{ show: show }"
-    >
-      <div
-        class="modal-dialog w-sm-100 align-self-center"
-        role="document"
-      >
+    <div class="modal-backdrop" :class="{ show: show }" />
+    <div class="modal add-token-modal-wrapper" :class="{ show: show }">
+      <div class="modal-dialog w-sm-100 align-self-center" role="document">
         <div class="box accept-box">
           <div
             class="box-body"
@@ -22,19 +13,10 @@
                 ' 0%, rgba(236, 235, 223, 0) 80%)',
             }"
           >
-            <div
-              class="close-wrapper"
-              @click="close()"
-            >
-              <svg-sprite-icon
-                name="close-modal"
-                class="close"
-              />
+            <div class="close-wrapper" @click="close()">
+              <svg-sprite-icon name="close-modal" class="close" />
             </div>
-            <div
-              v-if="token"
-              class="container-fluid text-center"
-            >
+            <div v-if="token" class="container-fluid text-center">
               <div class="row">
                 <div class="col-md-12 ps-y-32">
                   <img
@@ -42,7 +24,7 @@
                     :src="token.img_url"
                     alt="kitty"
                     @load="onImageLoad"
-                  >
+                  />
                 </div>
                 <div class="col-md-12 ps-t-8 ps-b-40">
                   <div class="font-heading-large title font-semibold">
@@ -74,14 +56,12 @@
 <script>
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import app from '~/plugins/app'
 
-import rgbToHsl from '~/plugins/helpers/color-algorithm'
-import ColorThief from 'color-thief'
-
-import { getWalletProvider } from '~/plugins/helpers/providers'
-const colorThief = new ColorThief()
+import rgbToHsl from '~/helpers/color-algorithm'
+import { getColorFromImage } from '~/utils'
+import { getWalletProvider } from '~/helpers/providers'
 const MaticPOSClient = require('@maticnetwork/maticjs').MaticPOSClient
 
 @Component({
@@ -108,13 +88,19 @@ const MaticPOSClient = require('@maticnetwork/maticjs').MaticPOSClient
   computed: {
     ...mapGetters('account', ['account']),
     ...mapGetters('auth', ['user']),
-    ...mapGetters('network', ['networks', 'networkMeta']),
+    ...mapState('auth', {
+      loginStrategy: (state) => state.loginStrategy,
+    }),
+    ...mapState('network', {
+      networks: (state) => state.networks,
+      networkMeta: (state) => state.networkMeta,
+    }),
   },
 })
 export default class MoveToMatic extends Vue {
-  bg = '#f3f4f7';
-  isLoading = false;
-  loadingText = 'Depositing...';
+  bg = '#f3f4f7'
+  isLoading = false
+  loadingText = 'Depositing...'
 
   mounted() {}
 
@@ -140,11 +126,13 @@ export default class MoveToMatic extends Vue {
     const parentProvider = getWalletProvider({
       networks: this.networks,
       primaryProvider: 'main',
+      loginStrategy: this.loginStrategy,
     })
 
     const maticProvider = getWalletProvider({
       networks: this.networks,
       primaryProvider: 'matic',
+      loginStrategy: this.loginStrategy,
     })
 
     return await new MaticPOSClient({
@@ -188,8 +176,8 @@ export default class MoveToMatic extends Vue {
       }
       const txHash = await maticPOS.approveERC721ForDeposit(contract, tokenId)
       if (txHash) {
-        console.log('Approved : ', txHash)
-        app.addToast(
+        this.$logger.debug('Approved : ', txHash)
+        this.$toast.show(
           'Token approved successfully',
           'Your successfully token approved for deposit.',
           { type: 'success' },
@@ -198,7 +186,7 @@ export default class MoveToMatic extends Vue {
       }
     } catch (error) {
       console.error(error)
-      app.addToast(
+      this.$toast.show(
         'Failed to approve',
         'Something went wrong while approving NFT for deposit.',
         { type: 'failure' },
@@ -224,8 +212,8 @@ export default class MoveToMatic extends Vue {
           tokenId,
         )
         if (txHash) {
-          console.log('Deposited : ', txHash)
-          app.addToast(
+          this.$logger.debug('Deposited : ', txHash)
+          this.$toast.show(
             'Token deposited successfully',
             'Your token deposited successfully to matic network, it will take 3-5 minute to appear on matic network',
             { type: 'success' },
@@ -236,7 +224,7 @@ export default class MoveToMatic extends Vue {
       }
     } catch (error) {
       console.error(error)
-      app.addToast(
+      this.$toast.show(
         'Failed to deposit',
         'Something went wrong while depositing token',
         { type: 'failure' },
@@ -248,17 +236,17 @@ export default class MoveToMatic extends Vue {
 </script>
 
 <style lang="scss" scoped>
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 
 .asset-img {
   max-width: 112px;
   max-height: 160px;
 }
 .last-offer {
-  color: dark-color("500");
+  color: dark-color('500');
 }
 .short-descr {
-  color: dark-color("300");
+  color: dark-color('300');
 }
 
 .box {

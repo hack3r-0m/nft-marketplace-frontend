@@ -1,9 +1,6 @@
 <template>
   <div class="section position-absolute">
-    <div
-      class="modal-backdrop"
-      :class="{ show: show && displayed }"
-    />
+    <div class="modal-backdrop" :class="{ show: show && displayed }" />
     <div
       v-bsl="show"
       class="modal transaction-prog-modal"
@@ -12,20 +9,11 @@
         'hide-modal': showApproveModal && depositModal,
       }"
     >
-      <div
-        class="modal-dialog w-sm-100 align-self-center"
-        role="document"
-      >
+      <div class="modal-dialog w-sm-100 align-self-center" role="document">
         <div class="box in-process-box">
           <div class="box-body">
-            <div
-              class="close-wrapper"
-              @click="close()"
-            >
-              <svg-sprite-icon
-                name="close-modal"
-                class="close"
-              />
+            <div class="close-wrapper" @click="close()">
+              <svg-sprite-icon name="close-modal" class="close" />
             </div>
             <div class="container-fluid ps-t-20">
               <div class="row ps-y-32">
@@ -38,19 +26,20 @@
                       target="_blank"
                       rel="noopener noreferrer"
                       class="text-gray-900"
-                    >{{ order.token.name }}
-                      {{ isErc1155 ? "( " + order.quantity + " )" : "" }}
+                    >
+                      {{ order.token.name }}
+                      {{ isErc1155 ? '( ' + order.quantity + ' )' : '' }}
                     </a>
                   </h3>
                   <img
                     class="asset-img mx-auto ps-b-20"
-                    :src="order.token.img_url"
+                    :src="order.token.image_url"
                     alt="order.token.name"
                     @load="onImageLoad"
                     @error="imageLoadError"
-                  >
+                  />
                   <div
-                    v-if="order.type === orderTypes.FIXED"
+                    v-if="order.type === orderTypes.fixed"
                     class="mt-auto w-100 d-flex flex-column fixed-price"
                   >
                     <div
@@ -73,7 +62,7 @@
                     </div>
                     <div
                       v-if="erc20Token"
-                      class="font-heading-large font-semibold"
+                      class="font-heading-large font-semibold word-break-all"
                     >
                       {{ order.price }} {{ erc20Token.symbol }}
                     </div>
@@ -100,7 +89,7 @@
                     />
                   </div>
                   <div
-                    v-if="order.type === orderTypes.NEGOTIATION"
+                    v-if="order.type === orderTypes.negotiation"
                     class="mt-auto w-100 d-flex flex-column fixed-price-negotiation"
                   >
                     <div
@@ -111,13 +100,13 @@
                     </div>
 
                     <div class="d-flex justify-content-between">
-                      <div>
+                      <div class="ms-r-6">
                         <div class="font-body-small text-gray-300 ps-y-4">
                           Listed for
                         </div>
                         <div
                           v-if="erc20Token"
-                          class="font-heading-large font-semibold"
+                          class="font-heading-large font-semibold word-break-all"
                         >
                           {{ order.price }} {{ erc20Token.symbol }}
                         </div>
@@ -129,14 +118,11 @@
                         </div>
                       </div>
 
-                      <div
-                        v-if="order.highest_bid"
-                        class="text-right"
-                      >
+                      <div v-if="order.highest_bid" class="text-right ms-l-6">
                         <div class="font-body-small text-gray-300 ps-y-4">
                           Last offer
                         </div>
-                        <div class="font-heading-large font-semibold">
+                        <div class="font-heading-large font-semibold word-break-all">
                           {{ order.highest_bid }} {{ erc20Token.symbol }}
                         </div>
                         <div
@@ -147,10 +133,7 @@
                         </div>
                       </div>
 
-                      <div
-                        v-else
-                        class="text-right"
-                      >
+                      <div v-else class="text-right">
                         <div class="font-body-small text-gray-300 ps-y-4">
                           Min Price
                         </div>
@@ -202,7 +185,7 @@
                   </div>
                 </div>
                 <div
-                  v-if="order.type === orderTypes.AUCTION"
+                  v-if="order.type === orderTypes.auction"
                   class="mt-auto w-100 d-flex flex-column auction ps-x-16 ps-x-sm-32 ps-x-lg-40 ps-y-40"
                 >
                   <div
@@ -333,34 +316,28 @@
       :networkChangeNeeded="error === 'selectMatic'"
     />
 
-    <deposit-weth
-      :show="depositModal"
-      :close="closeDepositModal"
-    />
+    <deposit-weth v-if="depositModal" :close="closeDepositModal" />
   </div>
 </template>
 
 <script>
 import Vue from 'vue'
 import Component from 'nuxt-class-component'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import Web3 from 'web3'
 
-import app from '~/plugins/app'
 import moment from 'moment'
-import { FormValidator } from '~/components/mixin'
+import FormValidator from '~/components/mixins/common/form-validator'
 import InputToken from '~/components/lego/input-token'
-import getAxios from '~/plugins/axios'
-
-import { parseBalance } from '~/plugins/helpers/token-utils'
-import { formatUSDValue } from '~/plugins/helpers/index'
+import { parseBalance } from '~/helpers/token-utils'
+import { formatUSDValue } from '~/helpers/index'
 import PlaceBid from '~/components/lego/modals/place-bid'
 import ApproveProcess from '~/components/lego/modals/approve-process'
 import DepositWeth from '~/components/lego/modals/deposit-weth'
-import { registerNetwork } from '~/plugins/helpers/metamask-utils'
+import { registerNetwork } from '~/helpers/metamask-utils'
 
-import { providerEngine } from '~/plugins/helpers/provider-engine'
-import { txShowError } from '~/plugins/helpers/transaction-utils'
+import { getProviderEngine } from '~/helpers/provider-engine'
+import Toast from '~/components/mixins/common/toast'
 
 const { getTypedData } = require('~/plugins/meta-tx')
 
@@ -373,6 +350,7 @@ const {
 const { generatePseudoRandomSalt, signatureUtils } = require('@0x/order-utils')
 const { BigNumber } = require('@0x/utils')
 const { Web3Wrapper } = require('@0x/web3-wrapper')
+import { ORDER_TYPES } from '~/constants'
 
 const ZERO = BigNumber(0)
 const TEN = BigNumber(10)
@@ -404,26 +382,31 @@ const TEN = BigNumber(10)
   components: { InputToken, PlaceBid, ApproveProcess, DepositWeth },
   computed: {
     ...mapGetters('token', ['erc20Tokens', 'selectedERC20Token']),
-    ...mapGetters('network', ['networks']),
     ...mapGetters('account', ['account']),
-    ...mapGetters('auth', ['user']),
+    ...mapState('auth', {
+      user: (state) => state.user,
+    }),
+    ...mapState('network', {
+      networks: (state) => state.networks,
+      networkMeta: (state) => state.networkMeta,
+    }),
   },
   methods: {},
-  mixins: [FormValidator],
+  mixins: [FormValidator, Toast],
 })
 export default class BuyToken extends Vue {
-  activeTab = 0;
-  duration = 0;
-  negotiation = false;
-  isLoading = false;
-  showMore = false;
-  displayed = true;
-  error = '';
+  activeTab = 0
+  duration = 0
+  negotiation = false
+  isLoading = false
+  showMore = false
+  displayed = true
+  error = ''
 
-  showMakeOffer = false;
+  showMakeOffer = false
 
-  dirty = false;
-  errorMessage = "You don't have sufficient balance to buy this order";
+  dirty = false
+  errorMessage = "You don't have sufficient balance to buy this order"
 
   tabs = [
     {
@@ -444,18 +427,22 @@ export default class BuyToken extends Vue {
       commission: '',
       btnTitle: 'Submit to Marketplace',
     },
-  ];
+  ]
 
-  showApproveModal = false;
-  isApprovedStatus = false;
-  isSignedStatus = false;
-  approveLoading = false;
-  signLoading = false;
-  makerAmount = null;
-  depositModal = false;
+  showApproveModal = false
+  isApprovedStatus = false
+  isSignedStatus = false
+  approveLoading = false
+  signLoading = false
+  makerAmount = null
+  depositModal = false
+  isApprovedAfterTransaction = false
 
   mounted() {
-    this.$logger.track('mounted:buy-token', {order: this.order.id, category: this.category})
+    this.$logger.track('mounted:buy-token', {
+      order: this.order.id,
+      category: this.category,
+    })
   }
 
   onImageLoad() {
@@ -505,7 +492,7 @@ export default class BuyToken extends Vue {
   // get
   get erc20Token() {
     return this.erc20Tokens.filter(
-      (token) => token.id === this.order.erc20tokens_id,
+      (token) => token.id === this.order.erc20TokenId,
     )[0]
   }
 
@@ -531,13 +518,12 @@ export default class BuyToken extends Vue {
   }
 
   get orderTypes() {
-    return app.orderTypes
+    return ORDER_TYPES
   }
 
   get priceInUSD() {
-    return this.order.usd_price
-      ? formatUSDValue(parseFloat(this.order.usd_price))
-      : '$0'
+    const equivalentUSD = this.convertPriceToUSD(this.order.price)
+    return isNaN(equivalentUSD) ? '$0' : formatUSDValue(equivalentUSD)
   }
 
   get minPriceInUSD() {
@@ -551,14 +537,14 @@ export default class BuyToken extends Vue {
   }
 
   get isBid() {
-    if (this.order.type === app.orderTypes.AUCTION) {
+    if (this.order.type === ORDER_TYPES.AUCTION) {
       return true
     }
     return false
   }
 
   get timeRemaining() {
-    if (this.order.type !== app.orderTypes.AUCTION) {
+    if (this.order.type !== ORDER_TYPES.AUCTION) {
       return {}
     }
 
@@ -592,23 +578,24 @@ export default class BuyToken extends Vue {
 
   // action
   get validation() {
+    let balance = this.$store.getters['trunk/tokenBalance'](this.erc20Token)
+    balance = balance ? balance.gte(this.order.min_price) : {}
     return {
-      balance: this.erc20Token.balance.gte(this.order.price),
+      balance: balance,
     }
   }
 
   async checkApprovestatus() {
     this.approveLoading = true
 
-    if (this.order.type === this.orderTypes.NEGOTIATION) {
+    if (this.order.type === this.orderTypes.negotiation) {
       try {
         const yearInSec = moment().add(365, 'days').format('x')
         const chainId = this.networks.matic.chainId
-        const erc20Address = this.order.erc20tokens.erc20tokensaddresses[0]
-          .address
+        const erc20Address = this.erc20Token.erc20tokensaddresses[0].address
 
         const makerAddress = this.account.address
-        const contractWrappers = new ContractWrappers(providerEngine(), {
+        const contractWrappers = new ContractWrappers(getProviderEngine(), {
           chainId,
         })
 
@@ -622,7 +609,7 @@ export default class BuyToken extends Vue {
         const matic = new Web3(this.networks.matic.rpc)
         const erc20TokenCont = new ERC20TokenContract(
           erc20Address,
-          providerEngine(),
+          getProviderEngine(),
         )
 
         const allowance = await erc20TokenCont
@@ -637,18 +624,18 @@ export default class BuyToken extends Vue {
       } catch (error) {
         console.error(error)
         this.approveLoading = false
-        txShowError(error, null, 'Something went wrong')
+        this.txShowError(error, null, 'Something went wrong')
       }
-    } else if (this.order.type === this.orderTypes.FIXED) {
+    } else if (this.order.type === this.orderTypes.fixed) {
       try {
         const takerAddress = this.account.address
-        const erc20Address = this.erc20Token.address
+        const erc20Address = this.erc20Token.erc20tokensaddresses[0].address
         const takerAssetAmount = Web3Wrapper.toBaseUnitAmount(
           new BigNumber(this.order.price),
           this.erc20Token.decimal,
         )
         const signedOrder = JSON.parse(this.order.signature)
-        const contractWrappers = new ContractWrappers(providerEngine(), {
+        const contractWrappers = new ContractWrappers(getProviderEngine(), {
           chainId: signedOrder.chainId,
         })
 
@@ -656,7 +643,7 @@ export default class BuyToken extends Vue {
         const matic = new Web3(this.networks.matic.rpc)
         const erc20TokenCont = new ERC20TokenContract(
           erc20Address,
-          providerEngine(),
+          getProviderEngine(),
         )
 
         const allowance = await erc20TokenCont
@@ -671,7 +658,7 @@ export default class BuyToken extends Vue {
       } catch (error) {
         console.error(error)
         this.approveLoading = false
-        txShowError(error, null, 'Something went wrong')
+        this.txShowError(error, null, 'Something went wrong')
       }
     }
   }
@@ -681,23 +668,21 @@ export default class BuyToken extends Vue {
     this.error = ''
     this.$logger.track('approve-start:buy-token')
 
-    if (this.order.type === this.orderTypes.NEGOTIATION) {
+    if (this.order.type === this.orderTypes.negotiation) {
       try {
         this.$logger.track('approve-start-negotiation:buy-token')
         const yearInSec = moment().add(365, 'days').format('x')
         const chainId = this.networks.matic.chainId
-        const nftContract = this.order.categories.categoriesaddresses[0]
-          .address
+        const nftContract = this.order.categories.categoriesaddresses[0].address
         const nftTokenId = this.order.tokens_id
-        const erc20Address = this.order.erc20tokens.erc20tokensaddresses[0]
-          .address
-        const isMetaTx = this.order.erc20tokens.isMetaTx
+        const erc20Address = this.erc20Token.erc20tokensaddresses[0].address
+        const isMetaTx = this.erc20Token.isMetaTx
         const makerAddress = this.account.address
         // const takerAddress = this.account.address;
         const makerAssetAmount = this.makerAmount.toString(10)
         const takerAssetAmount = new BigNumber(1)
         const decimalnftTokenId = this.order.tokens_id
-        const contractWrappers = new ContractWrappers(providerEngine(), {
+        const contractWrappers = new ContractWrappers(getProviderEngine(), {
           chainId,
         })
 
@@ -725,27 +710,25 @@ export default class BuyToken extends Vue {
       } catch (error) {
         console.error(error)
         this.approveLoading = false
-        txShowError(error, null, 'Something went wrong')
+        this.txShowError(error, null, 'Something went wrong')
       }
-    } else if (this.order.type === this.orderTypes.FIXED) {
+    } else if (this.order.type === this.orderTypes.fixed) {
       try {
         this.$logger.track('approve-start-fixed:buy-token')
         const chainId = this.networks.matic.chainId
         const takerAddress = this.account.address
-        const erc20Address = this.erc20Token.address
+        const erc20Address = this.erc20Token.erc20tokensaddresses[0].address
         const isMetaTx = this.erc20Token.isMetaTx
         const takerAssetAmount = Web3Wrapper.toBaseUnitAmount(
           new BigNumber(this.order.price),
           this.erc20Token.decimal,
         )
         const signedOrder = JSON.parse(this.order.signature)
-        const contractWrappers = new ContractWrappers(providerEngine(), {
+        const contractWrappers = new ContractWrappers(getProviderEngine(), {
           chainId: signedOrder.chainId,
         })
 
-        signedOrder.makerAssetAmount = BigNumber(
-          signedOrder.makerAssetAmount,
-        )
+        signedOrder.makerAssetAmount = BigNumber(signedOrder.makerAssetAmount)
         signedOrder.takerAssetAmount = takerAssetAmount
         signedOrder.expirationTimeSeconds = BigNumber(
           signedOrder.expirationTimeSeconds,
@@ -753,7 +736,7 @@ export default class BuyToken extends Vue {
         signedOrder.makerFee = BigNumber(signedOrder.makerFee)
         signedOrder.salt = BigNumber(signedOrder.salt)
         signedOrder.takerFee = BigNumber(signedOrder.takerFee)
-        console.log(signedOrder)
+        this.$logger.debug(signedOrder)
 
         // Check Approve 0x, Approve if not
         this.$logger.track('approve-start-fixed-0x:buy-token')
@@ -769,7 +752,7 @@ export default class BuyToken extends Vue {
       } catch (error) {
         console.error(error)
         this.approveLoading = false
-        txShowError(error, null, 'Something went wrong')
+        this.txShowError(error, null, 'Something went wrong')
       }
     }
   }
@@ -777,22 +760,20 @@ export default class BuyToken extends Vue {
   async signClickedFunc() {
     this.signLoading = true
     this.$logger.track('sign-start:buy-token')
-    if (this.order.type === this.orderTypes.NEGOTIATION) {
+    if (this.order.type === this.orderTypes.negotiation) {
       try {
         const yearInSec = moment().add(365, 'days').format('x')
         const chainId = this.networks.matic.chainId
-        const nftContract = this.order.categories.categoriesaddresses[0]
-          .address
+        const nftContract = this.order.categories.categoriesaddresses[0].address
         const nftTokenId = this.order.tokens_id
-        const erc20Address = this.order.erc20tokens.erc20tokensaddresses[0]
-          .address
+        const erc20Address = this.erc20Token.erc20tokensaddresses[0].address
 
         const makerAddress = this.account.address
         // const takerAddress = this.account.address;
         const makerAssetAmount = this.makerAmount.toString(10)
         let takerAssetAmount = null
         const decimalnftTokenId = this.order.tokens_id
-        const contractWrappers = new ContractWrappers(providerEngine(), {
+        const contractWrappers = new ContractWrappers(getProviderEngine(), {
           chainId,
         })
 
@@ -806,7 +787,7 @@ export default class BuyToken extends Vue {
         const exchangeAddress = contractWrappers.contractAddresses.exchange
         const erc20TokenCont = new ERC20TokenContract(
           erc20Address,
-          providerEngine(),
+          getProviderEngine(),
         )
 
         const makerAssetData = await contractWrappers.devUtils
@@ -833,28 +814,28 @@ export default class BuyToken extends Vue {
             )
             .callAsync()
         }
-
+        const appConfig = Vue.appConfig
         const orderTemplate = {
           chainId: chainId,
           exchangeAddress,
           makerAddress: makerAddress,
-          takerAddress: app.uiconfig.NULL_ADDRESS,
-          senderAddress: app.uiconfig.NULL_ADDRESS,
-          feeRecipientAddress: app.uiconfig.NULL_ADDRESS,
+          takerAddress: appConfig.NULL_ADDRESS,
+          senderAddress: appConfig.NULL_ADDRESS,
+          feeRecipientAddress: appConfig.NULL_ADDRESS,
           expirationTimeSeconds: expirationTimeSeconds,
           salt: generatePseudoRandomSalt(),
           makerAssetAmount,
           takerAssetAmount,
           makerAssetData,
           takerAssetData,
-          makerFeeAssetData: app.uiconfig.NULL_BYTES,
-          takerFeeAssetData: app.uiconfig.NULL_BYTES,
+          makerFeeAssetData: appConfig.NULL_BYTES,
+          takerFeeAssetData: appConfig.NULL_BYTES,
           makerFee: ZERO,
           takerFee: ZERO,
         }
         this.$logger.track('signing-start-negotiation:buy-token')
         const signedOrder = await signatureUtils.ecSignOrderAsync(
-          providerEngine(),
+          getProviderEngine(),
           orderTemplate,
           makerAddress,
         )
@@ -863,29 +844,28 @@ export default class BuyToken extends Vue {
           const data = {}
           data.bid = parseBalance(
             makerAssetAmount,
-            this.order.erc20tokens.decimal,
+            this.erc20Token.decimal,
           ).toString(10)
           data.signature = JSON.stringify(signedOrder)
 
           // Store bid with signature
           this.$logger.track('sign-server-start-negotiation:buy-token')
-          const response = await getAxios().patch(
-            `orders/${this.order.id}/buy`,
-            data,
-          )
+          this.$logger.debug('buy token', data)
+          const response = await this.$store.dispatch('order/buyToken', {
+            payload: data,
+            orderId: this.order.id
+          })
 
-          if (response.status === 200 && response.data) {
+          if (response) {
             this.refreshBids()
-            app.addToast(
+            this.$toast.show(
               'Offered/bided successfully',
               'Your offer/bid has been successfully submitted',
               {
                 type: 'success',
               },
             )
-            this.$logger.track(
-              'sign-server-complete-bid-negotiation:buy-token',
-            )
+            this.$logger.track('sign-server-complete-bid-negotiation:buy-token')
 
             this.isSignedStatus = true
             this.signLoading = false
@@ -893,22 +873,22 @@ export default class BuyToken extends Vue {
           }
         }
       } catch (error) {
-        console.log(error)
+        this.$logger.error(error)
         this.isSignedStatus = false
         this.signLoading = false
-        txShowError(error, null, 'Something went wrong')
+        this.txShowError(error, null, 'Something went wrong')
       }
-    } else if (this.order.type === this.orderTypes.FIXED) {
+    } else if (this.order.type === this.orderTypes.fixed) {
       try {
         const chainId = this.networks.matic.chainId
         const takerAddress = this.account.address
-        const erc20Address = this.erc20Token.address
+        const erc20Address = this.erc20Token.erc20tokensaddresses[0].address
         const takerAssetAmount = Web3Wrapper.toBaseUnitAmount(
           new BigNumber(this.order.price),
           this.erc20Token.decimal,
         )
         const signedOrder = JSON.parse(this.order.signature)
-        const contractWrappers = new ContractWrappers(providerEngine(), {
+        const contractWrappers = new ContractWrappers(getProviderEngine(), {
           chainId: signedOrder.chainId,
         })
 
@@ -924,7 +904,7 @@ export default class BuyToken extends Vue {
           remainingFillableAmount,
           isValidSignature,
         })
-        console.log('is fillable', {
+        this.$logger.debug('is fillable', {
           orderStatus,
           orderHash,
           remainingFillableAmount,
@@ -937,16 +917,17 @@ export default class BuyToken extends Vue {
           isValidSignature
         ) {
           this.$logger.track('sign-server-fixed-fill-order:buy-token')
-          const dataVal = await getAxios().get(
-            `orders/exchangedata/encoded?orderId=${this.order.id}&functionName=fillOrder`,
+          const dataVal = await this.$store.dispatch(
+            'order/encodeForBuyToken',
+            this.order.id,
           )
           this.$logger.track('sign-server-complete-fill-order:buy-token')
           const zrx = {
             salt: generatePseudoRandomSalt(),
             expirationTimeSeconds: signedOrder.expirationTimeSeconds,
-            gasPrice: app.uiconfig.TX_DEFAULTS.gasPrice,
+            gasPrice: Vue.appConfig.TX_DEFAULTS.gasPrice,
             signerAddress: takerAddress,
-            data: dataVal.data.data,
+            data: dataVal.data,
             domain: {
               name: '0x Protocol',
               version: '3.0.0',
@@ -956,7 +937,7 @@ export default class BuyToken extends Vue {
           }
           this.$logger.track('metamask-sign-fixed-start:buy-token')
           const takerSign = await signatureUtils.ecSignTransactionAsync(
-            providerEngine(),
+            getProviderEngine(),
             zrx,
             takerAddress,
           )
@@ -972,12 +953,13 @@ export default class BuyToken extends Vue {
             remainingFillableAmount,
             isValidSignature,
           })
-          console.log('Order is already sold')
-          const res = await getAxios().post(`orders/validate`, {
-            orderId: this.order.id,
-          })
-          if (res.status === 200) {
-            txShowError(
+          this.$logger.debug('Order is already sold')
+          const res = await this.$store.dispatch(
+            'order/validate',
+            this.order.id,
+          )
+          if (!res) {
+            this.txShowError(
               null,
               'Order Invalid',
               'This order is no longer valid or has been sold out. Please try to buy some other NFT.',
@@ -986,10 +968,10 @@ export default class BuyToken extends Vue {
           }
         }
       } catch (error) {
-        console.log(error)
+        this.$logger.error(error)
         this.isSignedStatus = false
         this.signLoading = false
-        txShowError(error, null, 'Something went wrong')
+        this.txShowError(error, null, 'Something went wrong')
       }
     }
   }
@@ -1019,7 +1001,7 @@ export default class BuyToken extends Vue {
   }
 
   async buyFixedOrder() {
-    if (this.order.type !== app.orderTypes.FIXED) {
+    if (this.order.type !== this.orderTypes.fixed) {
       this.isLoading = false
       return
     }
@@ -1039,7 +1021,7 @@ export default class BuyToken extends Vue {
     const matic = new Web3(this.networks.matic.rpc)
     const erc20TokenCont = new ERC20TokenContract(
       erc20Address,
-      providerEngine(),
+      getProviderEngine(),
     )
 
     const allowance = await erc20TokenCont
@@ -1076,27 +1058,30 @@ export default class BuyToken extends Vue {
           fnSig: data,
           from: this.account.address,
           contractAddress: matic.utils.toChecksumAddress(
-            this.order.erc20tokens.erc20tokensaddresses[0].address,
+            this.erc20Token.erc20tokensaddresses[0].address
           ),
         }
 
         if (tx) {
           try {
-            const response = await getAxios().post(`orders/executeMetaTx`, tx)
-            if (response.status === 200) {
+            const response = await this.$store.dispatch(
+              `order/executeMetaTx`,
+              tx,
+            )
+            if (response) {
               this.$logger.track(
                 'approving-0x-complete-non-meta-tx:buy-token',
                 { response },
               )
-              console.log('Approved')
-              app.addToast('Approved', 'You successfully approved', {
+              this.$logger.debug('Approved')
+              this.$toast.show('Approved', 'You successfully approved', {
                 type: 'success',
               })
               return true
             }
           } catch (error) {
-            console.log(error)
-            txShowError(
+            this.$logger.error(error)
+            this.txShowError(
               null,
               'Failed to approve',
               'You need to approve the transaction to sale the NFT',
@@ -1107,46 +1092,52 @@ export default class BuyToken extends Vue {
       } else {
         if (!(await this.metamaskValidation())) {
           this.approveLoading = false
-          return
+          return false
         }
         try {
+          this.isApprovedAfterTransaction = false;
+          const maticWeb3 = new Web3(window.ethereum)
+
+          const erc20TokenContract = new maticWeb3.eth.Contract(
+              this.networkMeta.abi('ChildERC20', 'pos'),
+              erc20Address,
+            )
+
           const amount = new BigNumber(
             '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
           )
-          const erc20Approve = await erc20TokenCont
+          await erc20TokenContract.methods
             .approve(contractWrappers.contractAddresses.erc20Proxy, amount)
-            .sendTransactionAsync({
+            .send({
               from: this.account.address,
               gas: 100000,
-              gasPrice: 1000000000,
             })
-          if (erc20Approve) {
-            console.log('Approved')
-            app.addToast('Approved', 'You successfully approved', {
-              type: 'success',
+            .on('receipt', (receipt) => {
+              this.$toast.show(
+                'Approved successfully',
+                'You successfully approved the token to put on sale',
+                {
+                  type: 'success',
+                },
+              )
+              this.isApprovedAfterTransaction = true
             })
-            this.$logger.track('approving-0x-complete-non-meta-tx:buy-token', {
-              erc20Approve,
-            })
-            return true
-          }
         } catch (error) {
-          console.log(error);
           if (
             error.message.includes(
-              'MetaMask is having trouble connecting to the network'
+              'MetaMask is having trouble connecting to the network',
             )
           ) {
-            txShowError(error, null, 'Please Try Again');
+            this.txShowError(error, null, 'Please Try Again')
           } else {
-            txShowError(
+            this.txShowError(
               null,
               'Failed to approve',
-              'You need to approve the transaction to sale the NFT'
-            );
+              'You need to approve the transaction to sale the NFT',
+            )
           }
         }
-        return false
+        return this.isApprovedAfterTransaction
       }
     }
     return true
@@ -1160,8 +1151,8 @@ export default class BuyToken extends Vue {
       //   await registerNetwork();
       //   return true;
       // } catch (error) {
-        this.error = 'selectMatic';
-        return false;
+      this.error = 'selectMatic'
+      return false
       // }
     }
     return true
@@ -1183,18 +1174,26 @@ export default class BuyToken extends Vue {
       },
       [address],
     )
+    const erc20Address = this.erc20Token.erc20tokensaddresses[0].address
     const _nonce = await matic.eth.call({
       to: matic.utils.toChecksumAddress(
-        this.order.erc20tokens.erc20tokensaddresses[0].address,
+        erc20Address
       ),
       data,
     })
+
+    const erc20ContractInstance = new matic.eth.Contract(
+      this.networkMeta.abi('ChildERC20', 'pos'),
+      erc20Address
+    )
+    const name = await erc20ContractInstance.methods.name().call();
+
     const dataToSign = getTypedData({
-      name: this.order.erc20tokens.name,
+      name: name,
       version: '1',
-      salt: app.uiconfig.SALT,
+      salt: Vue.appConfig.SALT,
       verifyingContract: matic.utils.toChecksumAddress(
-        this.order.erc20tokens.erc20tokensaddresses[0].address,
+        erc20Address
       ),
       nonce: parseInt(_nonce),
       from: address,
@@ -1215,12 +1214,14 @@ export default class BuyToken extends Vue {
       const data = {
         taker_signature: JSON.stringify(takerSign),
       }
-      const response = await getAxios().patch(
-        `orders/${this.order.id}/buy`,
-        data,
+      const response = await this.$store.dispatch('order/buyToken', 
+        {
+          payload: data, 
+          orderId: this.order.id
+        }
       )
-      if (response.status === 200) {
-        app.addToast(
+      if (response) {
+        this.$toast.show(
           'Order bought successfully',
           'You bought the order successfully',
           {
@@ -1231,8 +1232,8 @@ export default class BuyToken extends Vue {
         this.close()
       }
     } catch (error) {
-      console.log(error)
-      txShowError(
+      this.$logger.error(error)
+      this.txShowError(
         null,
         'Failed to buy order',
         'Something went wrong while buying order',
@@ -1244,7 +1245,7 @@ export default class BuyToken extends Vue {
 </script>
 
 <style lang="scss" scoped>
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 
 .asset-img {
   max-width: 300px;
@@ -1255,18 +1256,22 @@ export default class BuyToken extends Vue {
   opacity: 0;
 }
 
+.word-break-all {
+  word-break: break-all;
+}
+
 .text-gray-900 {
-  color: dark-color("900");
+  color: dark-color('900');
 }
 .text-gray-500 {
-  color: dark-color("500");
+  color: dark-color('500');
 }
 .text-gray-300 {
-  color: dark-color("300");
+  color: dark-color('300');
 }
 .time-pill {
-  background-color: light-color("500");
-  color: dark-color("700");
+  background-color: light-color('500');
+  color: dark-color('700');
   padding-left: 1rem;
   padding-right: 1rem;
   padding-top: 0.5rem;
@@ -1277,8 +1282,8 @@ export default class BuyToken extends Vue {
   cursor: pointer;
 
   &.active {
-    background-color: dark-color("700");
-    color: light-color("700");
+    background-color: dark-color('700');
+    color: light-color('700');
   }
 }
 
@@ -1313,15 +1318,15 @@ export default class BuyToken extends Vue {
 }
 
 .auction {
-  background-color: light-color("600");
+  background-color: light-color('600');
   margin-bottom: -32px;
   border-bottom-left-radius: $default-card-box-border-radius;
   border-bottom-right-radius: $default-card-box-border-radius;
 }
 
 .time-wrapper {
-  background-color: primary-color("600");
-  color: light-color("700");
+  background-color: primary-color('600');
+  color: light-color('700');
   border-radius: $default-card-box-border-radius;
 
   .font-caption {
@@ -1330,7 +1335,7 @@ export default class BuyToken extends Vue {
   }
 }
 .error-text {
-  color: red-color("500");
+  color: red-color('500');
 }
 
 .box {

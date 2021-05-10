@@ -1,31 +1,19 @@
 <template>
-  <div
-    v-show="loaded"
-    class="container-fluid py-4 mt-5"
-  >
+  <div v-show="loaded" class="container-fluid py-4 mt-5">
     <div class="row justify-content-center">
       <div class="col-md-6 login-container text-center">
         <div class="matic-logo">
-          <img
-            src="~/assets/img/logo.svg"
-            alt="Matic Network"
-          >
-          <img
-            src="~/assets/img/logo-name.svg"
-            alt="Matic Network"
-          >
+          <img src="~/assets/img/logo.svg" alt="Matic Network" />
+          <img src="~/assets/img/logo-name.svg" alt="Matic Network" />
         </div>
         <div class="container-fluid d-flex justify-content-center">
           <div class="box ms-t-40 login-box">
             <div class="box-body">
               <div class="font-heading-medium font-semibold ps-16 ps-md-32">
-                {{ $t("login") }}
+                {{ $t('login') }}
               </div>
               <div class="container">
-                <div
-                  v-if="false"
-                  class="row ps-x-32"
-                >
+                <div v-if="false" class="row ps-x-32">
                   <div
                     class="col-12 login-with no-bottom-border-radius ps-16 ps-md-20"
                     :class="{ 'cursor-pointer': !loading }"
@@ -36,17 +24,17 @@
                           src="~/assets/img/walletconnect.svg"
                           alt="wallet connect"
                           class="align-self-center"
-                        >
+                        />
                       </div>
                       <div
                         class="d-flex flex-column text-left align-self-center ps-l-20"
                       >
-                        <span class="font-heading font-semibold">{{
-                          $t("walletConnect")
-                        }}</span>
-                        <span class="font-body-small text-gray">{{
-                          $t("walletConnectMsg")
-                        }}</span>
+                        <span class="font-heading font-semibold">
+                          {{ $t('walletConnect') }}
+                        </span>
+                        <span class="font-body-small text-gray">
+                          {{ $t('walletConnectMsg') }}
+                        </span>
                       </div>
                       <svg-sprite-icon
                         name="right-arrow"
@@ -67,17 +55,17 @@
                           src="~/assets/img/metamask.svg"
                           alt="Metamask"
                           class="align-self-center"
-                        >
+                        />
                       </div>
                       <div
                         class="d-flex flex-column text-left align-self-center ps-l-20"
                       >
-                        <span class="font-heading font-semibold">{{
-                          $t("metamask.title")
-                        }}</span>
-                        <span class="font-body-small text-gray">{{
-                          $t("webConnectMsg")
-                        }}</span>
+                        <span class="font-heading font-semibold">
+                          {{ $t('metamask.title') }}
+                        </span>
+                        <span class="font-body-small text-gray">
+                          {{ $t('webConnectMsg') }}
+                        </span>
                       </div>
                       <svg-sprite-icon
                         name="right-arrow"
@@ -86,10 +74,7 @@
                     </div>
                   </div>
                 </div>
-                <div
-                  v-if="false"
-                  class="row ps-x-32"
-                >
+                <div v-if="false" class="row ps-x-32">
                   <div
                     class="col-12 login-with no-top-border-radius ps-16 ps-md-20"
                     :class="{ 'cursor-pointer': !loading }"
@@ -100,17 +85,17 @@
                           src="~/assets/img/portis.svg"
                           alt="portis"
                           class="align-self-center"
-                        >
+                        />
                       </div>
                       <div
                         class="d-flex flex-column text-left align-self-center ps-l-20"
                       >
-                        <span class="font-heading font-semibold">{{
-                          $t("portis")
-                        }}</span>
-                        <span class="font-body-small text-gray">{{
-                          $t("webConnectMsg")
-                        }}</span>
+                        <span class="font-heading font-semibold">
+                          {{ $t('portis') }}
+                        </span>
+                        <span class="font-body-small text-gray">
+                          {{ $t('webConnectMsg') }}
+                        </span>
                       </div>
                       <svg-sprite-icon
                         name="right-arrow"
@@ -122,21 +107,20 @@
                 <div
                   class="row justify-content-center wallet-download-info ms-t-32"
                 >
-                  {{ $t("downloadWallet") }}
+                  {{ $t('downloadWallet') }}
                   <a
                     href="https://metamask.io/download.html"
                     target="_blank"
                     class="link-color ps-l-4"
-                  >{{ $t("downloadHere") }}</a>
+                  >
+                    {{ $t('downloadHere') }}
+                  </a>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <div
-          v-if="metamaskNetworkError"
-          class="metamask-network-error m-2"
-        >
+        <div v-if="metamaskNetworkError" class="metamask-network-error m-2">
           Select the {{ networks.main.name }} Network in the Metamask
         </div>
       </div>
@@ -150,7 +134,7 @@ import Vue from 'vue'
 import Component from 'nuxt-class-component'
 import Web3 from 'web3'
 import moment from 'moment'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import ethUtil from 'ethereumjs-util'
 // import Portis from "@portis/web3";
 
@@ -160,15 +144,15 @@ import {
   personalSign,
   signTypedData,
   isMetamaskLocked,
-} from '~/plugins/helpers/metamask-utils'
+} from '~/helpers'
 import app from '~/plugins/app'
-import { config as configStore } from '~/plugins/localstore'
-// import { getWalletConnectProvider } from "~/plugins/helpers/walletconnect-utils";
+// import { getWalletConnectProvider } from "~/helpers/walletconnect-utils";
 
-import { NextNavigation } from '~/components/mixin'
+import NextNavigation from '~/components/mixins/login/next-navigation'
 import { VueWatch } from '~/components/decorator'
 // import WalletConnectModal from "~/components/lego/walletconnect-modal";
 import ConnectingMetamask from '~/components/lego/connecting-metamask'
+import { LOGIN_STRATEGY } from '~/constants'
 
 @Component({
   layout: 'blank',
@@ -178,22 +162,26 @@ import ConnectingMetamask from '~/components/lego/connecting-metamask'
   },
   mixins: [NextNavigation],
   computed: {
-    ...mapGetters('network', ['networks', 'selectedNetwork']),
+    ...mapState('network', {
+      networks: (q) => q.networks,
+    }),
+    ...mapGetters('network', ['selectedNetwork']),
   },
 })
 export default class Login extends Vue {
-  loading = false;
-  loaded = false;
-  metamaskLoading = false;
-  error = false;
-  sessionData = null;
-  sessionCreated = false;
-  metamaskNetworkError = false;
+  loading = false
+  loaded = false
+  metamaskLoading = false
+  error = false
+  sessionData = null
+  sessionCreated = false
+  metamaskNetworkError = false
 
   // query params
-  queryParams = {};
+  queryParams = {}
 
   async mounted() {
+    this.$logger.debug('networks', this.networks)
     this.nextRoute = this.nextRoute || { name: 'index' }
     this.queryParams = this.$route.query
     this.loaded = true
@@ -234,8 +222,9 @@ export default class Login extends Vue {
     this.metamaskLoading = true
 
     this.error = null
-
     if (!isMetamask()) {
+      alert('Metamask not found - it might be disabled or not installed. Please enable or install and continue.')
+      this.metamaskLoading = false
       return
     }
 
@@ -268,20 +257,12 @@ export default class Login extends Vue {
           this.getLoginTypedData(from.toLowerCase(), timestamp),
           window.ethereum,
         )
-
         if (result.result) {
-          const options = {
-            strategy: app.strategies.METAMASK,
-          }
-
-          // set login strategy
-          configStore.set('loginStrategy', app.strategies.METAMASK)
-
           // login with metamask
-          await this.login(from, result.result, options)
+          await this.login(from, result.result, LOGIN_STRATEGY.metaMask)
         }
       } catch (e) {
-        // ignore error
+        this.$logger.error(e)
       }
 
       this.loading = false
@@ -289,7 +270,7 @@ export default class Login extends Vue {
     this.metamaskLoading = false
   }
 
-  async login(address, signature, options) {
+  async login(address, signature, loginStrategy) {
     this.loading = true
     this.$logger.track('user-login-start:login', { address })
     try {
@@ -297,10 +278,12 @@ export default class Login extends Vue {
       await this.$store.dispatch('auth/doLogin', {
         address,
         signature,
+        loginStrategy,
       })
       this.$logger.track('user-login-complete:login', { address })
       this.moveToNext()
     } catch (e) {
+      this.$logger.error(e)
       this.error =
         (e.response && e.response.data && e.response.data.message) || e.message
     }
@@ -311,13 +294,13 @@ export default class Login extends Vue {
 </script>
 
 <style lang="scss" scoped="">
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 
 .login-box {
   width: 446px !important;
 }
 .login-with {
-  border: 1px solid light-color("500");
+  border: 1px solid light-color('500');
   box-sizing: border-box;
   border-radius: 8px;
 }
@@ -329,25 +312,25 @@ export default class Login extends Vue {
   border-radius: 50%;
 }
 .logo-wallet-connect {
-  background-color: primary-color("100");
+  background-color: primary-color('100');
 }
 .logo-metamask {
-  background-color: red-color("100");
+  background-color: red-color('100');
 }
 .logo-portis {
-  background-color: primary-color("100");
+  background-color: primary-color('100');
 }
 
 #right-arrow > svg > path {
   fill: #b4b7bd !important;
 }
 .wallet-download-info {
-  border-top: 1px solid light-color("400");
+  border-top: 1px solid light-color('400');
   padding: 32px 10px;
-  color: dark-color("100");
-  @include font-setting("body-medium", "medium");
+  color: dark-color('100');
+  @include font-setting('body-medium', 'medium');
 }
 .metamask-network-error {
-  color: red-color("600");
+  color: red-color('600');
 }
 </style>
