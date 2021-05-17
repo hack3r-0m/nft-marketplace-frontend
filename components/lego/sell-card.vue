@@ -1,29 +1,48 @@
 <template>
   <nuxt-link
-    :to="{ name: 'tokens-id', params: { id: order.id } }"
+    :to="{ name: 'order-id', params: { id: order.id } }"
     class="sell-card text-center cursor-pointer"
-    v-bind:style="{ background: bg }"
+    :style="{ background: bg }"
   >
     <on-sale-tag v-if="order.onSale && !onlyToken" :time="order.timeleft" />
     <!-- <owned-tag v-if="sellOrderType" /> -->
-    <order-type-tag :type="sellOrderType" v-if="sellOrderType" />
+    <order-type-tag v-if="sellOrderType" :type="sellOrderType" />
 
     <div class="img-wrapper d-flex ps-t-12 justify-content-center">
-      <img
-        :src="order.token.img_url"
+      <video v-if="isVideoFormat" autoplay muted loop width="100%">
+        <source
+          :src="order.token.img_url"
+          type="video/webm"
+          @error="handleNotVideo"
+        />
+        <source
+          :src="order.token.img_url"
+          type="video/ogg"
+          @error="handleNotVideo"
+        />
+        <source
+          :src="order.token.img_url"
+          type="video/mp4"
+          @error="handleNotVideo"
+        />
+      </video>
+      <ImageWithLoader
+        v-else
+        :src="order.token.image_url"
         class="asset-img align-self-center"
         :alt="order.token.name"
         @load="onImageLoad"
+        :fallBackSrc="category.img_url"
       />
     </div>
     <div
       class="gradient"
-      v-bind:style="{
+      :style="{
         background:
           'linear-gradient( 360deg,' + bg + '0%, rgba(236, 235, 223, 0) 100%)',
       }"
-    ></div>
-    <div class="category-pill d-flex mx-auto ms-t-20 ms-b-16" v-if="category">
+    />
+    <div v-if="category" class="category-pill d-flex mx-auto ms-t-20 ms-b-16">
       <img
         :src="category.img_url"
         class="icon ms-2 ms-l-4 ms-r-4 align-self-center"
@@ -37,73 +56,26 @@
       :class="{ 'ms-b-16': onlyToken }"
       :title="order.token.name"
     >
-      {{ order.token.name }}
+      {{ order.token.name }} {{ isErc1155 ? `( ${order.quantity} )` : '' }}
     </h3>
-    <div class="price font-body-small ms-b-20" v-if="erc20Token && !onlyToken">
+    <div v-if="erc20Token && !onlyToken" class="price font-body-small ms-b-20">
       {{ order.price }} {{ erc20Token.symbol }} &nbsp; ({{ priceInUSD }})
-    </div>
-    <div
-      class="actions matic-chain d-flex justify-content-between text-center w-100 d-flex"
-      v-if="isMyAccount && !isMainToken && onlyToken"
-    >
-      <a
-        class="btn btn-transparent w-50 align-self-center"
-        @click.prevent="sell(order.id)"
-        >Sell</a
-      >
-      <a
-        class="btn btn-transparent w-50 align-self-center"
-        @click.prevent="transfer()"
-        >Transfer</a
-      >
-    </div>
-    <div
-      class="actions matic-chain d-flex justify-content-between text-center w-100 d-flex"
-      v-if="false && isMyAccount"
-    >
-      <a
-        class="btn btn-red btn-transparent w-100 align-self-center"
-        @click.prevent="removeFromMarketplace()"
-        >Remove from Marketplace</a
-      >
-    </div>
-    <div
-      class="actions matic-chain d-flex justify-content-between text-center w-100 d-flex"
-      v-if="isMainToken && isMyAccount"
-    >
-      <a
-        class="btn btn-transparent w-100 align-self-center"
-        @click.prevent="moveToMatic(order)"
-        >Move to Matic</a
-      >
-    </div>
-    <div
-      class="actions matic-chain d-flex justify-content-between text-center w-100 d-flex"
-      v-if="false && isMyAccount"
-    >
-      <a
-        class="btn btn-transparent w-100 align-self-center"
-        @click.prevent="moveToEthereum()"
-        >Move to Ethereum</a
-      >
     </div>
   </nuxt-link>
 </template>
 
 <script>
-import Vue from "vue";
-import Component from "nuxt-class-component";
-import app from "~/plugins/app";
-import { mapGetters } from "vuex";
+import Vue from 'vue'
+import Component from 'nuxt-class-component'
+import { mapGetters, mapState } from 'vuex'
 
-import rgbToHsl from "~/plugins/helpers/color-algorithm";
-import { formatUSDValue } from "~/plugins/helpers/index";
-import ColorThief from "color-thief";
-const colorThief = new ColorThief();
-
-import OnSaleTag from "~/components/lego/token/on-sale-tag";
-import OwnedTag from "~/components/lego/token/owned-tag";
-import OrderTypeTag from "~/components/lego/token/order-type-tag";
+import rgbToHsl from '~/helpers/color-algorithm'
+import { formatUSDValue } from '~/helpers'
+import { getColorFromImage } from '~/utils'
+import OnSaleTag from '~/components/lego/token/on-sale-tag'
+import OwnedTag from '~/components/lego/token/owned-tag'
+import OrderTypeTag from '~/components/lego/token/order-type-tag'
+import ImageWithLoader from "~/components/common/image";
 
 @Component({
   props: {
@@ -127,82 +99,67 @@ import OrderTypeTag from "~/components/lego/token/order-type-tag";
       default: () => {},
     },
   },
-  components: { OnSaleTag, OwnedTag, OrderTypeTag },
+  components: { OnSaleTag, OwnedTag, OrderTypeTag,ImageWithLoader },
   computed: {
-    ...mapGetters("category", ["categories"]),
-    ...mapGetters("token", ["erc20Tokens"]),
-    ...mapGetters("network", ["networks"]),
-    ...mapGetters("auth", ["user"]),
+    ...mapGetters('category', ['categories', 'categoryById']),
+    ...mapGetters('token', ['erc20Tokens']),
+    ...mapState('auth', {
+      user: (state) => state.user,
+    }),
+    ...mapState('network', {
+      networks: (state) => state.networks,
+    }),
   },
   middleware: [],
   mixins: [],
 })
 export default class SellCard extends Vue {
-  bg = "#f3f4f7";
-
+  bg = '#f3f4f7'
+  isVideoFormat = true
   // Initial
-  mounted() {}
+  mounted() {
+
+  }
 
   onImageLoad() {
     try {
-      const img = this.$el.querySelector(".asset-img");
+      const img = this.$el.querySelector('.asset-img')
       // img.crossOrigin = "Anonymous";
 
-      let rgbColor = colorThief.getColor(img);
+      const rgbColor = getColorFromImage(img)
       if (rgbColor) {
-        let hsl = rgbToHsl({
+        const hsl = rgbToHsl({
           r: rgbColor[0],
           g: rgbColor[1],
           b: rgbColor[2],
-        });
-        this.bg = `hsl(${hsl.h},${hsl.s}%,${hsl.l}%)`;
-      } else this.bg = "#f3f4f7";
+        })
+        this.bg = `hsl(${hsl.h},${hsl.s}%,${hsl.l}%)`
+      } else {
+        this.bg = '#f3f4f7'
+      }
     } catch (error) {
-      this.bg = "#f3f4f7";
+      this.$logger.error(error)
+      this.bg = '#f3f4f7'
     }
-  }
-
-  // Get
-  get isMyAccount() {
-    if (this.$route.name === "account") {
-      return true;
-    }
-    return false;
   }
 
   get erc20Token() {
     return this.erc20Tokens.find(
-      (token) => token.id === this.order.erc20tokens_id
-    );
+      (token) => token.id === this.order.erc20TokenId,
+    )
   }
 
   get category() {
-    return this.categories.find((item) => item.id === this.order.categories_id);
+    const categoryId = this.order.categories.id
+    return this.categoryById(categoryId)
   }
 
-  get sellTagData() {
-    // if order type AUCTION
-    if (order.type === app.orderTypes.AUCTION) {
-      // if expiry time is less than
-      if (order.expiry_date) {
-      }
-    }
+  get isErc1155() {
+    return this.order.token_type === 'ERC1155'
   }
 
-  get isMainToken() {
-    if (this.order.chainId) {
-      return this.order.chainId === this.networks.main.chainId;
-    }
-    return false;
-  }
-
-  get isOwnersToken() {
-    if (this.user && this.order.type !== app.orderTypes.FIXED) {
-      return this.user.id === this.order.taker_address;
-    } else if (this.user && this.order.type === app.orderTypes.FIXED) {
-      return this.user.id === this.order.maker_address;
-    }
-    return false;
+  get isErc721() {
+    return this.order.token_type === 'ERC721'
   }
 
   get sellOrderType() {
@@ -210,27 +167,21 @@ export default class SellCard extends Vue {
   }
 
   get priceInUSD() {
-    return this.order.usd_price ? formatUSDValue(parseFloat(this.order.usd_price)) : '$0'
+    return this.order.usd_price
+      ? formatUSDValue(parseFloat(this.order.usd_price))
+      : '$0'
   }
 
-  // Actions
-  transfer() {
-    console.log("transfer");
-  }
-  moveToEthereum() {
-    console.log("moveToEthereum");
-  }
-  transfer() {
-    console.log("transfer");
-  }
-  removeFromMarketplace() {
-    console.log("removeFromMarketplace");
+
+
+  handleNotVideo() {
+    this.isVideoFormat = false
   }
 }
 </script>
 
 <style lang="scss" scoped="true">
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 
 a {
   color: inherit;
@@ -243,7 +194,7 @@ a {
   margin: 0.625rem;
   position: relative;
 
-  background: light-color("700");
+  background: light-color('700');
   border-radius: $default-card-box-border-radius;
   .img-wrapper {
     width: 100%;
@@ -263,7 +214,7 @@ a {
     position: absolute;
     background: linear-gradient(
       360deg,
-      light-color("500") 0%,
+      light-color('500') 0%,
       rgba(236, 235, 223, 0) 100%
     );
   }
@@ -271,7 +222,7 @@ a {
   .category-pill {
     width: fit-content;
     border-radius: 19px;
-    background: light-color("700");
+    background: light-color('700');
     .icon {
       width: 20px;
       height: 20px;
@@ -284,7 +235,7 @@ a {
     text-overflow: ellipsis;
   }
   .price {
-    color: dark-color("400");
+    color: dark-color('400');
   }
 }
 .sell-card:hover {
@@ -292,19 +243,19 @@ a {
 }
 .actions {
   height: 45px;
-  border-top: 1px solid rgba(dark-color("700"), 0.1);
+  border-top: 1px solid rgba(dark-color('700'), 0.1);
   &.matic-chain {
     .btn-transparent {
-      color: primary-color("600");
+      color: primary-color('600');
       border-radius: 0px;
     }
 
     .btn-red {
-      color: red-color("600");
+      color: red-color('600');
     }
 
     .btn:nth-child(2) {
-      border-left: 1px solid rgba(dark-color("700"), 0.1);
+      border-left: 1px solid rgba(dark-color('700'), 0.1);
     }
   }
 }

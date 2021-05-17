@@ -1,6 +1,17 @@
-import app from '~/plugins/app'
+import logger from '~/plugins/logger'
+import toast from '~/plugins/toast'
+import Vue from 'vue'
+import '~/filters'
+import "~/config";
+import initService from "~/service";
+import { APP_BUS } from '~/constants'
 
-export default async function ({ store }) {
+export default async function ({ $sentry }) {
+  initService();
   // Initialize app
-  await app.init(store)
+  Vue.use(logger)
+  Vue.use(toast, APP_BUS)
+  console.log('app runing with env', process.env.NODE_ENV);
+  Vue.$sentry = $sentry;
+  window['vue'] = Vue;
 }

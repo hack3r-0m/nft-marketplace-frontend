@@ -14,8 +14,8 @@
     <div class="d-flex align-self-center activity-wrapper ps-y-16">
       <div
         class="img-wrapper justify-content-center d-none"
-        v-bind:style="{ background: bg }"
-      ></div>
+        :style="{ background: bg }"
+      />
       <img
         :src="imgUrl"
         class="asset-img align-self-center profile-logo"
@@ -24,26 +24,28 @@
       <div
         class="d-flex message flex-column align-self-center ps-x-16 ps-l-md-0 ps-r-md-16"
       >
-        <div class="font-body-small" v-if="true">
-          <nuxt-link 
-          :to="{ name: 'tokens-id', params: { id: activity.order_id } }"
-          >{{ activity.message }}</nuxt-link
-        >
+        <div v-if="true" class="font-body-small">
+          <nuxt-link
+            :to="{ name: 'order-id', params: { id: activity.order_id } }"
+          >
+            {{ activity.message }}
+          </nuxt-link>
         </div>
         <div class="font-caption text-gray-300">
           {{ remainingTimeinWords }} ago
         </div>
       </div>
-      <div class="d-flex ml-auto ms-r-16" v-if="true && showExplorerLink">
+      <div v-if="true && showExplorerLink" class="d-flex ml-auto ms-r-16">
         <a
           :href="explorerLink"
           target="_blank"
           rel="noopener noreferrer"
           class="btn btn-light align-self-center"
-          >View details
+        >
+          View details
         </a>
       </div>
-      <div class="d-flex ml-auto ms-r-16" v-if="false">
+      <div v-if="false" class="d-flex ml-auto ms-r-16">
         <button
           class="btn btn-light btn-deny align-self-center ms-r-12"
           @click="onDeny()"
@@ -61,20 +63,11 @@
 </template>
 
 <script>
-import Vue from "vue";
-import Component from "nuxt-class-component";
-import moment from "moment";
-import getAxios from "~/plugins/axios";
-
-import AcceptBid from "~/components/lego/modals/bid-confirmation";
-import OrderModel from "~/components/model/order";
-
-import rgbToHsl from "~/plugins/helpers/color-algorithm";
-import ColorThief from "color-thief";
-import app from "~/plugins/app";
-import config from "~/config/uiconfig";
-
-const colorThief = new ColorThief();
+import Vue from 'vue'
+import Component from 'nuxt-class-component'
+import moment from 'moment'
+import rgbToHsl from '~/helpers/color-algorithm'
+import { getColorFromImage } from '~/utils'
 
 @Component({
   props: {
@@ -84,101 +77,105 @@ const colorThief = new ColorThief();
     },
   },
   components: {
-    AcceptBid,
+    // AcceptBid,
   },
 })
 export default class ActivityOrderRow extends Vue {
-  bg = "#ffffff";
-  showAcceptBid = false;
-  showInProcess = false;
-  showTokenList = false;
-  explorerLink = "";
-  showExplorerLink = false;
+  bg = '#ffffff'
+  // showAcceptBid = false;
+  showInProcess = false
+  showTokenList = false
+  explorerLink = ''
+  showExplorerLink = false
 
   async mounted() {
-    this.explorerLink = app.uiconfig.maticExplorer + "tx/" + this.activity.orders.txhash;
-    if(this.activity.type==="SWAP"){
-      this.showExplorerLink = true;
-    }
-    else if (this.activity.type ==="CANCELLED" && this.activity.orders.type === "FIXED"){
-      this.showExplorerLink = true;
-    }
-    else {
-      this.showExplorerLink = false;
+    this.explorerLink =
+      Vue.appConfig.maticExplorer + 'tx/' + this.activity.orders.txhash
+    if (this.activity.type === 'SWAP') {
+      this.showExplorerLink = true
+    } else if (
+      this.activity.type === 'CANCELLED' &&
+      this.activity.orders.type === 'FIXED'
+    ) {
+      this.showExplorerLink = true
+    } else {
+      this.showExplorerLink = false
     }
   }
 
   onImageLoad() {
     try {
-      const img = this.$el.querySelector(".asset-img");
-      let rgbColor = colorThief.getColor(img);
+      const img = this.$el.querySelector('.asset-img')
+      const rgbColor = getColorFromImage(img)
       if (rgbColor) {
-        let hsl = rgbToHsl({
+        const hsl = rgbToHsl({
           r: rgbColor[0],
           g: rgbColor[1],
           b: rgbColor[2],
-        });
-        this.bg = `hsl(${hsl.h},${hsl.s}%,${hsl.l}%)`;
-      } else this.bg = "#ffffff";
+        })
+        this.bg = `hsl(${hsl.h},${hsl.s}%,${hsl.l}%)`
+      } else {
+        this.bg = '#ffffff'
+      }
     } catch (error) {}
   }
 
   get imgUrl() {
-    return `${app.uiconfig.apis.FILE_HOST}${this.activity.orders.categories.img_url}`
+    return `${Vue.appConfig.apis.FILE_HOST}${this.activity.orders.categories.img_url}`
   }
 
   get timeRemaining() {
-    const expiry = moment(this.activity.created);
-    const current = moment();
-    const diff = moment.duration(expiry.diff(current));
+    const expiry = moment(this.activity.created)
+    const current = moment()
+    const diff = moment.duration(expiry.diff(current))
 
     return {
       days: Math.abs(diff.days()),
       hours: Math.abs(diff.hours()),
       mins: Math.abs(diff.minutes()),
       secs: Math.abs(diff.seconds()),
-    };
+    }
   }
 
   get remainingTimeinWords() {
-    let wordings = "";
+    let wordings = ''
     if (this.timeRemaining) {
       if (this.timeRemaining.days > 0) {
-        wordings = `${this.timeRemaining.days} days`;
+        wordings = `${this.timeRemaining.days} days`
       } else if (this.timeRemaining.hours > 0) {
-        wordings = `${this.timeRemaining.hours} hours`;
+        wordings = `${this.timeRemaining.hours} hours`
       } else if (this.timeRemaining.mins > 0) {
-        wordings = `${this.timeRemaining.mins} mins`;
+        wordings = `${this.timeRemaining.mins} mins`
       } else if (this.timeRemaining.secs > 0) {
-        wordings = `${this.timeRemaining.secs} seconds`;
+        wordings = `${this.timeRemaining.secs} seconds`
       }
     }
-    return wordings;
+    return wordings
   }
 
   onAccept() {
-    this.showAcceptBid = true;
-    console.log("On accept");
+    this.showAcceptBid = true
+    this.$logger.debug('On accept')
   }
+
   onAcceptClose() {
-    this.showAcceptBid = false;
+    this.showAcceptBid = false
   }
 
   onDeny() {
-    this.showTokenList = true;
+    this.showTokenList = true
   }
 
   onDenyClose() {
-    this.showTokenList = false;
+    this.showTokenList = false
   }
 }
 </script>
 
-
 <style lang="scss" scoped>
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 a {
-  color: primary-color("600");
+  color: primary-color('600');
 }
 .unread-mark {
   margin-left: -14px;
@@ -187,7 +184,7 @@ a {
 
 .activity-wrapper {
   width: 100%;
-  background-color: light-color("600");
+  background-color: light-color('600');
   border-radius: $default-card-box-border-radius;
   .img-wrapper {
     display: flex;
@@ -211,10 +208,10 @@ a {
   white-space: nowrap;
 }
 .btn-deny {
-  color: red-color("600");
+  color: red-color('600');
 }
 .text-gray-300 {
-  color: dark-color("300");
+  color: dark-color('300');
 }
 
 @media (max-width: 768px) {

@@ -1,4 +1,4 @@
-import { debounce } from '~/plugins/helpers/index'
+import { debounce } from '~/helpers'
 import { createDecorator } from 'vue-class-component'
 
 //
@@ -28,8 +28,8 @@ export function VueWatch(...paths) {
     }
 
     // paths
-    let { deep = false, immediate = false } = options
-    paths.forEach(path => {
+    const { deep = false, immediate = false } = options
+    paths.forEach((path) => {
       componentOptions.watch[path] = { handler, deep, immediate }
     })
   })
@@ -49,10 +49,10 @@ export function Debounce(duration) {
         Object.defineProperty(this, key, {
           configurable: true,
           enumerable: descriptor.enumerable,
-          value: debounce(descriptor.value, duration)
+          value: debounce(descriptor.value, duration),
         })
         return this[key]
-      }
+      },
     }
   }
 }
@@ -66,8 +66,8 @@ export function sleepFor(timeInMilliSeconds = 1000) {
 export function waitFor(...names) {
   return (target, prop, descriptor) => {
     const fn = descriptor.value
-    const newFn = function(...args) {
-      const promises = names.map(name => {
+    const newFn = function (...args) {
+      const promises = names.map((name) => {
         if (!(this[name] instanceof Promise)) {
           throw new Error(`Expecting this['${name}'] to be a Promise`)
         }
@@ -85,7 +85,7 @@ export function retry(retryInterval = 5000, n = 3) {
   return (target, prop, descriptor) => {
     const fn = descriptor.value
     let _retry = 0
-    const newFn = async function(...args) {
+    const newFn = async function (...args) {
       while (_retry === 0 || _retry < n) {
         try {
           return await fn.apply(this, args)

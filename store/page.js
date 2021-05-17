@@ -1,4 +1,5 @@
 /* eslint no-param-reassign: 0 */
+import Vue from 'vue'
 
 export default {
   namespaced: true,
@@ -7,17 +8,24 @@ export default {
     return {
       selectedFilters: {
         selectedCategory: null,
-        selectedSort: null
-      }
+        selectedSort: null,
+      },
+      isCategoryFetching: false,
     }
   },
 
   mutations: {
     selectedCategory(state, category) {
-      state.selectedFilters.selectedCategory = category || null
+      Vue.set(state.selectedFilters, 'selectedCategory', category || null)
     },
     selectedSort(state, sortBy) {
-      state.selectedFilters.selectedSort = sortBy || null
+      Vue.set(state.selectedFilters, 'selectedSort', sortBy || null)
+    },
+    setSearchString(state, searchString) {
+      Vue.set(state.selectedFilters, 'searchString', searchString || null)
+    },
+    setIsCategoryFetching(state, isCategoryFetching) {
+      state.isCategoryFetching = isCategoryFetching
     },
   },
 
@@ -25,11 +33,29 @@ export default {
     selectedCategory(state) {
       return state.selectedFilters.selectedCategory
     },
+    selectedCategoryId(state, getters) {
+      const category = getters.selectedCategory;
+      return category ? category.id : null;
+    },
+    activeSort(state) {
+      return state.selectedFilters.selectedSort
+    },
     selectedSort(state) {
       return state.selectedFilters.selectedSort
+    },
+    searchString(state) {
+      return state.selectedFilters.searchString
     },
     selectedFilters(state) {
       return state.selectedFilters
     },
-  }
+  },
+  
+  actions: {
+    clearFilters({ commit }) {
+      commit('selectedCategory')
+      commit('selectedSort')
+      commit('setSearchString')
+    },
+  },
 }

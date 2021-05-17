@@ -11,14 +11,14 @@
           <div
             class="col-12 col-lg cat-switch d-flex d-lg-none ms-b-16 ms-b-lg-0 justify-content-between justify-content-lg-start"
           >
-            <categories-selector :countFor="0" class="category-wrapper" />
+            <categories-selector :countFor="0" :isLoading="isLoadingTokens" class="category-wrapper" />
           </div>
           <div
             class="col-12 col-lg cat-switch d-none d-lg-flex ms-b-16 ms-b-lg-0 justify-content-between justify-content-lg-start"
           >
             <div
-              class="category d-flex ps-x-16 ps-y-8 cursor-pointer"
               v-if="!selectedCategory"
+              class="category d-flex ps-x-16 ps-y-8 cursor-pointer"
             >
               <img
                 :src="allCategory.img_url"
@@ -29,12 +29,12 @@
                 {{ allCategory.name }}
               </div>
               <div class="count ps-l-12 font-body-large ml-auto">
-                {{ allCategory.count }} {{ $t("collectibles") }}
+                {{ allCategory.count }} {{ $t('collectibles') }}
               </div>
             </div>
             <div
-              class="category d-flex ps-x-16 ps-y-8 cursor-pointer"
               v-if="selectedCategory"
+              class="category d-flex ps-x-16 ps-y-8 cursor-pointer"
             >
               <img
                 :src="selectedCategory.img_url"
@@ -50,7 +50,7 @@
                   (displayedTokens && displayedTokens.length) ||
                   0
                 }}
-                {{ $t("collectibles") }}
+                {{ $t('collectibles') }}
               </div>
             </div>
           </div>
@@ -60,7 +60,7 @@
             <search-box
               class="search-box ms-r-0 ms-r-sm-6"
               placeholder="Search NFT..."
-              :change="(val) => (searchInput = val)"
+              :change="handleSearchInput"
             />
             <sort-dropdown
               class="dropdown-filter ms-l-0 ms-l-sm-6"
@@ -74,14 +74,14 @@
           class="row ps-x-16 ps-y-40 d-flex justify-content-center justify-content-lg-start"
         >
           <no-item
-            class="ps-b-120"
-            :message="exmptyMsg"
             v-if="orderFullList.length <= 0 && !isLoadingTokens"
+            class="ps-b-120"
+            :message="emptyMsg"
           />
           <no-item
-            class="ps-b-120"
-            :message="this.$t('searchNotFound')"
             v-else-if="searchedTokens.length === 0 && !isLoadingTokens"
+            class="ps-b-120"
+            :message="$t('searchNotFound')"
           />
 
           <sell-card
@@ -96,43 +96,45 @@
         >
           <!-- matic loader here -->
           <button-loader
+            v-if="
+              (hasNextPage && searchedTokens && searchedTokens.length > 0) ||
+              isLoadingTokens
+            "
             class="mx-auto"
             :loading="isLoadingTokens"
             :loadingText="$t('loading')"
             :text="$t('loadMore')"
             block
             lg
-            v-if="
-              (hasNextPage && displayedTokens && displayedTokens.length > 0) ||
-              isLoadingTokens
-            "
             color="light"
             :click="loadMore"
-          ></button-loader>
+          />
         </div>
       </div>
     </div>
+
+    <notification-modal v-if="showNotification" @close="onNotificationClose" />
   </div>
 </template>
 
 <script>
-import Vue from "vue";
-import Component from "nuxt-class-component";
-import { mapGetters } from "vuex";
-import app from "~/plugins/app";
-import { fuzzysearch } from "~/plugins/helpers/index";
-import { fuzzySearchResult } from "~/plugins/helpers/index";
-import getAxios from "~/plugins/axios";
-import { VueWatch } from "~/components/decorator";
+import Vue from 'vue'
+import Component from 'nuxt-class-component'
+import { mapGetters, mapState } from 'vuex'
+import { fuzzysearch } from '~/helpers'
+import { VueWatch, VueDebounce } from '~/components/decorator'
 
-import SellCard from "~/components/lego/sell-card";
-import CategoriesSelector from "~/components/lego/categories-selector";
-import SearchBox from "~/components/lego/search-box";
-import SortDropdown from "~/components/lego/sort-dropdown";
-import OrderModel from "~/components/model/order";
-import NoItem from "~/components/lego/no-item";
+import SellCard from '~/components/lego/sell-card'
+import CategoriesSelector from '~/components/lego/categories-selector'
+import SearchBox from '~/components/lego/search-box'
+import SortDropdown from '~/components/lego/sort-dropdown'
+import NoItem from '~/components/lego/no-item'
+import moment from 'moment'
+import { LOCAL_STORAGE } from "~/constants";
+import { LocalStorage } from "~/utils";
 
-import CategorySidebar from "~/components/lego/account/category-sidebar";
+import CategorySidebar from '~/components/lego/account/category-sidebar'
+import NotificationModal from '~/components/lego/notification-modal'
 
 @Component({
   props: {},
@@ -143,187 +145,184 @@ import CategorySidebar from "~/components/lego/account/category-sidebar";
     SortDropdown,
     NoItem,
     CategorySidebar,
+    NotificationModal,
   },
   computed: {
-    ...mapGetters("page", ["selectedFilters", "selectedCategory"]),
-    ...mapGetters("category", ["categories", "allCategory"]),
-    ...mapGetters("token", ["erc20Tokens"]),
+    ...mapGetters('page', [
+      'selectedFilters',
+      'selectedCategory',
+      'selectedCategoryId',
+      'activeSort',
+    ]),
+    ...mapState('page', ['isCategoryFetching']),
+    ...mapState('order', {
+      orderFullList: (state) => state.orders,
+    }),
+    ...mapGetters('category', ['categories', 'allCategory']),
   },
   middleware: [],
   mixins: [],
 })
 export default class Index extends Vue {
-  limit = app.uiconfig.defaultPageSize;
-  searchInput = null;
-  fuzzysearch = fuzzysearch;
-  exmptyMsg = {
-    title: "Oops! No item found.",
-    description: "We didn’t found any item that is on sale.",
+  limit = Vue.appConfig.defaultPageSize
+  searchInput = null
+  fuzzysearch = fuzzysearch
+  emptyMsg = {
+    title: 'Oops! No item found.',
+    description: 'We didn’t found any item that is on sale.',
     img: true,
-  };
+  }
+  showNotification = false
 
   sortItems = [
     {
       id: 0,
-      name: "Newest",
-      filter: "-created",
+      name: 'Newest',
+      filter: '-created',
     },
     {
       id: 1,
-      name: "Oldest",
-      filter: "+created",
+      name: 'Oldest',
+      filter: '+created',
     },
     {
       id: 2,
-      name: "Price low to high",
-      filter: "+usd_price",
+      name: 'Price low to high',
+      filter: '+usd_price',
     },
     {
       id: 3,
-      name: "Price high to low",
-      filter: "-usd_price",
+      name: 'Price high to low',
+      filter: '-usd_price',
     },
-  ];
+  ]
 
-  orderFullList = [];
-  hasNextPage = true;
-  displayTokens = 0;
-  isLoadingTokens = false;
+  hasNextPage = true
+  displayTokens = 0
+  isLoadingTokens = true
 
-  showModal = false;
+  showModal = false
 
   mounted() {
-    this.updateCategories();
-    this.fetchOrders();
-    this.$store.dispatch("token/reloadBalances");
+    this.$store.dispatch('page/clearFilters')
+    // this.$store.dispatch('token/reloadBalances')
+    const timestamp = moment().unix()
+    const localStorageTimestamp = LocalStorage.get(LOCAL_STORAGE.notificationAccept)
+    if (!localStorageTimestamp ||
+      parseInt(localStorageTimestamp) + 3600 < timestamp) 
+    {
+      this.onNotificationOpen()
+    }
   }
 
   // Wathers
-  @VueWatch("selectedFilters", { immediate: true, deep: true })
+  @VueWatch('selectedFilters', { immediate: true, deep: true })
+  @VueDebounce(500)
   async onFilterChanged() {
-    this.hasNextPage = true;
-    await this.fetchOrders({ filtering: true });
+    if (this.isCategoryFetching) {
+      return
+    }
+    this.hasNextPage = true
+    this.$store.commit('page/setIsCategoryFetching', true)
+    await this.fetchOrders({ filtering: true })
+    this.$store.commit('page/setIsCategoryFetching', false)
   }
 
   // handlers
   onSortSelect(item) {
-    this.$store.commit("page/selectedSort", item.filter);
+    this.$store.commit('page/selectedSort', item.filter)
+  }
+
+  onNotificationOpen() {
+    this.showNotification = true
+    const timestamp = moment().unix()
+    LocalStorage.set(LOCAL_STORAGE.notificationAccept, timestamp)
+  }
+
+  onNotificationClose() {
+    this.showNotification = false
   }
 
   onModalShow() {
-    this.showModal = true;
+    this.showModal = true
   }
+
   onModalClose() {
-    this.showModal = false;
+    this.showModal = false
+  }
+
+  handleSearchInput(val) {
+    const formattedString = val.trim()
+    this.$store.commit('page/setSearchString', formattedString)
   }
 
   // Get
   get displayedTokens() {
-    return this.orderFullList || [];
+    return this.orderFullList || []
   }
+
   get searchedTokens() {
-    let searchedTokensList = [];
-
-    if (this.searchInput !== null && this.orderFullList.length > 0) {
-      this.orderFullList.forEach((order) => {
-        if (
-          fuzzysearch(this.searchInput, order.name) ||
-          fuzzysearch(this.searchInput, order.tokens_id)
-        ) {
-          searchedTokensList.push(order);
-        }
-      })
-    } else {
-      return this.orderFullList;
-    }
-
-    return searchedTokensList;
+    return this.orderFullList
   }
-  get ifCategory() {
-    return this.selectedFilters.selectedCategory
-      ? `&categoryArray=[${this.selectedFilters.selectedCategory.id}]`
-      : "&categoryArray=[]";
-  }
-  get ifSort() {
-    return this.selectedFilters.selectedSort
-      ? `&sort=${this.selectedFilters.selectedSort}`
-      : `&sort=${this.sortItems[0].filter}`;
-  }
-
-  // async
 
   async fetchOrders(options = {}) {
+
     // Do not remove data while fetching
-    if (this.isLoadingTokens || !this.hasNextPage) {
-      return;
+    if (!this.hasNextPage) {
+      return
     }
-    this.isLoadingTokens = true;
+    this.isLoadingTokens = true
     try {
-      let response;
-      let offset = this.orderFullList.length;
+      let offset = this.orderFullList.length
 
       if (options && options.filtering) {
         // Start from page one with new filter
-        offset = 0;
+        offset = 0
       }
 
-      // Fetch tokens with pagination and filters
-      if (this.searchInput != null && this.searchInput.length > 0) {
-        // with search
-        response = await getAxios().get(
-          `orders/?offset=${offset}&limit=${this.limit}${this.ifCategory}${this.ifSort}`
-        );
-      } else {
-        // without search
-        response = await getAxios().get(
-          `orders/?offset=${offset}&limit=${this.limit}${this.ifCategory}${this.ifSort}`
-        );
+      const payload = {
+        offset: offset,
+        limit: this.limit,
+        category: this.selectedCategoryId,
+        sort: this.activeSort ? this.activeSort : this.sortItems[0].filter,
+        searchString: (this.selectedFilters.searchString && this.selectedFilters.searchString.length > 0) ? this.selectedFilters.searchString : ''
       }
 
-      if (response && response.status === 200 && response.data.data.order) {
-        this.hasNextPage = response.data.data.has_next_page;
-        let data = response.data.data.order.map(function (order) {
-          return new OrderModel(order);
-        });
-        if (options && options.filtering) {
-          this.orderFullList = data;
-        } else {
-          this.orderFullList = [...this.orderFullList, ...data];
-        }
-      }
+      const data = await this.$store.dispatch('order/getOrders', payload)
+      this.hasNextPage = data.has_next_page
     } catch (error) {
-      console.log(error);
+      this.$logger.error(error)
     }
-    this.isLoadingTokens = false;
+    this.isLoadingTokens = false
   }
 
   updateCategories() {
-    this.$store.dispatch("category/fetchCategories");
+    this.$store.dispatch('category/fetchCategories')
   }
 
-  async loadMore() {
-    await this.fetchOrders();
+  loadMore() {
+    this.fetchOrders()
   }
 }
 </script>
 
 <style lang="scss" scoped>
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 
 .sticky-top {
   &.tab-header {
     top: $navbar-local-height !important;
-    background-color: light-color("700");
+    background-color: light-color('700');
   }
   &.sidebar-container {
     top: $navbar-local-height !important;
-    background-color: light-color("700");
+    background-color: light-color('700');
     overflow-x: hidden;
     overflow-y: scroll;
   }
 }
 .category {
-  background-color: light-color("700");
+  background-color: light-color('700');
   box-sizing: border-box;
 
   .icon {
@@ -331,7 +330,7 @@ export default class Index extends Vue {
     height: 24px;
   }
   .count {
-    color: dark-color("300") !important;
+    color: dark-color('300') !important;
   }
 }
 .search-box {
@@ -347,9 +346,8 @@ export default class Index extends Vue {
   padding: 12px !important;
   max-width: 348px;
   height: 100%;
-  border-right: 1px solid light-color("500");
-  max-height: 77vh;
-  min-height: 77vh;
+  border-right: 1px solid light-color('500');
+  height: 90vh;
   border-right: 1px solid #f3f4f7;
   overflow-y: scroll;
 

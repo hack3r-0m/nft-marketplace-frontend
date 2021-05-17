@@ -1,5 +1,5 @@
 <template>
-  <div class="row ps-y-16 ps-x-16 account-banner">
+  <div class="row ps-y-16 ps-x-16 account-banner fixed">
     <div
       class="col-12 col-lg d-flex flex-column flex-md-row justify-content-center justify-content-lg-start"
     >
@@ -20,15 +20,15 @@
           &nbsp; &nbsp;
           <div class="copy-wrapper" @click.stop.prevent="copyAddress">
             <img
+              v-if="copyAnim === false"
               name="copy-white"
               src="~/assets/svg/copy-white.svg"
-              v-if="copyAnim === false"
             />
             <lottie
+              v-if="copyAnim === true"
               :options="defaultOptions"
               :width="24"
               :height="24"
-              v-if="copyAnim === true"
             />
           </div>
         </div>
@@ -41,7 +41,7 @@
         class="d-flex flex-column align-self-center ms-r-32 justify-content-start"
       >
         <div class="white-color name ps-b-4 font-heading-small font-semibold">
-          {{ $t("account.banner.totalNft") }}
+          {{ $t('account.banner.totalNft') }}
         </div>
         <div class="white-color amount font-body-medium text-right">
           {{ totalMaticNft + totalMainNft }}
@@ -51,139 +51,161 @@
         class="d-flex flex-column align-self-center ms-r-32 justify-content-start"
       >
         <div class="white-color name ps-b-4 font-heading-small font-semibold">
-          {{ $t("account.banner.WETHBalance") }}
+          {{ $t('account.banner.ETHBalance') }}
         </div>
         <div
-          v-if="erc20Tokens[0]"
+          v-if="erc20TokenBySymbol('ETH')"
           class="white-color amount font-body-medium text-right"
         >
-          {{ formattedFullUSDBalance(0) }}
+          {{ formattedFullUSDBalance('ETH') }}
         </div>
       </div>
       <div
         class="d-flex flex-column align-self-center ms-r-32 justify-content-start"
       >
         <div class="white-color name ps-b-4 font-heading-small font-semibold">
-          {{ $t("account.banner.DAIBalance") }}
+          {{ $t('account.banner.DAIBalance') }}
         </div>
         <div
-          v-if="erc20Tokens[1]"
+          v-if="erc20TokenBySymbol('DAI')"
           class="white-color amount font-body-medium text-right"
         >
-          {{ formattedFullUSDBalance(1) }}
+          {{ formattedFullUSDBalance('DAI') }}
+        </div>
+      </div>
+      <div
+        class="d-flex flex-column align-self-center ms-r-32 justify-content-start"
+      >
+        <div class="white-color name ps-b-4 font-heading-small font-semibold">
+          {{ $t('account.banner.USDCBalance') }}
+        </div>
+        <div
+          v-if="erc20TokenBySymbol('USDC')"
+          class="white-color amount font-body-medium text-right"
+        >
+          {{ formattedFullUSDBalance('USDC') }}
         </div>
       </div>
 
       <div class="align-self-center">
         <button class="btn btn-light ml-auto" @click="depositModal = true">
-          {{ $t("account.banner.depositWeth") }}
+          {{ $t('account.banner.depositWeth') }}
         </button>
       </div>
     </div>
-    <deposit-weth
-      :show="depositModal"
-      :close="closeDepositModal"
-    ></deposit-weth>
+    <deposit-weth v-if="depositModal" :close="closeDepositModal" />
   </div>
 </template>
 
 <script>
-import Vue from "vue";
-import Component from "nuxt-class-component";
-import copy from "copy-to-clipboard";
-import Lottie from "vue-lottie";
-import { mapGetters } from "vuex";
+import Vue from 'vue'
+import Component from 'nuxt-class-component'
+import copy from 'copy-to-clipboard'
+import Lottie from 'vue-lottie'
+import { mapGetters, mapState } from 'vuex'
 
-import app from "~/plugins/app";
-import DepositWeth from "~/components/lego/modals/deposit-weth";
-import * as animationData from "~/static/lottie-animations/green-check.json";
-import { stripZeros } from "ethereumjs-util";
+import app from '~/plugins/app'
+import DepositWeth from '~/components/lego/modals/deposit-weth'
+import * as animationData from '~/static/lottie-animations/green-check.json'
 
 @Component({
   props: {},
   components: { DepositWeth, Lottie },
   computed: {
-    ...mapGetters("account", ["account", "totalMaticNft", "totalMainNft"]),
-    ...mapGetters("token", ["totalCurrencyBalance", "erc20Tokens"]),
-    ...mapGetters("network", ["networkMeta"]),
+    ...mapState('auth', {
+      user: (state) => state.user,
+    }),
+    ...mapGetters('account', ['account', 'totalMaticNft', 'totalMainNft']),
+    ...mapGetters('token', ['totalCurrencyBalance', 'erc20Tokens']),
+    ...mapGetters('network', ['networkMeta']),
   },
   data() {
     return {
       depositModal: false,
-    };
+    }
   },
   methods: {
     closeDepositModal() {
-      this.depositModal = false;
+      this.depositModal = false
     },
 
     copyAnimation(show) {
-      this.copyAnim = show;
+      this.copyAnim = show
     },
 
     copyAddress() {
-      this.copyAnimation(true);
-      copy(this.account.checksumAddress || this.account.address);
+      this.copyAnimation(true)
+      copy(this.account.checksumAddress || this.account.address)
       setTimeout(() => {
-        this.copyAnimation(false);
-      }, 3000);
+        this.copyAnimation(false)
+      }, 3000)
     },
   },
 })
 export default class AccountBanner extends Vue {
-  defaultOptions = { animationData: animationData.default, loop: false };
-  animationSpeed = 2;
-  copyAnim = false;
+  defaultOptions = { animationData: animationData.default, loop: false }
+  animationSpeed = 2
+  copyAnim = false
 
   // Widget event listener
   maticWidgetEventsListener = (event) => {
-    let targetedEvents = [
+    const targetedEvents = [
       event.eventTypes.TRANSFER.onReceipt,
       event.eventTypes.DEPOSIT.onReceipt,
       event.eventTypes.WITHDRAW_INIT.onReceipt,
       event.eventTypes.WITHDRAW_CONFIRM.onReceipt,
       event.eventTypes.WITHDRAW_EXIT.onReceipt,
-    ];
+    ]
     if (targetedEvents.includes(event.data.type)) {
-      this.$store.dispatch("token/reloadBalances");
+      this.$store.dispatch('token/reloadBalances')
     }
-  };
+  }
 
   mounted() {
     // Register widget event listner
-    window.maticWidgetEventsListener = this.maticWidgetEventsListener;
+    window.maticWidgetEventsListener = this.maticWidgetEventsListener
   }
 
-  formattedFullUSDBalance(index) {
-    let currencyBalance = this.totalCurrencyBalance;
-    for (let i = 0; i < currencyBalance.length; i++){
-      if(currencyBalance[i] && parseFloat(currencyBalance[i])>0){
+  erc20TokenBySymbol(symbol) {
+    const filteredItem = this.erc20Tokens.find((obj) => obj.symbol === symbol)
+    return filteredItem
+  }
+
+  indexBySymbol(symbol) {
+    const filteredItem = this.erc20Tokens.find((obj) => obj.symbol === symbol)
+    return this.erc20Tokens.indexOf(filteredItem)
+  }
+
+  formattedFullUSDBalance(symbol) {
+    const currencyBalance = this.totalCurrencyBalance
+    for (let i = 0; i < currencyBalance.length; i++) {
+      if (currencyBalance[i] && parseFloat(currencyBalance[i]) > 0) {
         currencyBalance[i] = parseFloat(currencyBalance[i].toFixed(3))
-      }
-      else{
-        currencyBalance[i] = "00.00"
+      } else {
+        currencyBalance[i] = '00.00'
       }
     }
+    const index = this.indexBySymbol(symbol)
     return currencyBalance[index]
   }
 
   get widgetKey() {
     if (app.uiconfig && app.uiconfig.maticWidgetKey) {
-      return app.uiconfig.maticWidgetKey;
+      return app.uiconfig.maticWidgetKey
     }
-    return null;
+    return null
   }
 }
 </script>
 
 <style lang="scss" scoped="true">
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 
 .white-color {
-  color: light-color("700");
+  color: light-color('700');
 }
 .account-banner {
-  background-color: primary-color("600");
+  background-color: primary-color('600');
 
   .profile-pic {
     min-width: 64px !important;

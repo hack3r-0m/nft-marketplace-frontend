@@ -6,16 +6,24 @@
         <svg-sprite-icon name="profile" class="status-icon align-self-center" />
       </div>
     </div>
-    <div class="profile-info-wrapper align-self-center d-flex flex-column ps-16">
-      <h1 class="font-heading-medium font-semibold ms-b-8">{{order.token.name}}</h1>
+    <div
+      class="profile-info-wrapper align-self-center d-flex flex-column ps-16"
+    >
+      <h1 class="font-heading-medium font-semibold ms-b-8">
+        {{ token.name }} {{ isErc1155 ? `( ${token.amount} )` : '' }}
+      </h1>
       <div class="font-body-small owner-info">
-        Owned by
-        <a href @click.prevent>{{shortAddress}}</a> in
+        <span v-if="!defaultPage">
+          Owned by
+          <a href @click.prevent>{{ shortAddress }}</a>
+        </span>
+        in
         <a
-          :href="order.external_link"
+          :href="token.external_url || token.external_link"
           target="_blank"
           rel="noopener noreferrer"
-          >{{category.name}}
+        >
+          {{ category.name }}
         </a>
       </div>
     </div>
@@ -23,42 +31,54 @@
 </template>
 
 <script>
-import Vue from "vue";
-import Component from "nuxt-class-component";
+import Vue from 'vue'
+import Component from 'nuxt-class-component'
 
 @Component({
   props: {
-    order: {
+    token: {
       type: Object,
-      required: false
+      required: false,
     },
     category: {
       type: Object,
-      required: true
+      required: true,
+    },
+    defaultPage: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   components: {},
   computed: {},
   middleware: [],
-  mixins: []
+  mixins: [],
 })
 export default class TokenShortInfo extends Vue {
-  mounted() {}
-
+  
   get shortAddress() {
-    const address = this.order.token.owner;
+    const address = this.token.owner
     if (address) {
-      const addressStart = address.slice(0, 4);
-      const addressEnd = address.slice(address.length - 4);
-      return addressStart + "..." + addressEnd;
+      const addressStart = address.slice(0, 4)
+      const addressEnd = address.slice(address.length - 4)
+      return addressStart + '...' + addressEnd
     }
-    return null;
+    return null
+  }
+
+  get isErc1155() {
+    return this.token.type === 'ERC1155'
+  }
+
+  get isErc721() {
+    return this.token.type === 'ERC721'
   }
 }
 </script>
 
 <style lang="scss" scoped>
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 .short-info {
   .profile-img-wrapper {
     display: flex;
@@ -72,7 +92,7 @@ export default class TokenShortInfo extends Vue {
     .profile-status {
       position: absolute;
       align-self: flex-end;
-      background: light-color("700");
+      background: light-color('700');
       border-radius: 50%;
     }
     .status-icon {
@@ -82,7 +102,7 @@ export default class TokenShortInfo extends Vue {
   }
   .profile-info-wrapper {
     .owner-info {
-      color: dark-color("500");
+      color: dark-color('500');
     }
   }
 }
