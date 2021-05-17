@@ -129,6 +129,7 @@ import CategoriesSelector from '~/components/lego/categories-selector'
 import SearchBox from '~/components/lego/search-box'
 import SortDropdown from '~/components/lego/sort-dropdown'
 import NoItem from '~/components/lego/no-item'
+import moment from 'moment'
 
 import CategorySidebar from '~/components/lego/account/category-sidebar'
 import NotificationModal from '~/components/lego/notification-modal'
@@ -203,7 +204,12 @@ export default class Index extends Vue {
   mounted() {
     this.$store.dispatch('page/clearFilters')
     // this.$store.dispatch('token/reloadBalances')
-    this.onNotificationOpen()
+    const timestamp = moment().unix()
+    if (!localStorage.getItem('WalletSwapFeature') ||
+      localStorage.getItem('WalletSwapFeature') + 3600 < timestamp) 
+    {
+      this.onNotificationOpen()
+    }
   }
 
   // Wathers
@@ -226,6 +232,8 @@ export default class Index extends Vue {
 
   onNotificationOpen() {
     this.showNotification = true
+    const timestamp = moment().unix()
+    localStorage.setItem('WalletSwapFeature', timestamp)
   }
 
   onNotificationClose() {

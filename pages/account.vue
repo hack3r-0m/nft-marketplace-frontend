@@ -33,6 +33,7 @@ import ActivityOrderTab from '~/components/lego/account/activity-order-tab'
 import ActivityDepositWithdrawTab from '~/components/lego/account/activity-deposit-withdraw-tab'
 import NotificationModal from '~/components/lego/notification-modal'
 import CheckAuth from '~/components/mixins/common/check_auth'
+import moment from 'moment'
 
 @Component({
   props: {},
@@ -78,11 +79,18 @@ export default class Index extends Vue {
     if (this.isLoggingOut) return
     this.$store.dispatch('page/clearFilters')
     this.fetchTotalTokens()
-    this.onNotificationOpen()
+    const timestamp = moment().unix()
+    if (!localStorage.getItem('WalletSwapFeature') ||
+      localStorage.getItem('WalletSwapFeature') + 3600 < timestamp) 
+    {
+      this.onNotificationOpen()
+    }
   }
 
   onNotificationOpen() {
     this.showNotification = true
+    const timestamp = moment().unix()
+    localStorage.setItem('WalletSwapFeature', timestamp)
   }
 
   onNotificationClose() {
