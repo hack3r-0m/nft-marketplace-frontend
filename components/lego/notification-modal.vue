@@ -15,24 +15,33 @@
                     class="align-self-center float-left cursor-pointer"
                   />
                 </span>
-                <div class="banner-img text-center ps-t-40">
-                  <img
-                    src="~/assets/svg/swap.svg"
-                    alt="notification banner"
-                  />
-                </div>
                 <div class="banner-info ps-y-24">
-                  <div class="banner-info__title text-center" v-if="false">
+                  <div class="banner-info__title text-center">
+                    Matic trading is now live on OpenSea
                   </div>
-                  <div class="banner-info__desc text-center ps-x-4 ps-t-12">
-                    <span class="text-highlight">WETH &lt;&gt; PoS-ETH Swap</span> is now available at <a href="https://wallet.matic.network/" target="_blank" rel="noopener noreferrer">wallet.matic.network</a>. Those who incorrectly deposited WETH from Ethereum to Matic can use this to get the PoS-ETH. PoS-ETH is needed for trading on <a href="https://matic.opensea.io/" rel="noopener noreferrer">matic.opensea.io</a>.
-                    <br/> <br/>
-                    <span class="text-highlight">Please Note:</span> Depositing Ether from Ethereum to Matic using <a href="https://wallet.matic.network/" target="_blank" rel="noopener noreferrer">wallet.matic.network</a> will give you PoS-ETH on Matic.
+                  <div class="banner-info__desc text-center ps-x-4 ps-t-20">
+                    <div class="ms-t-12">Matic assets are now available to view, buy and sell on OpenSea.</div>
+                    <div class="ms-t-12">
+                    If you've listed an item for sale here (matic.opensea.io), <span class="text-highlight">you need to re-list it on OpenSea (opensea.io) in order for the sale to be active there.</span>
+                    </div>
+                    <div class="ps-t-12">
+                    In the next few days, we'll me migrating users away from this platform and towards OpenSea.
+                    </div>
                   </div>
                   <div
-                    class="banner-info__action text-center ps-t-32"
+                    class="banner-info__action w-100 text-center ps-t-32 d-flex justify-content-center"
                   >
-                    <button class="btn text-white" @click="closeModal">Okay</button>
+                    <a href="https://opensea.io/" target="_blank" rel="noopener noreferrer">
+                      <button class="btn text-white d-flex">
+                        <img 
+                          src="~/static/icons/opensea.svg"
+                          class="img"
+                        />
+                        <div class="d-flex align-self-center">
+                          Go to OpenSea
+                        </div>
+                      </button>
+                    </a>
                   </div>
                 </div>
               </div>
@@ -49,8 +58,10 @@
 <script>
 import Vue from "vue";
 import Component from "nuxt-class-component";
+import image from "../common/image.vue";
 
 @Component({
+  components: { image },
   props: {}
 })
 export default class NotificationBanner extends Vue {
@@ -94,10 +105,12 @@ export default class NotificationBanner extends Vue {
 .banner-info {
   &__title {
     font-weight: 600;
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     line-height: 2rem;
     letter-spacing: -0.02em;
     color: dark-color("700");
+    border-bottom: 1px solid light-color("400");
+    padding-bottom: 1rem;
   }
 
   &__desc {
@@ -117,7 +130,11 @@ export default class NotificationBanner extends Vue {
       font-weight: 500;
       line-height: 19px;
       height: 50px;
-      width: 136px;
+      .img {
+        height: 30px;
+        width: 30px;
+        margin-right: 1rem;
+      }
     }
   }
 }
