@@ -203,9 +203,9 @@ export default class Index extends Vue {
   mounted() {
     this.$store.dispatch('page/clearFilters')
     // this.$store.dispatch('token/reloadBalances')
-    // if (!localStorage.getItem('WalletSwapFeature')) {
-    //   this.onNotificationOpen()
-    // }
+    if (!localStorage.getItem('WalletSwapFeature')) {
+      this.onNotificationOpen()
+    }
   }
 
   // Wathers
