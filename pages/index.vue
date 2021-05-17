@@ -129,6 +129,9 @@ import CategoriesSelector from '~/components/lego/categories-selector'
 import SearchBox from '~/components/lego/search-box'
 import SortDropdown from '~/components/lego/sort-dropdown'
 import NoItem from '~/components/lego/no-item'
+import moment from 'moment'
+import { LOCAL_STORAGE } from "~/constants";
+import { LocalStorage } from "~/utils";
 
 import CategorySidebar from '~/components/lego/account/category-sidebar'
 import NotificationModal from '~/components/lego/notification-modal'
@@ -203,7 +206,13 @@ export default class Index extends Vue {
   mounted() {
     this.$store.dispatch('page/clearFilters')
     // this.$store.dispatch('token/reloadBalances')
-    this.onNotificationOpen()
+    const timestamp = moment().unix()
+    const localStorageTimestamp = LocalStorage.get(LOCAL_STORAGE.notificationAccept)
+    if (!localStorageTimestamp ||
+      parseInt(localStorageTimestamp) + 3600 < timestamp) 
+    {
+      this.onNotificationOpen()
+    }
   }
 
   // Wathers
@@ -226,6 +235,8 @@ export default class Index extends Vue {
 
   onNotificationOpen() {
     this.showNotification = true
+    const timestamp = moment().unix()
+    LocalStorage.set(LOCAL_STORAGE.notificationAccept, timestamp)
   }
 
   onNotificationClose() {

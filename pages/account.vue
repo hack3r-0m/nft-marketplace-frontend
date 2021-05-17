@@ -33,6 +33,9 @@ import ActivityOrderTab from '~/components/lego/account/activity-order-tab'
 import ActivityDepositWithdrawTab from '~/components/lego/account/activity-deposit-withdraw-tab'
 import NotificationModal from '~/components/lego/notification-modal'
 import CheckAuth from '~/components/mixins/common/check_auth'
+import moment from 'moment'
+import { LOCAL_STORAGE } from "~/constants";
+import { LocalStorage } from "~/utils";
 
 @Component({
   props: {},
@@ -78,11 +81,19 @@ export default class Index extends Vue {
     if (this.isLoggingOut) return
     this.$store.dispatch('page/clearFilters')
     this.fetchTotalTokens()
-    this.onNotificationOpen()
+    const timestamp = moment().unix()
+    const localStorageTimestamp = LocalStorage.get(LOCAL_STORAGE.notificationAccept)
+    if (!localStorageTimestamp ||
+      parseInt(localStorageTimestamp) + 3600 < timestamp) 
+    {
+      this.onNotificationOpen()
+    }
   }
 
   onNotificationOpen() {
     this.showNotification = true
+    const timestamp = moment().unix()
+    LocalStorage.set(LOCAL_STORAGE.notificationAccept, timestamp)
   }
 
   onNotificationClose() {

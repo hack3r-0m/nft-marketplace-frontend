@@ -5,7 +5,7 @@
   "author": "Matic Network",
   "private": true,
   "scripts": {
-    "dev":"npm run dev:testnet",
+    "dev": "npm run dev:testnet",
     "dev:testnet": "cross-env BUILD_ENV=testnet HOST=0.0.0.0 nuxt",
     "dev:staging": "cross-env BUILD_ENV=staging HOST=0.0.0.0 nuxt",
     "dev:mainnet": "cross-env BUILD_ENV=mainnet HOST=0.0.0.0 nuxt",
