@@ -5,8 +5,8 @@ module.exports = {
             version: 'v1',
         },
     },
-    mainRPC: "https://mainnet.infura.io/v3/70645f042c3a409599c60f96f6dd9fbc",
-    maticRPC: "https://rpc-mainnet.matic.network/",
+    mainRPC: "https://old-quiet-sun.quiknode.io/21e4f56a-cd66-4131-b768-9a6990d7dcc3/Wgy1J7QKstL2aloaNLC4uysEluHOT5FTdGX1fdnSVuZIUjSqVliEb-cGws1ZZepU3Y4ITKjxQHpduXP4OrFawg==/",
+    maticRPC: "https://polygon-mainnet.infura.io/v3/295cce92179b4be498665b1b16dfee34",
     apis: {
         MARKETPLACE_API_HOST: "https://nft-marketplace.api.matic.network/api/v1",
         FILE_HOST: "https://nft-marketplace.api.matic.network/",
