@@ -78,15 +78,11 @@ export default class Index extends Vue {
     if (this.isLoggingOut) return
     this.$store.dispatch('page/clearFilters')
     this.fetchTotalTokens()
-
-    if (!localStorage.getItem('WalletSwapFeature')) {
-      this.onNotificationOpen()
-    }
+    this.onNotificationOpen()
   }
 
   onNotificationOpen() {
     this.showNotification = true
-    localStorage.setItem('WalletSwapFeature', true)
   }
 
   onNotificationClose() {
