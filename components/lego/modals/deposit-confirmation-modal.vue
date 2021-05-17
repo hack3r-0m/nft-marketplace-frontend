@@ -1,10 +1,13 @@
 <template>
   <div class="section position-absolute">
-    <PreventUnload :when="(transactionStatus === STATUS.DEPOSITING) && !!(this.transactionHash)" message="Please stay on this page until the deposit transaction is confirmed on Ethereum!" />
+    <PreventUnload
+      :when="transactionStatus === STATUS.DEPOSITING && !!this.transactionHash"
+      message="Please stay on this page until the deposit transaction is confirmed on Ethereum!"
+    />
     <div
-      class="modal receive-modal-wrapper"
       v-bsl="show"
-      v-bind:class="{ show: show }"
+      class="modal receive-modal-wrapper"
+      :class="{ show: show }"
     >
       <div class="modal-dialog w-sm-100 align-self-center" role="document">
         <div class="box deposit-box">
@@ -12,17 +15,20 @@
             <div
               class="font-heading-medium font-semibold align-self-center w-100 text-center"
             >
-              {{ $t("deposit.title") }}
+              {{ $t('deposit.title') }}
             </div>
             <span
-              @click="onCancel()"
               class="left-arrow align-self-center float-right cursor-pointer"
-              :class="{'disabled-cursor': transactionStatus === STATUS.DEPOSITING && transactionHash }"
+              :class="{
+                'disabled-cursor':
+                  transactionStatus === STATUS.DEPOSITING && transactionHash,
+              }"
+              @click="onCancel()"
             >
               <svg-sprite-icon
                 name="close"
                 class="close align-self-center float-left"
-              ></svg-sprite-icon>
+              />
             </span>
           </div>
           <div class="box-body">
@@ -36,14 +42,14 @@
                     :src="category.img_url"
                   />
                   <div class="text-white align-self-center">
-                    {{ selectedTokens.length || 0 }} {{ $t("nftSelected") }}
+                    {{ selectedTokens.length || 0 }} {{ $t('nftSelected') }}
                   </div>
                 </div>
                 <div class="container card-list hide-scrollbar d-flex p-0">
                   <div
-                    class="token-img d-flex ms-x-6 ps-4 justify-content-center"
                     v-for="token in selectedTokens"
                     :key="token.token_id"
+                    class="token-img d-flex ms-x-6 ps-4 justify-content-center"
                   >
                     <img
                       class="align-self-center"
@@ -59,33 +65,35 @@
                 <div class="col-12 p-0">
                   <div class="mark-wrapper check float-left">
                     <img
+                      v-if="transactionStatus === STATUS.INITIATING"
                       src="~/static/img/yellow-check.svg"
                       alt="In Progress"
-                      v-if="transactionStatus === STATUS.INITIATING"
                     />
                     <img
+                      v-if="transactionStatus >= STATUS.INITIATED"
                       src="~/static/img/green-check.svg"
                       alt="Green Check"
-                      v-if="transactionStatus >= STATUS.INITIATED"
                     />
                   </div>
                   <div class="float-left body-medium ps-2 ms-l-12 d-flex">
                     <span
-                      class="ps-t-0"
                       v-if="transactionStatus === STATUS.INITIATING"
-                      >{{ this.$t("deposit.steps.preInit") }}</span
+                      class="ps-t-0"
                     >
+                      {{ $t('deposit.steps.preInit') }}
+                    </span>
                     <span
-                      class="ps-t-2"
                       v-if="transactionStatus >= STATUS.INITIATED"
-                      >{{ this.$t("deposit.steps.init") }}</span
+                      class="ps-t-2"
                     >
+                      {{ $t('deposit.steps.init') }}
+                    </span>
                   </div>
                 </div>
                 <div class="col-12 p-0">
                   <div
                     class="float-left process-msg font-caption text-gray ms-l-12 ms-b-2 ps-l-24"
-                  ></div>
+                  />
                 </div>
                 <div class="col-12 p-0">
                   <div
@@ -110,7 +118,7 @@
                     />
                   </div>
                   <div class="float-left body-medium ps-2 ps-t-0 ms-l-12">
-                    {{ this.$t("deposit.steps.deposit") }}
+                    {{ $t('deposit.steps.deposit') }}
                   </div>
                 </div>
                 <div class="col-12 p-0">
@@ -119,11 +127,11 @@
                   >
                     <div class="ps-b-8">
                       <span v-if="transactionStatus === STATUS.INITIATED">
-                        {{ this.$t("deposit.process.preDeposit") }}
+                        {{ $t('deposit.process.preDeposit') }}
                       </span>
-                      <span v-if="transactionStatus === STATUS.DEPOSITING">{{
-                        this.$t("deposit.process.depositing")
-                      }}</span>
+                      <span v-if="transactionStatus === STATUS.DEPOSITING">
+                        {{ $t('deposit.process.depositing') }}
+                      </span>
                       <a
                         v-if="
                           transactionStatus >= STATUS.DEPOSITING &&
@@ -133,15 +141,19 @@
                         target="_blank"
                         rel="noopener noreferrer"
                         :title="transactionHash"
-                        >{{ this.$t("viewOnEtherscan") }}</a
                       >
+                        {{ $t('viewOnEtherscan') }}
+                      </a>
                     </div>
-                    <div class="ps-b-16 text-red font-semibold"
+                    <div
                       v-if="
                         transactionStatus === STATUS.DEPOSITING &&
                         transactionHash
                       "
-                    >{{ this.$t("preventUserDepositModalClose") }}</div>
+                      class="ps-b-16 text-red font-semibold"
+                    >
+                      {{ $t('preventUserDepositModalClose') }}
+                    </div>
                   </div>
                 </div>
                 <div class="col-12 p-0">
@@ -156,7 +168,7 @@
                     />
                   </div>
                   <div class="float-left body-medium ps-2 ms-l-12">
-                    {{ this.$t("deposit.steps.finished") }}
+                    {{ this.$t('deposit.steps.finished') }}
                   </div>
                 </div>
                 <div class="col-12 p-0">
@@ -164,24 +176,25 @@
                     class="float-left font-caption text-gray ms-l-12 ms-b-2 ps-l-24"
                   >
                     <span
-                      class="ps-l-2"
                       v-if="transactionStatus >= STATUS.DEPOSITED"
+                      class="ps-l-2"
                     >
-                      {{ this.$t("deposit.process.deposited") }}
+                      {{ $t('deposit.process.deposited') }}
                     </span>
                   </div>
                 </div>
               </div>
-              <div class="row" v-if="error">
+              <div v-if="error" class="row">
                 <div class="col-12 ps-x-32 ps-b-12 text-center text-red">
-                  <div
-                    class="font-body-small text-red text-center mx-auto"
-                  >Please try again</div>
+                  <div class="font-body-small text-red text-center mx-auto">
+                    Please try again
+                  </div>
                 </div>
               </div>
               <div class="row p-0">
                 <div class="col-12 p-0 d-flex justify-content-space-between">
                   <button-loader
+                    v-if="transactionStatus >= STATUS.INITIATED && !isDeposited"
                     class="w-100"
                     :classes="['btn py-4 btn-pay no-top-border-radius']"
                     :block="true"
@@ -190,8 +203,7 @@
                     :loadingText="'Confirming deposit'"
                     :click="deposit"
                     :loading="isLoading"
-                    v-if="transactionStatus >= STATUS.INITIATED && !isDeposited"
-                  ></button-loader>
+                  />
                 </div>
               </div>
             </div>
@@ -199,28 +211,26 @@
         </div>
       </div>
     </div>
-    <div class="modal-backdrop" v-bind:class="{ show: show }"></div>
+    <div class="modal-backdrop" :class="{ show: show }" />
   </div>
 </template>
 
-
 <script>
-import Vue from "vue";
-import Component from "nuxt-class-component";
-import { mapGetters } from "vuex";
-import app from "~/plugins/app";
-import getAxios from "~/plugins/axios";
-import { getWalletProvider } from "~/plugins/helpers/providers";
-const MaticPOSClient = require("@maticnetwork/maticjs").MaticPOSClient;
+import Vue from 'vue'
+import Component from 'nuxt-class-component'
+import { mapGetters, mapState } from 'vuex'
+import app from '~/plugins/app'
+import { getWalletProvider } from '~/helpers/providers'
 
-import PreventUnload from 'vue-prevent-unload';
+import PreventUnload from 'vue-prevent-unload'
+const MaticPOSClient = require('@maticnetwork/maticjs').MaticPOSClient
 
 const STATUS = {
   INITIATING: 0,
   INITIATED: 1,
   DEPOSITING: 2,
   DEPOSITED: 3,
-};
+}
 
 @Component({
   props: {
@@ -256,70 +266,80 @@ const STATUS = {
   },
   methods: {},
   computed: {
-    ...mapGetters("account", ["account"]),
-    ...mapGetters("network", ["networks", "networkMeta"]),
-    ...mapGetters("page", ["selectedCategory"]),
+    ...mapGetters('account', ['account']),
+    ...mapGetters('page', ['selectedCategory']),
+    ...mapState('auth', {
+      loginStrategy: (state) => state.loginStrategy,
+    }),
+    ...mapState('network', {
+      networks: (state) => state.networks,
+      networkMeta: (state) => state.networkMeta,
+    }),
   },
 })
 export default class DepositConfirmationModal extends Vue {
-  STATUS = STATUS;
+  STATUS = STATUS
 
-  selectToken = false;
-  isLoading = false;
-  error = null;
-  transactionHash = null;
-  isDeposited = false;
+  selectToken = false
+  isLoading = false
+  error = null
+  transactionHash = null
+  isDeposited = false
 
   async mounted() {}
 
   // Getter
   get transactionStatus() {
     if (this.isApproving) {
-      return STATUS.INITIATING;
+      return STATUS.INITIATING
     } else if (!this.isApproving && !this.isLoading && !this.isDeposited) {
-      return STATUS.INITIATED;
+      return STATUS.INITIATED
     } else if (!this.isApproving && this.isLoading && !this.isDeposited) {
-      return STATUS.DEPOSITING;
-    } else if (this.isDeposited) return STATUS.DEPOSITED;
+      return STATUS.DEPOSITING
+    } else if (this.isDeposited) {
+      return STATUS.DEPOSITED
+    }
   }
 
   get parentNetwork() {
-    return this.networks.main;
+    return this.networks.main
   }
 
   get childNetwork() {
-    return this.networks.matic;
+    return this.networks.matic
   }
 
   get networkId() {
-    return this.parentNetwork.chainId;
+    return this.parentNetwork.chainId
   }
 
   get explorerURL() {
     if (app.uiconfig.mainExplorer) {
-      return `${app.uiconfig.mainExplorer}tx/${this.transactionHash}`;
+      return `${app.uiconfig.mainExplorer}tx/${this.transactionHash}`
     }
-    return null;
+    return null
   }
 
   get selectedTokenIds() {
-    let token_ids = [];
+    const tokenIds = []
     if (this.selectedTokens && this.selectedTokens.length > 0) {
-      this.selectedTokens.forEach((token) => token_ids.push(token.token_id));
+      this.selectedTokens.forEach((token) => tokenIds.push(token.token_id))
     }
-    return token_ids;
+    return tokenIds
   }
 
   // Actions
   getMaticPOS() {
     const maticProvider = getWalletProvider({
       networks: this.networks,
-      primaryProvider: "child",
-    });
+      primaryProvider: 'child',
+      loginStrategy: this.loginStrategy,
+    })
     const parentProvider = getWalletProvider({
       networks: this.networks,
-      primaryProvider: "main",
-    });
+      primaryProvider: 'main',
+      loginStrategy: this.loginStrategy,
+    })
 
     return new MaticPOSClient({
       network: app.uiconfig.matic.deployment.network,
@@ -331,69 +351,73 @@ export default class DepositConfirmationModal extends Vue {
       posERC20Predicate: this.networkMeta.Main.POSContracts.ERC20PredicateProxy,
       posERC721Predicate: this.networkMeta.Main.POSContracts
         .ERC721PredicateProxy,
-    });
+    })
   }
 
   async deposit() {
     if (this.isLoading || this.isApproving) {
-      return;
+      return
     }
 
     try {
-      this.isLoading = true;
+      this.isLoading = true
 
-      const maticPoS = this.getMaticPOS();
-      const ERC721 = this.selectedTokens[0].contract;
-      const token_ids = this.selectedTokenIds;
+      const maticPoS = this.getMaticPOS()
+      const ERC721 = this.selectedTokens[0].contract
+      const token_ids = this.selectedTokenIds
 
-      let txHash = await maticPoS.depositBatchERC721ForUser(
+      const txHash = await maticPoS.depositBatchERC721ForUser(
         ERC721,
         this.account.address,
         token_ids,
         {
           from: this.account.address,
           onTransactionHash: (txHash) => {
-            this.transactionHash = txHash;
+            this.transactionHash = txHash
           },
-        }
-      );
+        },
+      )
       if (txHash) {
-        await this.handleDeposit(txHash, token_ids, this.category.id);
-        this.isLoading = false;
-        this.isDeposited = true;
+        await this.handleDeposit(txHash, token_ids, this.category.id)
+        this.isLoading = false
+        this.isDeposited = true
       }
     } catch (error) {
-      console.log(error);
-      this.isLoading = false;
-      this.error = error.message;
+      this.$logger.error(error)
+      this.isLoading = false
+      this.error = error.message
     }
   }
 
   async handleDeposit(txHash, token_ids, category_id) {
-    console.log("Deposit transaction", txHash);
+    this.$logger.debug('Deposit transaction', txHash)
     try {
-      let data = {
+      const data = {
         txhash: this.transactionHash,
         token_array: token_ids,
         category_id: category_id,
-        type: "DEPOSIT",
-      };
-      let res = await getAxios().post("assetmigrate", data);
+        type: 'DEPOSIT',
+      }
+      await this.$store.dispatch('migrate/transferFromEthereumToMatic', data)
     } catch (error) {
-      console.log(error);
+      this.$logger.error(error)
     }
-    this.refreshBalance();
+    this.refreshBalance()
   }
 
   onCancel() {
-    if (this.transactionStatus === STATUS.DEPOSITING && this.transactionHash) return;
-    this.cancel();
+    if (this.transactionStatus === STATUS.DEPOSITING && this.transactionHash) {
+      {
+        return
+      }
+      this.cancel()
+    }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 
 .deposit-box {
   width: 446px;
@@ -410,21 +434,21 @@ export default class DepositConfirmationModal extends Vue {
   border-radius: 50%;
 }
 .label {
-  color: dark-color("500");
+  color: dark-color('500');
 }
 .amount {
-  color: dark-color("700");
+  color: dark-color('700');
 }
 
 .bottom-border {
-  border-bottom: 1px solid light-color("500");
+  border-bottom: 1px solid light-color('500');
 }
 
 .mark-wrapper:not(.check) {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  border: 1px solid light-color("400");
+  border: 1px solid light-color('400');
   margin: 2px;
 }
 .mark-wrapper.check {
@@ -433,14 +457,14 @@ export default class DepositConfirmationModal extends Vue {
 }
 
 .process-msg {
-  border-left: 1px solid light-color("400");
+  border-left: 1px solid light-color('400');
   min-height: 18px;
 }
 .text-gray {
-  color: dark-color("300");
+  color: dark-color('300');
 }
 .text-red {
-  color: red-color("600");
+  color: red-color('600');
 }
 .disabled-cursor {
   cursor: default !important;
@@ -451,7 +475,7 @@ export default class DepositConfirmationModal extends Vue {
 }
 
 .container-wrapper {
-  background: dark-color("300");
+  background: dark-color('300');
   text-align: left;
   margin-bottom: 24px;
 

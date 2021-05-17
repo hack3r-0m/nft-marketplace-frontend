@@ -2,121 +2,145 @@
   <nuxt-link
     :to="{ name: 'account' }"
     class="nft-card text-center cursor-pointer"
-    v-bind:style="{ background: bg }"
+    :style="{ background: bg }"
   >
     <div
+      v-if="showCheckbox"
       class="check-container"
       :class="{ checked: isSelected }"
-      v-if="showCheckbox"
       @click="toggleSelection()"
     >
       <input
+        :id="token.id"
         type="checkbox"
         :name="token.name"
-        :id="token.id"
         :checked="isSelected"
       />
-      <span class="checkmark align-self-center"></span>
+      <span class="checkmark align-self-center" />
     </div>
     <NuxtLink
       :to="
         !order
           ? {
-              name: 'token-tokenId',
-              params: { tokenId: token.token_id },
+              name: 'category-contractAddress-tokenId',
+              params: {
+                contractAddress: token.contract,
+                tokenId: token.token_id,
+              },
               query: { chainId: token.chainId },
             }
-          : { name: 'tokens-id', params: { id: order.id } }
+          : { name: 'order-id', params: { id: order.id } }
       "
     >
       <div class="img-wrapper d-flex ps-t-12 justify-content-center">
-        <img
-          :src="token.img_url"
+        <video v-if="isVideoFormat" autoplay muted loop width="100%">
+          <source
+            :src="token.image_url"
+            type="video/webm"
+            @error="handleNotVideo"
+          />
+          <source
+            :src="token.image_url"
+            type="video/ogg"
+            @error="handleNotVideo"
+          />
+          <source
+            :src="token.image_url"
+            type="video/mp4"
+            @error="handleNotVideo"
+          />
+        </video>
+        <ImageWithLoader
+          v-else
+          :src="token.image_url"
           class="asset-img align-self-center ps-x-12"
           :alt="token.name"
           @load="onImageLoad"
+          :fallBackSrc="category.img_url"
         />
       </div>
 
       <div
         class="gradient"
-        v-bind:style="{
+        :style="{
           background:
-            'linear-gradient( 360deg,' + bg + '0%, rgba(236, 235, 223, 0) 100%)',
+            'linear-gradient( 360deg,' +
+            bg +
+            '0%, rgba(236, 235, 223, 0) 100%)',
         }"
-      ></div>
+      />
     </NuxtLink>
-    <div class="more-actions" v-if="!isAllCategories && !order">
+    <div v-if="!isAllCategories && !order" class="more-actions">
       <MoreOptions :options="moreOptions" />
     </div>
 
-    <div
-      class="category-pill d-flex mx-auto ms-t-20 ms-b-16"
-      v-if="token.category"
-    >
-      <img
-        :src="token.category.img_url"
+    <div v-if="category" class="category-pill d-flex mx-auto ms-t-20 ms-b-16">
+      <ImageWithLoader
+        :src="category.img_url"
         class="icon ms-2 ms-l-4 ms-r-4 align-self-center"
       />
       <div class="font-caps font-medium caps align-self-center ps-r-6">
-        {{ token.category.name }}
+        {{ category.name }}
       </div>
     </div>
     <h3
       class="w-100 title font-body-small font-medium ms-b-8 ps-x-12 ms-b-16"
       :title="token.name"
     >
-      {{ token.name }}
+      {{ token.name }} {{ isErc1155 ? '( ' + token.amount + ' )' : '' }}
     </h3>
     <div
-      class="actions matic-chain d-flex justify-content-between text-center w-100 d-flex"
       v-if="!isMainToken && !order"
+      class="actions matic-chain d-flex justify-content-between text-center w-100"
     >
-      <a class="btn btn-transparent w-100 align-self-center" @click="sell()">{{
-        $t("sell")
-      }}</a>
-      <a
-        v-if="false"
-        class="btn btn-transparent w-50 align-self-center"
-        @click="transfer()"
-        >{{ $t("transfer") }}</a
+      <NuxtLink
+        class="d-flex justify-content-between w-100"
+        :to="{
+          name: 'category-contractAddress-tokenId',
+          params: { contractAddress: token.contract, tokenId: token.token_id },
+          query: { chainId: token.chainId },
+        }"
       >
+        <a class="btn btn-transparent w-100 align-self-center">
+          {{ $t('sell') }}
+        </a>
+
+        <a class="btn btn-transparent w-100 align-self-center">
+          {{ $t('transfer') }}
+        </a>
+      </NuxtLink>
     </div>
 
     <div
-      class="actions matic-chain d-flex justify-content-between text-center w-100 d-flex"
       v-if="!isMainToken && order"
+      class="actions matic-chain d-flex justify-content-between text-center w-100 d-flex"
     >
       <NuxtLink
         class="btn btn-transparent w-100 align-self-center"
-        :to="{ name: 'tokens-id', params: { id: order.id } }"
-        >View Order</NuxtLink
+        :to="{ name: 'order-id', params: { id: order.id } }"
       >
+        View Order
+      </NuxtLink>
     </div>
     <div
-      class="actions matic-chain d-flex justify-content-between text-center w-100 d-flex"
       v-if="isMainToken && isAllCategories"
+      class="actions matic-chain d-flex justify-content-between text-center w-100 d-flex"
       @click="deposit(token)"
     >
-      <a class="btn btn-transparent w-100 align-self-center">{{
-        $t("moveToMatic")
-      }}</a>
+      <a class="btn btn-transparent w-100 align-self-center">
+        {{ $t('moveToMatic') }}
+      </a>
     </div>
   </nuxt-link>
 </template>
 
 <script>
-import Vue from "vue";
-import Component from "nuxt-class-component";
-import app from "~/plugins/app";
-import { mapGetters } from "vuex";
-import { toDataURL } from "~/plugins/helpers/";
-
-import MoreOptions from "~/components/lego/more-options";
-
-import rgbToHsl from "~/plugins/helpers/color-algorithm";
-import ColorThief from "color-thief";
-const colorThief = new ColorThief();
+import Vue from 'vue'
+import Component from 'nuxt-class-component'
+import { mapGetters, mapState } from 'vuex'
+import MoreOptions from '~/components/lego/more-options'
+import rgbToHsl from '~/helpers/color-algorithm'
+import ImageWithLoader from "~/components/common/image";
 
 @Component({
   props: {
@@ -165,95 +189,108 @@ const colorThief = new ColorThief();
       default: () => {},
     },
   },
-  components: { MoreOptions },
+  components: { MoreOptions,ImageWithLoader },
   computed: {
-    ...mapGetters("category", ["categories"]),
-    ...mapGetters("network", ["networks"]),
-    ...mapGetters("account", ["userOrders"]),
+    ...mapGetters('category', ['categories', 'categoryByToken']),
+    ...mapState('network', {
+      networks: (state) => state.networks,
+    }),
+    ...mapGetters('account', ['userOrders']),
+    category() {
+      const category = this.categoryByToken(this.token)
+      return category
+    },
   },
   middleware: [],
   mixins: [],
 })
 export default class NFTTokenCard extends Vue {
-  bg = "#f3f4f7";
-  maxTokenSelection = app.uiconfig.maxBulkDeposit;
-
-  // Initial
-  mounted() {}
+  bg = '#f3f4f7'
+  maxTokenSelection = Vue.appConfig.maxBulkDeposit
+  isVideoFormat = true
 
   async onImageLoad() {
     try {
-      const img = this.$el.querySelector(".asset-img");
+      const img = this.$el.querySelector('.asset-img')
       // img.crossOrigin = "Anonymous";
 
-      let rgbColor = colorThief.getColor(img);
+      const rgbColor = getColorFromImage(img)
       if (rgbColor) {
-        let hsl = rgbToHsl({
+        const hsl = rgbToHsl({
           r: rgbColor[0],
           g: rgbColor[1],
           b: rgbColor[2],
-        });
-        this.bg = `hsl(${hsl.h},${hsl.s}%,${hsl.l}%)`;
-      } else this.bg = "#f3f4f7";
+        })
+        this.bg = `hsl(${hsl.h},${hsl.s}%,${hsl.l}%)`
+      } else {
+        this.bg = '#f3f4f7'
+      }
     } catch (error) {
-      this.bg = "#f3f4f7";
+      this.bg = '#f3f4f7'
     }
+  }
+
+  get isErc1155() {
+    return this.token.type === 'ERC1155'
+  }
+
+  get isErc721() {
+    return this.token.type === 'ERC721'
   }
 
   // Handlers
   toggleSelection(value) {
     if (this.totalSelected !== this.maxTokenSelection) {
-      this.onSelectToken && this.onSelectToken(this.token);
+      this.onSelectToken && this.onSelectToken(this.token)
     } else if (!value) {
-      this.onSelectToken && this.onSelectToken(this.token);
+      this.onSelectToken && this.onSelectToken(this.token)
     }
   }
 
   deposit() {
     // Withdraw Action
-    this.onDeposit && this.onDeposit(this.token);
+    this.onDeposit && this.onDeposit(this.token)
   }
 
   withdraw() {
     // Withdraw Action
-    this.onWithdraw && this.onWithdraw(this.token);
+    this.onWithdraw && this.onWithdraw(this.token)
   }
 
   transfer() {
     // Send to friends
-    this.onSend && this.onSend(this.token);
+    this.onSend && this.onSend(this.token)
   }
 
   sell() {
     // sell token
-    this.onSell && this.onSell(this.token);
+    this.onSell && this.onSell(this.token)
   }
 
   viewOrder() {
     if (this.order) {
-      this.$router.push({ name: "tokens", parms: { id: this.order.id } });
+      this.$router.push({ name: 'tokens', parms: { id: this.order.id } })
     }
   }
 
-  // Get
-  get category() {
-    return this.token.category;
+  handleNotVideo() {
+    this.isVideoFormat = false
   }
 
   get isMainToken() {
     if (this.token.chainId) {
-      return this.token.chainId === this.networks.main.chainId;
+      return this.token.chainId === this.networks.main.chainId
     }
-    return false;
+    return false
   }
 
   get isOpenseaCompatible() {
-    return this.token.category.isOpenseaCompatible;
+    return this.category.isOpenseaCompatible
   }
 
   get showCheckbox() {
     if (!this.isMainToken) {
-      return !this.isAllCategories && !this.order && (this.isOpenseaCompatible)
+      return !this.isAllCategories && !this.order && this.isOpenseaCompatible
     } else {
       return !this.isAllCategories && !this.order
     }
@@ -266,53 +303,53 @@ export default class NFTTokenCard extends Vue {
       this.userOrders &&
       this.userOrders.length > 0
     ) {
-      let order = this.userOrders.find(
-        (t) => t.tokens_id == this.token.token_id
-      );
-      return order;
+      const order = this.userOrders.find(
+        (t) => t.tokens_id === this.token.token_id,
+      )
+      return order
     }
-    return null;
+    return null
   }
 
   get moreOptions() {
     if (this.isMainToken) {
       return [
         {
-          title: this.$t("moreOptions.deposit"),
+          title: this.$t('moreOptions.deposit'),
           action: this.deposit,
         },
-      ];
+      ]
     }
 
     if (this.isOpenseaCompatible) {
       return [
         {
-          title: this.$t("moreOptions.withdraw"),
+          title: this.$t('moreOptions.withdraw'),
           action: this.withdraw,
         },
         {
-          title: this.$t("moreOptions.sell"),
+          title: this.$t('moreOptions.sell'),
           action: this.sell,
         },
         // {
         //   title: this.$t("moreOptions.send"),
         //   action: this.transfer,
         // },
-      ];
+      ]
     }
 
     return [
       {
-        title: this.$t("moreOptions.sell"),
+        title: this.$t('moreOptions.sell'),
         action: this.sell,
       },
-    ];
+    ]
   }
 }
 </script>
 
 <style lang="scss" scoped="true">
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 
 a {
   color: inherit;
@@ -325,7 +362,7 @@ a {
   margin: 0.625rem;
   position: relative;
 
-  background: light-color("700");
+  background: light-color('700');
   border-radius: $default-card-box-border-radius;
   .img-wrapper {
     width: 100%;
@@ -345,7 +382,7 @@ a {
     position: absolute;
     background: linear-gradient(
       360deg,
-      light-color("500") 0%,
+      light-color('500') 0%,
       rgba(236, 235, 223, 0) 100%
     );
   }
@@ -353,7 +390,7 @@ a {
   .category-pill {
     width: fit-content;
     border-radius: 19px;
-    background: light-color("700");
+    background: light-color('700');
     .icon {
       width: 20px;
       height: 20px;
@@ -366,7 +403,7 @@ a {
     text-overflow: ellipsis;
   }
   .price {
-    color: dark-color("400");
+    color: dark-color('400');
   }
 }
 .nft-card:hover {
@@ -393,19 +430,19 @@ a {
 }
 .actions {
   height: 45px;
-  border-top: 1px solid rgba(dark-color("700"), 0.1);
+  border-top: 1px solid rgba(dark-color('700'), 0.1);
   &.matic-chain {
     .btn-transparent {
-      color: primary-color("600");
+      color: primary-color('600');
       border-radius: 0px;
     }
 
     .btn-red {
-      color: red-color("600");
+      color: red-color('600');
     }
 
     .btn:nth-child(2) {
-      border-left: 1px solid rgba(dark-color("700"), 0.1);
+      border-left: 1px solid rgba(dark-color('700'), 0.1);
     }
   }
 }

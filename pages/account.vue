@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid">
+  <div v-if="isAuthenticated" class="container-fluid">
     <account-banner />
     <tab-switcher
       class="sticky-top"
@@ -13,30 +13,33 @@
       <activity-order-tab v-if="activeTab === 2" />
       <activity-deposit-withdraw-tab v-if="activeTab === 3" />
     </div>
+
+    <notification-modal v-if="showNotification" @close="onNotificationClose" />
   </div>
 </template>
 
 <script>
-import Vue from "vue";
-import Component from "nuxt-class-component";
-import { mapGetters } from "vuex";
-import getAxios from "~/plugins/axios";
-
-import SellCard from "~/components/lego/sell-card";
-import CategoriesSelector from "~/components/lego/categories-selector";
-import SearchBox from "~/components/lego/search-box";
-import SortDropdown from "~/components/lego/sort-dropdown";
-import AccountBanner from "~/components/lego/account/account-banner";
-import TabSwitcher from "~/components/lego/tab-switcher";
-import MaticNewTab from "~/components/lego/account/matic-new-tab";
-import EthereumNewTab from "~/components/lego/account/ethereum-new-tab";
-import ActivityOrderTab from "~/components/lego/account/activity-order-tab";
-import ActivityDepositWithdrawTab from "~/components/lego/account/activity-deposit-withdraw-tab";
+import Vue from 'vue'
+import Component from 'nuxt-class-component'
+import { mapGetters, mapState } from 'vuex'
+import CategoriesSelector from '~/components/lego/categories-selector'
+import SearchBox from '~/components/lego/search-box'
+import SortDropdown from '~/components/lego/sort-dropdown'
+import AccountBanner from '~/components/lego/account/account-banner'
+import TabSwitcher from '~/components/lego/tab-switcher'
+import MaticNewTab from '~/components/lego/account/matic-new-tab'
+import EthereumNewTab from '~/components/lego/account/ethereum-new-tab'
+import ActivityOrderTab from '~/components/lego/account/activity-order-tab'
+import ActivityDepositWithdrawTab from '~/components/lego/account/activity-deposit-withdraw-tab'
+import NotificationModal from '~/components/lego/notification-modal'
+import CheckAuth from '~/components/mixins/common/check_auth'
+import moment from 'moment'
+import { LOCAL_STORAGE } from "~/constants";
+import { LocalStorage } from "~/utils";
 
 @Component({
   props: {},
   components: {
-    SellCard,
     CategoriesSelector,
     SearchBox,
     SortDropdown,
@@ -45,104 +48,113 @@ import ActivityDepositWithdrawTab from "~/components/lego/account/activity-depos
     MaticNewTab,
     EthereumNewTab,
     ActivityOrderTab,
-    ActivityDepositWithdrawTab
+    ActivityDepositWithdrawTab,
+    NotificationModal,
   },
-  middleware: ["auth"],
-  mixins: [],
+  mixins: [CheckAuth],
   computed: {
-    ...mapGetters("account", [
-      "favouriteOrders",
-      "totalMaticNft",
-      "totalMainNft",
-      "totalUnreadOrderActivity",
+    ...mapGetters('account', [
+      'favouriteOrders',
+      'totalMaticNft',
+      'totalMainNft',
+      'totalUnreadOrderActivity',
     ]),
-    ...mapGetters("network", ["networks"]),
-    ...mapGetters("auth", ["user"]),
+    ...mapState('auth', {
+      user: (state) => state.user,
+    }),
+    ...mapState('network', {
+      networks: (state) => state.networks,
+    }),
+    ...mapGetters('auth', {
+      isAuthenticated: 'authenticated',
+    }),
   },
 })
 export default class Index extends Vue {
-  activeTab = 0;
+  activeTab = 0
 
-  allOrSale = true;
+  allOrSale = true
+
+  showNotification = false
 
   async mounted() {
-    this.fetchTotalTokens();
+    if (this.isLoggingOut) return
+    this.$store.dispatch('page/clearFilters')
+    this.fetchTotalTokens()
+    const timestamp = moment().unix()
+    const localStorageTimestamp = LocalStorage.get(LOCAL_STORAGE.notificationAccept)
+    if (!localStorageTimestamp ||
+      parseInt(localStorageTimestamp) + 3600 < timestamp) 
+    {
+      this.onNotificationOpen()
+    }
+  }
+
+  onNotificationOpen() {
+    this.showNotification = true
+    const timestamp = moment().unix()
+    LocalStorage.set(LOCAL_STORAGE.notificationAccept, timestamp)
+  }
+
+  onNotificationClose() {
+    this.showNotification = false
   }
 
   async fetchTotalTokens() {
     try {
-      this.$store.dispatch("token/reloadBalances");
-
-      let mainNftResponse = await getAxios().get(
-        `tokens/balance?userId=${this.user.id}&chainId=${this.mainChainId}`
-      );
-      if (mainNftResponse.status === 200 && mainNftResponse.data.data) {
-        this.$store.commit("account/totalMainNft", mainNftResponse.data.count);
-      }
+      this.$store.dispatch('token/reloadBalances')
+      await Promise.all([
+        this.$store.dispatch('account/fetchMainNFT', {
+          user: this.user,
+          chainId: this.mainChainId,
+        }),
+        this.$store.dispatch('account/fetchMaticNFT', {
+          user: this.user,
+          chainId: this.maticChainId,
+        }),
+        this.$store.dispatch('account/fetchNotification', {
+          userId: this.user.id,
+        }),
+      ])
     } catch (error) {
-      // console.log(error);
-    }
-    try {
-      let maticNftResponse = await getAxios().get(
-        `tokens/balance?userId=${this.user.id}&chainId=${this.maticChainId}`
-      );
-      if (maticNftResponse.status === 200 && maticNftResponse.data.data) {
-        this.$store.commit(
-          "account/totalMaticNft",
-          maticNftResponse.data.count
-        );
-      }
-    } catch (error) {
-      // console.log(error);
-    }
-    try {
-      let activityResponse = await getAxios().get(
-        `users/notification/${this.user.id}`
-      );
-
-      if (activityResponse.status === 200 && activityResponse.data.data) {
-        this.$store.commit(
-          "account/totalUnreadOrderActivity",
-          activityResponse.data.data.unread_count
-        );
-      }
-    } catch (error) {
-      // console.log(error);
+      this.$logger.error(error)
     }
   }
 
   get mainChainId() {
-    return this.networks.main.chainId;
+    return this.networks.main.chainId
   }
 
   get maticChainId() {
-    return this.networks.matic.chainId;
+    return this.networks.matic.chainId
   }
 
   changeTab(num) {
-    this.activeTab = num;
-    this.fetchTotalTokens();
+    this.activeTab = num
+    this.fetchTotalTokens()
   }
+
   // Get
   get tabs() {
     return [
-      { id: 0, title: "Items on Matic", count: this.totalMaticNft },
-      { id: 1, title: "Items on Ethereum", count: this.totalMainNft },
-      { id: 2, title: "Orders", count: this.totalUnreadOrderActivity },
-      { id: 3, title: "Deposits & Withdraws" },
-    ];
+      { id: 0, title: 'Items on Matic', count: this.totalMaticNft },
+      { id: 1, title: 'Items on Ethereum', count: this.totalMainNft },
+      { id: 2, title: 'Orders', count: this.totalUnreadOrderActivity },
+      { id: 3, title: 'Deposits & Withdraws' },
+    ]
   }
+
   get favCount() {
     if (this.favouriteOrders) {
-      return this.favouriteOrders.length;
+      return this.favouriteOrders.length
     }
-    return 0;
+    return 0
   }
 }
 </script>
 
 <style lang="scss" scoped>
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 .sticky-top {
   top: $navbar-local-height !important;
 }
@@ -153,7 +165,7 @@ export default class Index extends Vue {
 
 .switch-wrapper {
   position: relative;
-  background-color: light-color("500");
+  background-color: light-color('500');
   border-radius: $default-card-box-border-radius;
 
   .top {
@@ -167,7 +179,7 @@ export default class Index extends Vue {
     position: absolute;
     height: 83%;
     width: 50%;
-    background-color: light-color("700");
+    background-color: light-color('700');
     border-radius: 4px;
     transition: left 0.2s linear;
   }
@@ -180,8 +192,8 @@ export default class Index extends Vue {
 .count-wrapper {
   height: 24px;
   width: 24px;
-  background-color: primary-color("600");
-  color: light-color("700");
+  background-color: primary-color('600');
+  color: light-color('700');
   border-radius: 50%;
 }
 

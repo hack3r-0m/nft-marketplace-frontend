@@ -1,13 +1,13 @@
 <template>
   <div class="section position-absolute">
     <PreventUnload
-      :when="(transactionStatus === STATUS.EXITING) && !!(this.transactionHash)"
+      :when="transactionStatus === STATUS.EXITING && !!this.transactionHash"
       message="Please stay on this page until the withdraw transaction is confirmed on Ethereum!"
     />
     <div
-      class="modal receive-modal-wrapper"
       v-bsl="show"
-      v-bind:class="{ show: show }"
+      class="modal receive-modal-wrapper"
+      :class="{ show: show }"
     >
       <div class="modal-dialog w-sm-100 align-self-center" role="document">
         <div class="box withdraw-box">
@@ -15,17 +15,20 @@
             <div
               class="font-heading-medium font-semibold align-self-center w-100 text-center"
             >
-              {{ $t("withdraw.title") }}
+              {{ $t('withdraw.title') }}
             </div>
             <span
-              @click="onCancel()"
               class="left-arrow align-self-center float-right cursor-pointer"
-              :class="{'disabled-cursor': transactionStatus === STATUS.EXITING && transactionHash }"
+              :class="{
+                'disabled-cursor':
+                  transactionStatus === STATUS.EXITING && transactionHash,
+              }"
+              @click="onCancel()"
             >
               <svg-sprite-icon
                 name="close"
                 class="close align-self-center float-left"
-              ></svg-sprite-icon>
+              />
             </span>
           </div>
           <div class="box-body">
@@ -46,9 +49,9 @@
                   class="container ms-t-20 card-list hide-scrollbar d-flex p-0"
                 >
                   <div
-                    class="token-img d-flex ms-x-6 ps-4 justify-content-center"
                     v-for="token in selectedTokens"
                     :key="token.token_id"
+                    class="token-img d-flex ms-x-6 ps-4 justify-content-center"
                   >
                     <img
                       class="align-self-center"
@@ -64,27 +67,29 @@
                 <div class="col-12 p-0">
                   <div class="mark-wrapper check float-left">
                     <img
+                      v-if="transactionStatus === STATUS.BURNING"
                       src="~/static/img/yellow-check.svg"
                       alt="In Progress"
-                      v-if="transactionStatus === STATUS.BURNING"
                     />
                     <img
+                      v-if="transactionStatus >= STATUS.CHECKPOINTING"
                       src="~/static/img/green-check.svg"
                       alt="Green Check"
-                      v-if="transactionStatus >= STATUS.CHECKPOINTING"
                     />
                   </div>
                   <div class="float-left body-medium ps-2 ms-l-12 d-flex">
                     <span
-                      class="ps-t-0"
                       v-if="transactionStatus === STATUS.BURNING"
-                      >{{ "Withdraw Initializing..." }}</span
+                      class="ps-t-0"
                     >
+                      {{ 'Withdraw Initializing...' }}
+                    </span>
                     <span
-                      class="ps-t-2"
                       v-if="transactionStatus >= STATUS.CHECKPOINTING"
-                      >{{ "Withdraw Initialized" }}</span
+                      class="ps-t-2"
                     >
+                      {{ 'Withdraw Initialized' }}
+                    </span>
                   </div>
                 </div>
                 <div class="col-12 p-0">
@@ -94,7 +99,7 @@
                     <div class="ps-b-16">
                       <span v-if="transactionStatus === STATUS.BURNING">
                         {{
-                          "It will take a few seconds for the transaction to complete"
+                          'It will take a few seconds for the transaction to complete'
                         }}
                       </span>
                       <a
@@ -106,8 +111,9 @@
                         rel="noopener noreferrer"
                         target="_blank"
                         :title="transaction.txhash"
-                        >{{ this.$t("viewOnMaticscan") }}</a
                       >
+                        {{ $t('viewOnMaticscan') }}
+                      </a>
                     </div>
                   </div>
                 </div>
@@ -130,7 +136,7 @@
                     />
                   </div>
                   <div class="float-left body-medium ps-2 ps-t-0 ms-l-12">
-                    {{ "Checkpoint on Ethereum" }}
+                    {{ 'Checkpoint on Ethereum' }}
                   </div>
                 </div>
                 <div class="col-12 p-0">
@@ -140,7 +146,7 @@
                     <div class="ps-b-16">
                       <span v-if="transactionStatus === STATUS.CHECKPOINTING">
                         {{
-                          "Waiting for Checkpoint to be reached on Ethereum. Approx time taken will be ~34 minutes"
+                          'Waiting for Checkpoint to be reached on Ethereum. Approx time taken will be ~34 minutes'
                         }}
                       </span>
                     </div>
@@ -171,7 +177,7 @@
                     />
                   </div>
                   <div class="float-left body-medium ps-2 ps-t-0 ms-l-12">
-                    {{ "Exit transaction on Ethereum" }}
+                    {{ 'Exit transaction on Ethereum' }}
                   </div>
                 </div>
                 <div class="col-12 p-0">
@@ -181,12 +187,14 @@
                     <div class="ps-b-8">
                       <span v-if="transactionStatus === STATUS.CHECKPOINTED">
                         {{
-                          "Please confirm the transaction to complete the Withdraw."
+                          'Please confirm the transaction to complete the Withdraw.'
                         }}
                       </span>
-                      <span v-if="transactionStatus === STATUS.EXITING">{{
-                        "Transactions on Ethereum sometimes take longer based on network congestion. Please wait or increase the gas price "
-                      }}</span>
+                      <span v-if="transactionStatus === STATUS.EXITING">
+                        {{
+                          'Transactions on Ethereum sometimes take longer based on network congestion. Please wait or increase the gas price '
+                        }}
+                      </span>
                       <a
                         v-if="
                           transactionStatus >= STATUS.EXITING && transactionHash
@@ -195,15 +203,18 @@
                         rel="noopener noreferrer"
                         target="_blank"
                         :title="transactionHash"
-                        >{{ this.$t("viewOnEtherscan") }}</a
                       >
+                        {{ $t('viewOnEtherscan') }}
+                      </a>
                     </div>
-                    <div class="ps-b-16 text-red font-semibold"
+                    <div
                       v-if="
-                        transactionStatus === STATUS.EXITING &&
-                        transactionHash
+                        transactionStatus === STATUS.EXITING && transactionHash
                       "
-                    >{{ this.$t("preventUserWithdrawModalClose") }}</div>
+                      class="ps-b-16 text-red font-semibold"
+                    >
+                      {{ $t('preventUserWithdrawModalClose') }}
+                    </div>
                   </div>
                 </div>
                 <div class="col-12 p-0">
@@ -218,7 +229,7 @@
                     />
                   </div>
                   <div class="float-left body-medium ps-2 ms-l-12">
-                    {{ "Withdraw completed" }}
+                    {{ 'Withdraw completed' }}
                   </div>
                 </div>
                 <div class="col-12 p-0">
@@ -226,10 +237,12 @@
                     class="float-left font-caption text-gray ms-l-12 ms-b-2 ps-l-24"
                   >
                     <span
-                      class="ps-l-2"
                       v-if="transactionStatus >= STATUS.EXITED"
+                      class="ps-l-2"
                     >
-                      {{ "It will take ~2 minutes for the NFT to appear in your Ethereum account." }}
+                      {{
+                        'It will take ~2 minutes for the NFT to appear in your Ethereum account.'
+                      }}
                     </span>
                   </div>
                 </div>
@@ -239,10 +252,10 @@
                   <div
                     class="font-body-small text-red text-center mx-auto"
                     v-html="error"
-                  ></div>
+                  />
                 </div>
               </div>
-              <div class="row p-0" v-if="transactionStatus !== STATUS.EXITED">
+              <div v-if="transactionStatus !== STATUS.EXITED" class="row p-0">
                 <div class="col-12 p-0 d-flex justify-content-space-between">
                   <button-loader
                     class="w-100"
@@ -259,7 +272,7 @@
                         transactionStatus < STATUS.EXITED
                       )
                     "
-                  ></button-loader>
+                  />
                 </div>
               </div>
             </div>
@@ -267,27 +280,24 @@
         </div>
       </div>
     </div>
-    <div class="modal-backdrop" v-bind:class="{ show: show }"></div>
+    <div class="modal-backdrop" :class="{ show: show }" />
   </div>
 </template>
 
-
 <script>
-import Vue from "vue";
-import Component from "nuxt-class-component";
-import { mapGetters } from "vuex";
-import app from "~/plugins/app";
-import getAxios from "~/plugins/axios";
-import Dagger from "@maticnetwork/dagger";
-import Decoder from "eth-decoder";
-import Web3 from "web3";
-import BigNumber from "~/plugins/bignumber";
-import { VueWatch } from "~/components/decorator";
+import Vue from 'vue'
+import Component from 'nuxt-class-component'
+import { mapGetters, mapState } from 'vuex'
+import app from '~/plugins/app'
+import Dagger from '@maticnetwork/dagger'
+import Decoder from 'eth-decoder'
+import BigNumber from '~/plugins/bignumber'
+import { VueWatch } from '~/components/decorator'
 
-import { getWalletProvider } from "~/plugins/helpers/providers";
-const MaticPOSClient = require("@maticnetwork/maticjs").MaticPOSClient;
+import { getWalletProvider } from '~/helpers/providers'
 
-import PreventUnload from 'vue-prevent-unload';
+import PreventUnload from 'vue-prevent-unload'
+const MaticPOSClient = require('@maticnetwork/maticjs').MaticPOSClient
 
 const STATUS = {
   BURNING: 0,
@@ -295,7 +305,7 @@ const STATUS = {
   CHECKPOINTED: 2,
   EXITING: 3,
   EXITED: 4,
-};
+}
 
 @Component({
   props: {
@@ -330,154 +340,171 @@ const STATUS = {
     },
   },
   components: {
-    PreventUnload
+    PreventUnload,
   },
   methods: {},
   computed: {
-    ...mapGetters("account", ["account"]),
-    ...mapGetters("network", ["networks", "networkMeta"]),
+    ...mapGetters('account', ['account']),
+    ...mapState('auth', {
+      loginStrategy: (state) => state.loginStrategy,
+    }),
+    ...mapState('network', {
+      networks: (state) => state.networks,
+      networkMeta: (state) => state.networkMeta,
+    }),
   },
 })
 export default class WithdrawConfirmationModal extends Vue {
-  STATUS = STATUS;
+  STATUS = STATUS
 
-  selectToken = false;
-  isLoading = false;
-  error = null;
-  transactionHash = null;
-  isExited = false;
-  isCheckpointed = false;
+  selectToken = false
+  isLoading = false
+  error = null
+  transactionHash = null
+  isExited = false
+  isCheckpointed = false
 
   // Checkpoint
-  dagger = null;
-  ROOT_CONTRACT = null;
+  dagger = null
+  ROOT_CONTRACT = null
   FUNCTION =
-    "0xba5de06d22af2685c6c7765f60067f7d2b08c2d29f53cdf14d67f6d1c9bfb527";
-  DAGGER_EVENT = null;
-  DAGGER_URL = null;
-  rootChainDecoder = null;
-  childERC20Decoder = null;
+    '0xba5de06d22af2685c6c7765f60067f7d2b08c2d29f53cdf14d67f6d1c9bfb527'
+
+  DAGGER_EVENT = null
+  DAGGER_URL = null
+  rootChainDecoder = null
+  childERC20Decoder = null
 
   async mounted() {
-    await this.initCheckpointCheck();
+    await this.initCheckpointCheck()
   }
 
-  @VueWatch("isBurning", { immediate: true, deep: true })
+  @VueWatch('isBurning', { immediate: true, deep: true })
   async onBurnChange(val) {
     if (!this.isBurning) {
-      await this.initCheckpointCheck();
+      await this.initCheckpointCheck()
     }
   }
 
   async initCheckpointCheck() {
-    await this.checkForCheckPointInclusion();
+    await this.checkForCheckPointInclusion()
     if (this.isCheckpointed) {
       try {
-        this.dagger.off(DAGGER_EVENT, this.handleCheckpointCreation);
-      } catch (error) {}
-      return;
+        this.dagger.off(DAGGER_EVENT, this.handleCheckpointCreation)
+      } catch (error) {
+        this.$logger.error(error)
+      }
     } else {
-      this.ROOT_CONTRACT = this.networks.main.contracts.RootChainProxy;
-      this.DAGGER_EVENT = `latest:log/${this.ROOT_CONTRACT}/filter/${this.FUNCTION}/#`;
-      this.DAGGER_URL = this.networks.main.daggerEndpoint;
+      this.ROOT_CONTRACT = this.networks.main.contracts.RootChainProxy
+      this.DAGGER_EVENT = `latest:log/${this.ROOT_CONTRACT}/filter/${this.FUNCTION}/#`
+      this.DAGGER_URL = this.networks.main.daggerEndpoint
       this.rootChainDecoder = new Decoder.LogDecoder([
-        this.networkMeta.abi("RootChain"),
-      ]);
+        this.networkMeta.abi('RootChain'),
+      ])
       this.childERC20Decoder = new Decoder.LogDecoder([
-        this.networkMeta.abi("ChildERC20"),
-      ]);
-      this.dagger = new Dagger(this.DAGGER_URL);
-      this.dagger.on(this.DAGGER_EVENT, this.handleCheckpointCreation);
+        this.networkMeta.abi('ChildERC20'),
+      ])
+      this.dagger = new Dagger(this.DAGGER_URL)
+      this.dagger.on(this.DAGGER_EVENT, this.handleCheckpointCreation)
     }
   }
 
   // Getter
   get transactionStatus() {
     if (this.isBurning) {
-      return STATUS.BURNING;
+      return STATUS.BURNING
     } else if (
       !this.isBurning &&
       !this.isCheckpointed &&
       !this.isLoading &&
       !this.isExited
     ) {
-      return STATUS.CHECKPOINTING;
+      return STATUS.CHECKPOINTING
     } else if (
       !this.isBurning &&
       this.isCheckpointed &&
       !this.isLoading &&
       !this.isExited
     ) {
-      return STATUS.CHECKPOINTED;
+      return STATUS.CHECKPOINTED
     } else if (
       !this.isBurning &&
       this.isCheckpointed &&
       this.isLoading &&
       !this.isExited
     ) {
-      return STATUS.EXITING;
+      return STATUS.EXITING
     } else if (
       !this.isBurning &&
       this.isCheckpointed &&
       !this.isLoading &&
       this.isExited
     ) {
-      return STATUS.EXITED;
+      return STATUS.EXITED
     }
   }
 
   get parentNetwork() {
-    return this.networks.main;
+    return this.networks.main
   }
 
   get childNetwork() {
-    return this.networks.matic;
+    return this.networks.matic
   }
 
   get networkId() {
-    return this.parentNetwork.chainId;
+    return this.parentNetwork.chainId
   }
+
   get maticExplorerURL() {
     if (app.uiconfig.maticExplorer && this.transaction.txhash) {
-      return `${app.uiconfig.maticExplorer}tx/${this.transaction.txhash}`;
+      return `${app.uiconfig.maticExplorer}tx/${this.transaction.txhash}`
     }
-    return null;
+    return null
   }
+
   get mainExplorerURL() {
     if (app.uiconfig.mainExplorer) {
-      return `${app.uiconfig.mainExplorer}tx/${this.transactionHash}`;
+      return `${app.uiconfig.mainExplorer}tx/${this.transactionHash}`
     }
-    return null;
+    return null
   }
 
   // Actions
   async checkForCheckPointInclusion() {
     try {
       if (this.transaction.status === 1) {
-        this.isCheckpointed = true;
-        return;
+        this.isCheckpointed = true
+        return
       }
       if (this.transaction.status === 0) {
-        const { data } = await getAxios().get(
-          `${this.networks.main.watcherUrl}/header/included/${this.transaction.block_number}`
-        );
-        if (data && data.status === "success") {
-          let nextStatus = this.STATUS.CHECKPOINTED;
-          this.handleCheckpointInclusion();
+        const {
+          status,
+        } = await this.$store.dispatch('migrate/checkForTransactionInclusion', {
+          watcherUrl: this.networks.main.watcherUrl,
+          blockNumber: this.transaction.block_number,
+        })
+        if (status === 'success') {
+          // const nextStatus = this.STATUS.CHECKPOINTED
+          this.handleCheckpointInclusion()
         }
       }
-    } catch (error) {}
+    } catch (error) {
+      this.$logger.error(error)
+    }
   }
 
   getMaticPOS() {
     const maticProvider = getWalletProvider({
       networks: this.networks,
-      primaryProvider: "matic",
-    });
+      primaryProvider: 'matic',
+      loginStrategy: this.loginStrategy,
+    })
     const parentProvider = getWalletProvider({
       networks: this.networks,
-      primaryProvider: "main",
-    });
+      primaryProvider: 'main',
+      loginStrategy: this.loginStrategy,
+    })
     return new MaticPOSClient({
       network: app.uiconfig.matic.deployment.network,
       version: app.uiconfig.matic.deployment.version,
@@ -488,57 +515,56 @@ export default class WithdrawConfirmationModal extends Vue {
       posERC20Predicate: this.networkMeta.Main.POSContracts.ERC20PredicateProxy,
       posERC721Predicate: this.networkMeta.Main.POSContracts
         .ERC721PredicateProxy,
-    });
+    })
   }
 
   async exit() {
     if (this.isLoading || this.isBurning) {
-      return;
+      return
     }
 
     try {
-      this.isLoading = true;
-      this.error = null;
-      const maticPoS = this.getMaticPOS();
-      const burnHash = this.transaction.txhash;
+      this.isLoading = true
+      this.error = null
+      const maticPoS = this.getMaticPOS()
+      const burnHash = this.transaction.txhash
 
-      let exited = await maticPoS.isBatchERC721ExitProcessed(burnHash)
-      if(exited){
-        console.log("exited before")
-        await this.handleExitedTokens();
-        this.isLoading = false;
-        this.cancel();
+      const exited = await maticPoS.isBatchERC721ExitProcessed(burnHash)
+      if (exited) {
+        this.$logger.debug('exited before')
+        await this.handleExit('TX EXITED EXTERNALLY')
+        this.isLoading = false
+        this.cancel()
         return
       }
 
-      let txHash = await maticPoS.exitBatchERC721(burnHash, {
+      const txHash = await maticPoS.exitBatchERC721(burnHash, {
         from: this.account.address,
         onTransactionHash: (txHash) => {
-          this.transactionHash = txHash;
+          this.transactionHash = txHash
         },
         onReceipt: async (txHash) => {
-          console.log("exited now")
-          await this.handleExit(txHash);
-          this.isLoading = false;
+          this.$logger.debug('exited now')
+          await this.handleExit(txHash)
+          this.isLoading = false
         },
-      });
-
+      })
     } catch (error) {
-      this.isLoading = false;
-      this.error = error.message;
+      this.isLoading = false
+      this.error = error.message
     }
   }
 
   async handleCheckpointCreation(checkpoint) {
     try {
-      const parsedLogs = this.rootChainDecoder.decodeLogs([checkpoint]);
-      const endLog = parsedLogs[0].args.end;
-      const end = new BigNumber(endLog._hex);
-      let blockNumber = BigNumber(this.transaction.block_number);
+      const parsedLogs = this.rootChainDecoder.decodeLogs([checkpoint])
+      const endLog = parsedLogs[0].args.end
+      const end = new BigNumber(endLog._hex)
+      const blockNumber = BigNumber(this.transaction.block_number)
       if (blockNumber.lte(end) && this.transaction.status === 0) {
-        let nextStatus = this.STATUS.CHECKPOINTED;
-        this.handleCheckpointInclusion();
-        this.dagger.off(DAGGER_EVENT, this.handleCheckpointCreation);
+        // const nextStatus = this.STATUS.CHECKPOINTED
+        this.handleCheckpointInclusion()
+        this.dagger.off(DAGGER_EVENT, this.handleCheckpointCreation)
       }
     } catch (e) {
       // silent
@@ -546,67 +572,52 @@ export default class WithdrawConfirmationModal extends Vue {
   }
 
   async handleCheckpointInclusion() {
-    if (!this.transaction.id) return;
+    if (!this.transaction.id) {
+      return
+    }
     try {
-      let data = {
+      const data = {
         status: 1,
-      };
-      let response = await getAxios().put(
-        `assetmigrate/${this.transaction.id}`,
-        data
-      );
-      if (response.status === 200) {
-        this.isCheckpointed = true;
       }
-    } catch (error) {}
+      this.isCheckpointed = await this.$store.dispatch(
+        'migrate/updateTransactionStatusToCheckpointed',
+        { transactionId: this.transaction.id, payload: data },
+      )
+    } catch (error) {
+      this.$logger.error(error)
+    }
   }
 
   async handleExit(txHash) {
-    console.log("Withdraw exit", txHash);
+    this.$logger.debug('Withdraw exit', txHash)
     try {
-      let data = {
-        exit_txhash: this.transactionHash,
+      const data = {
+        exit_txhash: txHash,
         status: 2,
-      };
-      let response = await getAxios().put(
-        `assetmigrate/${this.transaction.id}`,
-        data
-      );
-      if (response.status === 200) {
-        this.isExited = true;
-        this.refreshBalance();
       }
-    } catch (error) {}
-  }
-
-  async handleExitedTokens() {
-    try {
-      let data = {
-        exit_txhash: "TX EXITED EXTERNALLY",
-        status: 2,
-      };
-      let response = await getAxios().put(
-        `assetmigrate/${this.transaction.id}`,
-        data
-      );
-      if (response.status === 200) {
-        this.isExited = true;
-        this.refreshBalance();
-      }
-    } catch (error) {}
+      this.isExited = await this.$store.dispatch(
+        'migrate/updateTransactionStatusToExited',
+        { transactionId: this.transaction.id, payload: data },
+      )
+      this.refreshBalance()
+    } catch (error) {
+      this.$logger.error(error)
+    }
   }
 
   onCancel() {
-    if (this.transactionStatus === STATUS.EXITING && this.transactionHash) return;
-    this.cancel();
+    if (this.transactionStatus === STATUS.EXITING && this.transactionHash) {
+      {
+        return
+      }
+      this.cancel()
+    }
   }
 }
-
-
 </script>
 
 <style lang="scss" scoped>
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 
 .withdraw-box {
   width: 446px;
@@ -623,21 +634,21 @@ export default class WithdrawConfirmationModal extends Vue {
   border-radius: 50%;
 }
 .label {
-  color: dark-color("500");
+  color: dark-color('500');
 }
 .amount {
-  color: dark-color("700");
+  color: dark-color('700');
 }
 
 .bottom-border {
-  border-bottom: 1px solid light-color("500");
+  border-bottom: 1px solid light-color('500');
 }
 
 .mark-wrapper:not(.check) {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  border: 1px solid light-color("400");
+  border: 1px solid light-color('400');
   margin: 2px;
 }
 .mark-wrapper.check {
@@ -646,14 +657,14 @@ export default class WithdrawConfirmationModal extends Vue {
 }
 
 .process-msg {
-  border-left: 1px solid light-color("400");
+  border-left: 1px solid light-color('400');
   min-height: 18px;
 }
 .text-gray {
-  color: dark-color("300");
+  color: dark-color('300');
 }
 .text-red {
-  color: red-color("600");
+  color: red-color('600');
 }
 .disabled-cursor {
   cursor: default !important;
@@ -664,7 +675,7 @@ export default class WithdrawConfirmationModal extends Vue {
 }
 
 .container-wrapper {
-  background: dark-color("300");
+  background: dark-color('300');
   text-align: left;
   margin-bottom: 24px;
 

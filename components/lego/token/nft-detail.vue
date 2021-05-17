@@ -1,115 +1,189 @@
 <template>
   <div>
     <div
-      class="container-fluid ps-y-16"
       v-if="token.token_id && !isLoadingDetails"
+      class="container-fluid ps-y-16"
     >
-      <div class="row ps-y-16 ps-x-md-16">
+      <div class="row ps-y-16 ps-x-md-16 justify-content-between">
         <div class="col-md-7 d-flex">
           <token-short-info
+            v-if="token.name"
             class="align-self-center"
-            :order="token"
+            :token="token"
             :category="category"
-            v-if="category"
+            :defaultPage="!isOwnerOfNFT"
           />
         </div>
+        <a :href="openseaUrl" v-tooltip.left="'View on OpenSea'" rel="noopener noreferrer" target="_blank" class="align-self-center ps-x-16 ps-x-md-0">
+          <img src="~/static/icons/opensea.svg" class="opensea-icon ps-r-16" alt="OS">
+        </a>
       </div>
       <div class="row ps-y-16 ps-x-md-16 justify-content-center">
-        <div class="col-md-8">
+        <div class="col-md-8 h-100">
           <div
             class="feature-image d-flex d-lg-flex justify-content-center mb-4"
-            v-bind:style="{ background: bg }"
+            :style="{ background: bg }"
           >
             <img
+              v-if="checkImageFormat(token.image_url) || isNotVideoFormat"
               class="asset-img align-self-center"
-              :src="token.img_url"
-              alt="Kitty"
+              :src="token.image_url"
+              alt="Token Image"
               @load="onImageLoad"
-            />
+              @error="imageLoadError"
+            >
+            <video
+              v-else
+              controls
+              autoplay
+              muted
+              loop
+              height="500px"
+              :poster="token.image_url"
+            >
+              <source
+                :src="token.image_url"
+                type="video/webm"
+              />
+              <source
+                :src="token.image_url"
+                type="video/ogg"
+              />
+              <source
+                :src="token.image_url"
+                type="video/mp4"
+                @error="handleNotVideo"
+              />
+            </video>
           </div>
           <div class="details-section">
             <div
               class="feature-info mobile d-flex d-lg-none flex-column ps-16 ps-lg-40 ms-y-16"
             >
-              <h2>{{ token.description }}</h2>
               <h3 class="font-heading-medium font-semibold">
                 About {{ token.name }}
               </h3>
               <p
+                v-if="tokenDescription && tokenDescription.length > 200"
                 class="font-body-medium"
                 :class="{ 'show-less': showMore, 'show-more': !showMore }"
-                v-if="token.description"
               >
-                {{ token.description }}
+                {{ tokenDescription.slice(0, tokenDescription.length / 2) }}
                 <span class="dots">...</span>
-                <span class="more">{{ token.description }}</span>
-                <a
-                  class="font-body-small d-flex ps-t-8 font-medium"
-                  href="#more-info"
-                  v-if="!showMore"
-                  @click.prevent="showMore = true"
-                  >More info</a
-                >
-                <a
-                  class="font-body-small d-flex ps-t-8 font-medium"
-                  href="#more-info"
-                  v-if="showMore"
-                  @click.prevent="showMore = false"
-                  >Show less</a
-                >
-              </p>
-            </div>
-            <div class="d-flex flex-column py-4" v-if="category">
-              <h3 class="font-heading-medium font-semibold category">
-                About {{ category.name }}
-                <a
-                  class="ps-l-12"
-                  :href="category.url"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  >Visit Website</a
-                >
-
-                <span
-                  class="float-right cursor-pointer right-arrow"
-                  :class="{ 'down-icon': showCategoryInfo }"
-                  @click="showCategoryInfo = !showCategoryInfo"
-                  v-if="category.description"
-                >
-                  <svg-sprite-icon name="right-arrow" />
+                <span class="more">
+                  {{
+                    tokenDescription.slice(
+                      tokenDescription.length / 2,
+                      tokenDescription.length,
+                    )
+                  }}
                 </span>
-              </h3>
+                <a
+                  v-if="!showMore"
+                  class="font-body-small d-flex ps-t-8 font-medium"
+                  href="#more-info"
+                  @click.prevent="showMore = true"
+                >
+                  More info
+                </a>
+                <a
+                  v-if="showMore"
+                  class="font-body-small d-flex ps-t-8 font-medium"
+                  href="#more-info"
+                  @click.prevent="showMore = false"
+                >
+                  Show less
+                </a>
+              </p>
+              <p v-else class="font-body-medium">
+                {{ tokenDescription }}
+              </p>
+
+              <button v-if="isOwnerOfNFT" class="btn btn-primary ms-t-32" @click="onSellToken">
+                {{ $t('sell') }}
+              </button>
+
+              <button v-if="isOwnerOfNFT" class="btn btn-primary ms-t-16" @click="onTransferToken">
+                {{ $t('transfer') }}
+              </button>
+            </div>
+
+            <div
+              v-if="category"
+              class="d-flex flex-column details-section--dropdown"
+            >
+              <div
+                class="header-wrapper cursor-pointer py-4 ps-l-16"
+                @click="showCategoryInfo = !showCategoryInfo"
+              >
+                <h3 class="font-heading-medium font-semibold category m-0">
+                  About {{ category.name }}
+                  <a
+                    class="ps-l-12"
+                    :href="category.url"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Visit Website
+                  </a>
+
+                  <span
+                    v-if="category.description"
+                    class="float-right right-arrow"
+                    :class="{ 'down-icon': showCategoryInfo }"
+                  >
+                    <svg-sprite-icon name="right-arrow" />
+                  </span>
+                </h3>
+              </div>
               <p
-                class="font-body-medium ps-t-20"
                 v-if="showCategoryInfo && category.description"
+                class="font-body-medium ps-t-20 ps-l-16"
               >
                 {{ category.description }}
               </p>
             </div>
 
-            <div class="properties py-4" v-if="token.token.attributes_metadata">
-              <h3 class="font-heading-medium font-semibold mb-4">
-                Properties
-                <span
-                  class="float-right cursor-pointer right-arrow"
-                  :class="{ 'down-icon': showProperties }"
-                  @click="showProperties = !showProperties"
-                >
-                  <svg-sprite-icon name="right-arrow" />
-                </span>
-              </h3>
-              <div class="d-flex flex-row flex-wrap" v-if="showProperties">
+            <div
+              v-if="token.attributes"
+              class="properties details-section--dropdown"
+            >
+              <div
+                class="header-wrapper cursor-pointer py-4 ps-l-16"
+                @click="showProperties = !showProperties"
+              >
+                <h3 class="font-heading-medium font-semibold m-0">
+                  Properties
+                  <span
+                    class="float-right right-arrow"
+                    :class="{ 'down-icon': showProperties }"
+                  >
+                    <svg-sprite-icon name="right-arrow" />
+                  </span>
+                </h3>
+              </div>
+              <div
+                v-if="showProperties"
+                class="d-flex flex-row flex-wrap ps-t-16 ps-l-16"
+              >
                 <div
-                  class="col-md-4 p-0 pr-4 justify-content-between"
-                  v-bind:key="`${attribute.trait_type}-${attribute.value}`"
-                  v-for="attribute in token.token.attributes_metadata"
+                  v-for="(attribute, index) in token.attributes"
+                  :key="`${attribute.trait_type}-${attribute.value}-${index}`"
+                  class="col-md-3 p-0 pr-4 justify-content-between"
                 >
-                  <div class="d-flex flex-column properties-pill p-3 mb-4">
+                  <div
+                    class="d-flex flex-column text-center properties-pill p-3 mb-4"
+                  >
                     <p class="property-title m-0 p-0 text-truncate">
-                      {{ attribute.trait_type }}
+                      {{ attribute.trait_type | pascal }}
                     </p>
                     <p class="property-detail m-0 pt-1 text-truncate">
-                      {{ attribute.value }}
+                      <template v-if="attribute.trait_type === 'birthday'">
+                        {{ attribute.value | dateHuman }}
+                      </template>
+                      <template v-else>
+                        {{ attribute.value | pascal }}
+                      </template>
                     </p>
                   </div>
                 </div>
@@ -117,34 +191,47 @@
             </div>
           </div>
         </div>
-        <div class="col-md-4 d-none d-lg-flex">
-          <div class="feature-info d-flex flex-column ps-16 ps-lg-40">
+        <div class="col-md-4 d-none d-lg-flex h-100">
+          <div class="feature-info d-flex flex-column ps-16 ps-lg-40 w-100">
             <h3 class="font-heading-medium font-semibold">
               About {{ token.name }}
             </h3>
             <p
+              v-if="tokenDescription && tokenDescription.length > 200"
               class="font-body-medium"
               :class="{ 'show-less': showMore, 'show-more': !showMore }"
-              v-if="token.description"
             >
-              {{ token.description }}
+              {{ tokenDescriptionFirstHalf }}
               <span class="dots">...</span>
-              <span class="more">{{ token.description }}</span>
+              <span class="more">{{ tokenDescriptionSecondHalf }}</span>
               <a
-                class="font-body-small d-flex ps-t-8 font-medium"
-                href="#more-info"
                 v-if="!showMore"
-                @click.prevent="showMore = true"
-                >More info</a
-              >
-              <a
                 class="font-body-small d-flex ps-t-8 font-medium"
                 href="#more-info"
-                v-if="showMore"
-                @click.prevent="showMore = false"
-                >Show less</a
+                @click.prevent="showMore = true"
               >
+                More info
+              </a>
+              <a
+                v-if="showMore"
+                class="font-body-small d-flex ps-t-8 font-medium"
+                href="#more-info"
+                @click.prevent="showMore = false"
+              >
+                Show less
+              </a>
             </p>
+            <p v-else class="font-body-medium">
+              {{ tokenDescription }}
+            </p>
+
+            <button v-if="isOwnerOfNFT" class="btn btn-primary ms-t-32" @click="onSellToken">
+              {{ $t('sell') }}
+            </button>
+
+            <button v-if="isOwnerOfNFT" class="btn btn-primary ms-t-16" @click="onTransferToken">
+              {{ $t('transfer') }}
+            </button>
           </div>
         </div>
       </div>
@@ -152,6 +239,7 @@
 
     <div class="row ps-x-16 ps-y-120 d-flex justify-content-center text-center">
       <button-loader
+        v-if="isLoadingDetails"
         class="mx-auto"
         :loading="isLoadingDetails"
         :loadingText="$t('loading')"
@@ -159,31 +247,42 @@
         block
         lg
         color="light"
-        v-if="isLoadingDetails"
-      ></button-loader>
+      />
+
+      <sell-token
+        v-if="showSellModal"
+        class="text-left"
+        :close="onCloseSellModal"
+        :nftToken="token"
+        :refreshNFTTokens="refreshNFTTokens"
+      />
+
+      <send-token
+        v-if="showSendModal"
+        class="text-left"
+        :close="onCloseSendModal"
+        :nftToken="token"
+        :refreshNFTTokens="refreshNFTTokens"
+      />
     </div>
   </div>
 </template>
 
 <script>
-import Vue from "vue";
-import Component from "nuxt-class-component";
-import getAxios from "~/plugins/axios";
-import app from "~/plugins/app";
-import { mapGetters } from "vuex";
+import Vue from 'vue'
+import Component from 'nuxt-class-component'
+import { mapGetters, mapState } from 'vuex'
+import TokenShortInfo from '~/components/lego/token/token-short-info'
+import WishlistButton from '~/components/lego/wishlist-button'
+import BuyToken from '~/components/lego/modals/buy-token'
+import SellToken from '~/components/lego/modals/sell-token'
+import SendToken from '~/components/lego/modals/send-token'
+import CancelConfirm from '~/components/lego/modals/cancel-confirm'
 
-import NFTTokenModel from "~/components/model/nft-token";
-
-import TokenShortInfo from "~/components/lego/token/token-short-info";
-import WishlistButton from "~/components/lego/wishlist-button";
-import BuyToken from "~/components/lego/modals/buy-token";
-import CancelConfirm from "~/components/lego/modals/cancel-confirm";
-
-import rgbToHsl from "~/plugins/helpers/color-algorithm";
-import ColorThief from "color-thief";
-const colorThief = new ColorThief();
-
-import { providerEngine } from "~/plugins/helpers/provider-engine";
+import rgbToHsl from '~/helpers/color-algorithm'
+import { getProviderEngine } from '~/helpers/provider-engine'
+import { getColorFromImage } from '~/utils'
+import { IMAGE_EXTENSIONS } from '~/constants'
 
 @Component({
   props: {
@@ -195,100 +294,199 @@ import { providerEngine } from "~/plugins/helpers/provider-engine";
       type: [Number, String],
       required: false,
     },
+    contractAddress: {
+      type: [Number, String],
+      required: false,
+    },
   },
   components: {
     TokenShortInfo,
     WishlistButton,
     BuyToken,
+    SellToken,
+    SendToken,
     CancelConfirm,
   },
   computed: {
-    ...mapGetters("category", ["categories"]),
-    ...mapGetters("token", ["erc20Tokens"]),
-    ...mapGetters("auth", ["user"]),
-    ...mapGetters("network", ["networks"]),
+    ...mapGetters('category', ['categories', 'categoryByToken']),
+    ...mapGetters('token', ['erc20Tokens']),
+    ...mapState('auth', {
+      user: (state) => state.user,
+    }),
+     ...mapState('network', {
+      networks: (state) => state.networks,
+    }),
   },
   middleware: [],
   mixins: [],
 })
 export default class NftDetail extends Vue {
-  bg = "#ffffff";
-  showMore = false;
-  showCategoryInfo = false;
-  showProperties = false;
+  bg = '#ffffff'
+  showMore = false
+  showCategoryInfo = true
+  showProperties = true
 
-  isLoadingDetails = false;
-  isLoading = false;
+  isLoadingDetails = false
+  isLoading = false
+  showSellModal = false
+  showSendModal = false
+  isNotVideoFormat = false;
+  isOwnerOfNFT = true;
 
-  token = {};
+  token = {}
 
   // initialize
-  async mounted() {
-    await this.fetchNFTTokens();
+  mounted() {
+    this.fetchNFTTokens()
   }
 
   onImageLoad() {
     try {
-      const img = this.$el.querySelector(".asset-img");
+      const img = this.$el.querySelector('.asset-img')
       // img.crossOrigin = "Anonymous";
 
-      let rgbColor = colorThief.getColor(img);
+      const rgbColor = getColorFromImage(img)
       if (rgbColor) {
-        let hsl = rgbToHsl({
+        const hsl = rgbToHsl({
           r: rgbColor[0],
           g: rgbColor[1],
           b: rgbColor[2],
-        });
-        this.bg = `hsl(${hsl.h},${hsl.s}%,${hsl.l}%)`;
-      } else this.bg = "#ffffff";
+        })
+        this.bg = `hsl(${hsl.h},${hsl.s}%,${hsl.l}%)`
+      } else {
+        this.bg = '#ffffff'
+      }
     } catch (error) {}
+  }
+
+  imageLoadError(event) {
+    event.target.src = this.category.img_url
+    event.target.style.width = '100px'
+  }
+
+  get openseaUrl() {
+    return `https://opensea.io/assets/matic/${this.contractAddress}/${this.tokenId}`
+  }
+
+  checkImageFormat(imgUrl) {
+    if(imgUrl){
+      let imgExt = imgUrl.substr((imgUrl.lastIndexOf('.') + 1))
+      if (IMAGE_EXTENSIONS.includes(imgExt)) {
+        return true
+      }
+    }
+    return false
+  }
+  handleNotVideo() {
+    const image = new Image()
+    image.src = this.token.image_url
+    image.onload = () => { this.isNotVideoFormat = true }
+    image.onerror = () => {
+      const image = document.createElement('img')
+      image.src = this.category.img_url;
+      document.querySelector('.feature-image').appendChild(image)
+      image.style.width = '200px'
+      image.style.height = '200px'
+      image.classList.add("asset-img", "align-self-center")
+      document.getElementsByTagName("VIDEO")[0].style.display = "none"
+    }
+  }
+
+  onCloseSellModal() {
+    this.showSellModal = false
+  }
+
+  onCloseSendModal() {
+    this.showSendModal = false
+  }
+
+  onSellToken() {
+    this.showSellModal = true
+  }
+
+  onTransferToken() {
+    this.showSendModal = true
+  }
+
+  async refreshNFTTokens() {
+    this.$router.push({ name: 'account' })
   }
 
   // Get
   get category() {
-    return this.categories.filter(
-      (item) => item.id === this.token.categories_id
-    )[0];
+    const ct = this.categoryByToken(this.token)
+    return ct
   }
 
-  get app() {
-    return app;
+  get tokenDescription() {
+    return this.token.description
+  }
+
+  get tokenDescriptionFirstHalf() {
+    return this.tokenDescription.slice(0, this.tokenDescription.length / 2)
+  }
+
+  get tokenDescriptionSecondHalf() {
+    return this.tokenDescription.slice(
+      this.tokenDescription.length / 2,
+      this.tokenDescription.length,
+    )
   }
 
   // async
   async fetchNFTTokens() {
     if (!this.tokenId || this.isLoadingDetails) {
-      return;
+      return
     }
-    this.isLoadingDetails = true;
+    this.isLoadingDetails = true
     try {
-      let response = await getAxios().get(
-        `tokens/balance?userId=${this.user.id}&chainId=${this.chainId}`
-      );
+      let tokens = null;
+      if(this.user) {
+        const response = await this.$store.dispatch('account/fetchUserNFT', {
+          user: this.user,
+          chainId: this.chainId,
+        })
+        tokens = response.data
+      }
 
-      if (response.status === 200 && response.data.data) {
-        // should use a endpoint that returns detail for just one token
-        let currentToken = response.data.data.filter((token) => {
-          return token.token_id == this.tokenId;
-        });
+      let currentToken = null;
+      if(tokens) {
+        currentToken = tokens.filter((token) => {
+          return (
+            token.token_id === this.tokenId &&
+            token.contract.match(new RegExp(this.contractAddress, 'i'))
+          )
+        })
+      }
 
-        if (currentToken.length > 0) currentToken = currentToken[0];
-        else return;
-
-        currentToken.chainId = this.chainId;
-        let data = new NFTTokenModel(currentToken);
-        this.token = data;
+      if (currentToken && currentToken.length > 0) {
+          currentToken = currentToken[0]
+          currentToken.chainId = this.chainId
+          currentToken.attributes = currentToken.attributes? JSON.parse(currentToken.attributes) : ''
+          this.token = currentToken
+          this.isOwnerOfNFT = true;
+      } else {
+        const result = await this.$store.dispatch('account/fetchNFT', {
+          categoryAddress: this.contractAddress,
+          tokenId: this.tokenId,
+          chainId: this.chainId
+        })
+        this.isOwnerOfNFT = false;
+        const token = result.data
+        token.chainId = this.chainId
+        token.attributes = token.attributes? JSON.parse(token.attributes) : ''
+        this.token = token
       }
     } catch (error) {
-      console.log(error);
+      this.$logger.error(error)
     }
-    this.isLoadingDetails = false;
+    this.isLoadingDetails = false
   }
 }
 </script>
 
 <style lang="scss" scoped>
-@import "~assets/css/theme/_theme";
+@import '~assets/css/theme/_theme';
 .feature-image {
   width: 100%;
   padding-top: 3.75rem;
@@ -301,15 +499,17 @@ export default class NftDetail extends Vue {
     max-height: 380px;
   }
 }
+
+.opensea-icon {
+  height: 64px;
+  width: 64px;
+}
+
 .feature-info {
   &.mobile {
     min-height: auto;
-    position: relative;
   }
-  position: fixed;
-  // width: 100%;
-  margin-right: 1rem;
-  max-height: 500px;
+
   border: 1px solid #f3f4f7;
   border-radius: $default-card-box-border-radius;
 }
@@ -320,8 +520,14 @@ export default class NftDetail extends Vue {
   }
 }
 .details-section {
-  > :not(:last-child) {
-    border-bottom: 1px solid light-color("400");
+  &--dropdown {
+    border: 1px solid light-color('500');
+    border-radius: 6px;
+    margin-bottom: 20px;
+
+    .header-wrapper {
+      background-color: light-color('500');
+    }
   }
 }
 .right-arrow {
@@ -330,7 +536,7 @@ export default class NftDetail extends Vue {
   .svg-sprite-icon {
     width: 10px;
     height: 14px;
-    fill: rgba(dark-color("700"), 0.4);
+    fill: rgba(dark-color('700'), 0.4);
   }
   &.down-icon {
     .svg-sprite-icon {
@@ -357,16 +563,17 @@ export default class NftDetail extends Vue {
 
 .properties {
   .properties-pill {
-    background: primary-color("100");
-    border: 1px solid primary-color("300");
+    background: primary-color('100');
+    border: 1px solid primary-color('300');
     border-radius: 8px;
   }
   .property-title {
-    @include font-setting("body-medium", "700");
+    @include font-setting('body-medium', '700');
+    font-weight: 600;
   }
   .property-detail {
-    @include font-setting("body-large", "500");
-    color: dark-color("500");
+    @include font-setting('body-large', '500');
+    color: dark-color('500');
   }
 }
 

@@ -310,6 +310,9 @@ $badge-padding-x: 0.4em;
 // navbar height
 $navbar-local-height: 80px;
 $navbar-second-local-height: 60px;
+:export {
+  navbarLocalHeight: $navbar-local-height; 
+}
 
 // svg icon size
 $svg-icon-size: 16px;
