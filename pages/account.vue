@@ -34,6 +34,8 @@ import ActivityDepositWithdrawTab from '~/components/lego/account/activity-depos
 import NotificationModal from '~/components/lego/notification-modal'
 import CheckAuth from '~/components/mixins/common/check_auth'
 import moment from 'moment'
+import { LOCAL_STORAGE } from "~/constants";
+import { LocalStorage } from "~/utils";
 
 @Component({
   props: {},
@@ -80,8 +82,9 @@ export default class Index extends Vue {
     this.$store.dispatch('page/clearFilters')
     this.fetchTotalTokens()
     const timestamp = moment().unix()
-    if (!localStorage.getItem('WalletSwapFeature') ||
-      localStorage.getItem('WalletSwapFeature') + 3600 < timestamp) 
+    const localStorageTimestamp = LocalStorage.get(LOCAL_STORAGE.notificationAccept)
+    if (!localStorageTimestamp ||
+      parseInt(localStorageTimestamp) + 3600 < timestamp) 
     {
       this.onNotificationOpen()
     }
@@ -90,7 +93,7 @@ export default class Index extends Vue {
   onNotificationOpen() {
     this.showNotification = true
     const timestamp = moment().unix()
-    localStorage.setItem('WalletSwapFeature', timestamp)
+    LocalStorage.set(LOCAL_STORAGE.notificationAccept, timestamp)
   }
 
   onNotificationClose() {

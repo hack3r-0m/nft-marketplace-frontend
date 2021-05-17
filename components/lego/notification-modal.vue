@@ -58,10 +58,9 @@
 <script>
 import Vue from "vue";
 import Component from "nuxt-class-component";
-import image from "../common/image.vue";
 
 @Component({
-  components: { image },
+  components: {},
   props: {}
 })
 export default class NotificationBanner extends Vue {
