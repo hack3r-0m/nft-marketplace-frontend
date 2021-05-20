@@ -31,7 +31,7 @@
                   <div
                     class="banner-info__action w-100 text-center ps-t-32 d-flex justify-content-center"
                   >
-                    <a href="https://opensea.io/" target="_blank" rel="noopener noreferrer">
+                    <a href="https://opensea.io/assets?search%5Bchains%5D%5B0%5D=MATIC" target="_blank" rel="noopener noreferrer">
                       <button class="btn text-white d-flex">
                         <img 
                           src="~/static/icons/opensea.svg"
