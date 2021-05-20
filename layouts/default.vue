@@ -1,6 +1,6 @@
 <template>
   <div class="container-fluid p-0">
-    <navbar-section 
+    <navbar-section
       v-if="shouldShowNavBar"
       @bannerHeight="bannerHeightHandler"
     />
@@ -8,11 +8,12 @@
       <div v-if="isLoaded" class="nuxt-section">
         <nuxt />
       </div>
-      <div v-else class="loader" >
+      <div v-else class="loader">
         <Loader />
       </div>
     </div>
     <toast />
+    <notification-modal v-if="showNotification" @close="onNotificationClose" />
   </div>
 </template>
 
@@ -31,17 +32,23 @@ import Web3 from 'web3'
 import { IS_METAMASK_ENABLED } from '~/constants'
 import Loader from '~/components/common/loader'
 import exportedCssVars from '~/assets/css/theme/_variables.scss'
+import NotificationModal from '~/components/lego/notification-modal'
+import moment from 'moment'
+import { LOCAL_STORAGE } from '~/constants'
+import { LocalStorage } from '~/utils'
 
 export default {
   components: {
     NavbarSection,
     Toast,
     Loader,
+    NotificationModal,
   },
   data() {
     return {
       isLoaded: false,
       bannerHeight: '0px',
+      showNotification: false,
     }
   },
   watch: {
@@ -67,20 +74,27 @@ export default {
       return {
         'margin-top': `calc(${exportedCssVars.navbarLocalHeight} + ${this.bannerHeight})`,
       }
-    }
+    },
   },
   created() {
     this.isMobileDevice = window.innerWidth < 768
   },
 
   async mounted() {
-    // set and Initialise networks
-    await Promise.all([
-      this.getConfig(),
-      this.initNetworks(),
-      this.fetchCategories(),
-    ])
-    this.isLoaded = true
+    try {
+      this.handleNotification()
+      // set and Initialise networks
+      await Promise.all([
+        this.getConfig(),
+        this.initNetworks(),
+        this.fetchCategories(),
+      ])
+    } catch (error) {
+      // alert('')
+      this.$logger.error(error)
+    } finally {
+      this.isLoaded = true
+    }
   },
 
   methods: {
@@ -92,7 +106,26 @@ export default {
     ...mapActions('category', {
       fetchCategories: 'fetchCategories',
     }),
-
+    handleNotification() {
+      // const timestamp = moment().unix()
+      // const localStorageTimestamp = LocalStorage.get(
+      //   LOCAL_STORAGE.notificationAccept,
+      // )
+      // if (
+      //   !localStorageTimestamp ||
+      //   parseInt(localStorageTimestamp) + 3600 < timestamp
+      // ) {
+        this.onNotificationOpen()
+      // }
+    },
+    onNotificationOpen() {
+      this.showNotification = true
+      const timestamp = moment().unix()
+      LocalStorage.set(LOCAL_STORAGE.notificationAccept, timestamp)
+    },
+    onNotificationClose() {
+      this.showNotification = false
+    },
     async initNetworks() {
       const metaNetwork = this.getMetaNetwork()
       // store networks
@@ -176,7 +209,7 @@ export default {
     },
     bannerHeightHandler(height) {
       this.bannerHeight = `${height}px`
-    }
+    },
   },
 }
 </script>
