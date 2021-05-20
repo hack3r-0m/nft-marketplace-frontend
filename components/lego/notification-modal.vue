@@ -25,7 +25,7 @@
                     If you've listed an item for sale here (matic.opensea.io), <span class="text-highlight">you need to re-list it on OpenSea (opensea.io) in order for the sale to be active there.</span>
                     </div>
                     <div class="ps-t-12">
-                    In the next few days, we'll be migrating users away from this platform and towards OpenSea.
+                    We have fully migrated to opensea.io
                     </div>
                   </div>
                   <div
