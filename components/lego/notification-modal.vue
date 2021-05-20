@@ -65,7 +65,7 @@ import Component from "nuxt-class-component";
 })
 export default class NotificationBanner extends Vue {
   closeModal() {
-    this.$emit('close');
+    // this.$emit('close');
   }
 }
 </script>
