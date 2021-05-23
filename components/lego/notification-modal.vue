@@ -6,15 +6,6 @@
           <div class="box info-box">
             <div class="box-body">
               <div class="container ps-x-20">
-                <span
-                  class="position-absolute modal-close cursor-pointer"
-                  @click="closeModal"
-                >
-                  <svg-sprite-icon
-                    name="close"
-                    class="align-self-center float-left cursor-pointer"
-                  />
-                </span>
                 <div class="banner-info ps-y-24">
                   <div class="banner-info__title text-center">
                     Matic trading is now live on OpenSea
@@ -139,11 +130,11 @@ export default class NotificationBanner extends Vue {
 }
 
 .notification-wrapper {
-  z-index: 1030;
+  z-index: 2500;
 }
 
 .modal-backdrop {
-  z-index: 1025;
+  z-index: 1525;
 }
 
 .text-highlight {
